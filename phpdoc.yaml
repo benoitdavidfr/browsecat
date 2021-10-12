@@ -1,0 +1,11 @@
+title: browsecat - parcours de catalogues pour identifier les JD appartenant aux services du ministère
+path: /browsecat
+doc: |
+journal: |
+  11/10/2021:
+    - création
+phpScripts:
+  - /browsecat/index.php
+phpIncludes:
+  - /browsecat/cswserver.inc.php
+  - /browsecat/httpcache.inc.php
