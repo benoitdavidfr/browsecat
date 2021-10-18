@@ -1,0 +1,38 @@
+title: exemples de JD
+datasets:
+  0fb2abdf-2809-4c2f-9323-f016ccc116aa:
+    url: http://localhost/browsecat/?cat=Sextant&id=0fb2abdf-2809-4c2f-9323-f016ccc116aa
+    'dct:title': 'Sentier du Littoral français (métropole et outre-mer)'
+    responsibleParty:
+        - { organisationName: 'MEEM / DGALN', role: owner, electronicMailAddress: Dgaln@developpement-durable.gouv.fr }
+        - { organisationName: 'CEREMA / Direction Territoriale Normandie-Centre', role: resourceProvider, electronicMailAddress: geolittoral.geel.dadt.dternc@cerema.fr }
+    mdContact:
+        - { organisationName: 'CEREMA / Direction Territoriale Normandie-Centre', electronicMailAddress: geolittoral.geel.dadt.dternc@cerema.fr }
+    mdDate: '2019-11-19T09:34:28'
+    
+  0a06e060-18cd-11e0-baa5-005056987263:
+    url: http://localhost/browsecat/?cat=Sextant&id=0a06e060-18cd-11e0-baa5-005056987263
+    dct:title: Classement sanitaire des zones conchylicoles de Seine-Maritime
+    responsibleParty:
+        - { organisationName: 'DDTM 76 - Délégation Mer et Littoral', role: owner, individualName: 'GIL Gérard', electronicMailAddress: gerard.gil@seine-maritime.gouv.fr }
+        - { organisationName: MIMEL, role: pointOfContact, electronicMailAddress: mcpm.dirm-memn@developpement-durable.gouv.fr }
+    mdContact:
+        - { organisationName: 'DDTM 76 - Délégation Mer et Littoral', individualName: 'GIL Gérard', electronicMailAddress: gerard.gil@seine-maritime.gouv.fr }
+    mdDate: '2020-06-04T00:22:28'
+    note: agriculture
+  733e9780-fcd6-4242-aa2f-6150cd0174f8:
+    url: http://localhost/browsecat/?cat=Sextant&id=733e9780-fcd6-4242-aa2f-6150cd0174f8
+    dct:title: Bilan d'activité des CROSS et bilan saison estivale (SNOSAN) (2019-2020)
+    responsibleParty:
+        - { organisationName: SNOSAN, role: author, electronicMailAddress: contact@snosan.fr }
+        - { organisationName: SNOSAN, role: publisher, electronicMailAddress: contact@snosan.fr }
+        - { organisationName: 'CROSS Jobourg', role: pointOfContact, electronicMailAddress: cross-jobourg@developpement-durable.gouv.fr }
+        - { organisationName: 'CROSS Méditerranée La Garde', role: pointOfContact, electronicMailAddress: cross-med-la-garde@developpement-durable.gouv.fr }
+        - { organisationName: 'CROSS Gris-Nez', role: pointOfContact, electronicMailAddress: gris-nez@mrccfr.eu }
+        - { organisationName: 'CROSS Etel', role: pointOfContact, electronicMailAddress: cross-etel@developpement-durable.gouv.fr }
+        - { organisationName: 'CROSS Corsen', role: pointOfContact, electronicMailAddress: cross-corsen.dosm.dirm-namo@developpement-durable.gouv.fr }
+    mdContact:
+        - { organisationName: Sextant, electronicMailAddress: sextant@ifremer.fr }
+    mdDate: '2021-08-09T15:43:51'
+    
+    

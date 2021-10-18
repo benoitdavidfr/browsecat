@@ -11,10 +11,13 @@ doc: |
     - soit la MD ayant un id particulier
     - soit ttes les MD du catalogue, utile pour les petits catalogues
   
+  Utilisation des codes cswserver.inc.php, httpcache.inc.php et mdvars2.inc.php de geocat4
+  Utilisation de la classe Yaml de Symfony.
+  
   Le résultat de cette analyse est le suivant:
     - GéoRisques contient peu de MD principalement de la DGPR
     - GpU contient des MD de SUP des DDT et DEAL mais aussi des docs d'urbanisme
-    - Sextant contient quelques MD intéressantes du ministère
+    - Sextant contient quelques MD intéressantes du ministère, ex. Classement sanitaire des zones conchylicoles de Seine-Maritime
     
   A priori ces MD ne proviennent pas de Géo-IDE.
 journal: |
