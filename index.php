@@ -17,6 +17,12 @@ $cats = [
   'Sextant'=> [
     'endpointURL'=> 'https://sextant.ifremer.fr/geonetwork/srv/eng/csw',
   ],
+  'GeoRisques'=> [
+    'endpointURL'=> 'https://catalogue.georisques.gouv.fr/geonetwork/srv/fre/csw',
+  ],
+  'GpU'=> [
+    'endpointURL'=> 'http://www.mongeosource.fr/geosource/1270/fre/csw',
+  ],
 ];
 
 if (!isset($_GET['cat'])) { // liste des catalogues
@@ -28,9 +34,12 @@ if (!isset($_GET['cat'])) { // liste des catalogues
   die();
 }
 
-if (!isset($_GET['org']) && !isset($_GET['id'])) { // liste des organisations du catalogue + menu id
+if (!isset($_GET['org']) && !isset($_GET['id']) && !isset($_GET['list'])) { // liste des organisations du catalogue + menu id
   $catid = $_GET['cat'];
-  $sel = Yaml::parseFile("${catid}Sel.yaml")['pointOfContact']; // les organismes sélectionnés
+  if (is_file("${catid}Sel.yaml"))
+    $sel = Yaml::parseFile("${catid}Sel.yaml")['pointOfContact']; // les organismes sélectionnés
+  else
+    $sel = null;
 
   $catid = $_GET['cat'];
   $idByOrgs = json_decode(file_get_contents("$catid/idbyorgs.json"), true);
@@ -40,10 +49,12 @@ if (!isset($_GET['org']) && !isset($_GET['id'])) { // liste des organisations du
   echo "id: <input type=text size='40' name='id'>\n";
   echo "<input type=submit value='go'>\n";
   echo "</form>\n";
-    
+  
+  echo "<a href='?cat=$catid&amp;list=all'>Toutes les MD</a><br><br>\n";
+  
   echo "Liste des organisations du catalogue $catid:<ul>\n";
   foreach ($idByOrgs as $org => $ids) {
-    if (in_array($org, $sel)) {
+    if (!$sel || in_array($org, $sel)) {
       $nb = count($ids);
       echo "<li><a href='?cat=$catid&amp;org=",urlencode($org),"'>$org ($nb)</a></li>\n";
     }
@@ -52,7 +63,7 @@ if (!isset($_GET['org']) && !isset($_GET['id'])) { // liste des organisations du
   die();
 }
 
-if (isset($_GET['org'])) { // liste des JD pour l'organisation
+if (isset($_GET['org'])) { // liste des JD pour l'organisation fournie
   $catid = $_GET['cat'];
   $cswServer = new CswServer($cats[$catid]['endpointURL'], $catid);
   $org = $_GET['org'];
@@ -68,6 +79,30 @@ if (isset($_GET['org'])) { // liste des JD pour l'organisation
   
     //echo "<pre>",str_replace('<','&lt;', $isoRecord),"</pre>\n";
     die();
+  }
+}
+
+if (isset($_GET['list'])) { // affiche toutes les MD du catalogue de type dataset ou series par leur titre avec lien vers complet
+  $catid = $_GET['cat'];
+  $cswServer = new CswServer($cats[$catid]['endpointURL'], $catid);
+  $nextRecord = 1;
+  while ($nextRecord) {
+    echo "nextRecord=$nextRecord<br>\n";
+    try {
+      $getRecords = $cswServer->getRecords($nextRecord);
+    }
+    catch (Exception $e) {
+      die($e->getMessage());
+    }
+    foreach ($getRecords->csw_SearchResults->csw_BriefRecord as $briefRecord) {
+      $dc_type = (string)$briefRecord->dc_type;
+      //echo "$dc_type<br>\n";
+      if (!in_array($dc_type, ['dataset','series']))
+        continue;
+      echo "<a href='?cat=$catid&amp;id=",urlencode($briefRecord->dc_identifier),"'>",$briefRecord->dc_title,"</a><br>\n";
+      //print_r($briefRecord);
+    }
+    $nextRecord = isset($getRecords->csw_SearchResults['nextRecord']) ? (int)$getRecords->csw_SearchResults['nextRecord'] : null;
   }
 }
 

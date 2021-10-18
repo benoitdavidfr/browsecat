@@ -1,17 +1,30 @@
 title: browsecat - parcours de catalogues pour identifier les JD appartenant aux services du ministère
 path: /browsecat
 doc: |
-  L'objectif est de parcourir des catalogues pour notamment trouver et consulter les MD relevant du ministère.
-  harvest.php moisonne le catalogue en bufferisant le résultat dans un répertoire
+  L'objectif est de parcourir des catalogues pour notamment trouver et consulter les MD relevant du ministère (AC + SD).
+  harvest.php moissonne le catalogue en bufferisant le résultat dans un répertoire
     et produit en sortie la liste des organisations déclarées comme responsables d'un JD.
-  index.php utilise le résultat de la moisson pour afficher:
-    - soit les MD relevant d'une organisation particulière
-    - soit la MD ayant un id particulier 
+  A partir de la sortie de harvest.php, il est possible de constituer une sélection des organisations qui doit être stockée
+  dans un fichier {cat}Sel.yaml et qui sera alors utilisée dans index.php
+  index.php utilise le résultat de cette moisson pour afficher:
+    - soit les MD dont une organisation particulière est responsibleParty
+    - soit la MD ayant un id particulier
+    - soit ttes les MD du catalogue, utile pour les petits catalogues
+  
+  Le résultat de cette analyse est le suivant:
+    - GéoRisques contient peu de MD principalement de la DGPR
+    - GpU contient des MD de SUP des DDT et DEAL mais aussi des docs d'urbanisme
+    - Sextant contient quelques MD intéressantes du ministère
+    
+  A priori ces MD ne proviennent pas de Géo-IDE.
 journal: |
+  18/10/2021:
+    - améliorations
   11/10/2021:
     - création
 phpScripts:
   - /browsecat/harvest.php
+  - /browsecat/index.php
 phpIncludes:
   - /browsecat/cswserver.inc.php
   - /browsecat/httpcache.inc.php
