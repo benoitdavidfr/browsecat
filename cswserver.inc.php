@@ -77,7 +77,7 @@ class CswServer {
   }
   
   // Construit l'URL d'un GetRecordById,
-  private function getRecordByIdUrl(string $id, string $output, string $elementSetName): string {
+  public function getRecordByIdUrl(string $id, string $output, string $elementSetName): string {
     $outputSchema = match($output) {
       'dc' => 'http://www.opengis.net/cat/csw/2.0.2',
       'dcat'=> 'http://www.w3.org/ns/dcat#',
@@ -110,7 +110,7 @@ class CswServer {
     try {
       return $this->cacheGetRecById->request($this->getRecordByIdUrl($id, $output, $elementSetName), 'xml');
     } catch (Exception $e) {
-       die($e->getMessage." ligne ".__LINE__." du fichier ".__FILE__);
+       die($e->getMessage()." ligne ".__LINE__." du fichier ".__FILE__."\n");
     }
   }
   

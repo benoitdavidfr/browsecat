@@ -13,6 +13,7 @@ require_once __DIR__.'/mdvars2.inc.php';
 
 use Symfony\Component\Yaml\Yaml;
 
+// liste des catalogues
 $cats = [
   'Sextant'=> [
     'endpointURL'=> 'https://sextant.ifremer.fr/geonetwork/srv/eng/csw',
@@ -41,7 +42,6 @@ if (!isset($_GET['org']) && !isset($_GET['id']) && !isset($_GET['list'])) { // l
   else
     $sel = null;
 
-  $catid = $_GET['cat'];
   $idByOrgs = json_decode(file_get_contents("$catid/idbyorgs.json"), true);
   
   echo "<form>\n";
@@ -50,7 +50,8 @@ if (!isset($_GET['org']) && !isset($_GET['id']) && !isset($_GET['list'])) { // l
   echo "<input type=submit value='go'>\n";
   echo "</form>\n";
   
-  echo "<a href='?cat=$catid&amp;list=all'>Toutes les MD</a><br><br>\n";
+  echo "<a href='?cat=$catid&amp;list=data'>Toutes les MD de type dataset ou series</a><br><br>\n";
+  echo "<a href='?cat=$catid&amp;list=services'>Toutes les MD de type service</a><br><br>\n";
   
   echo "Liste des organisations du catalogue $catid:<ul>\n";
   foreach ($idByOrgs as $org => $ids) {
@@ -63,7 +64,7 @@ if (!isset($_GET['org']) && !isset($_GET['id']) && !isset($_GET['list'])) { // l
   die();
 }
 
-if (isset($_GET['org'])) { // liste des JD pour l'organisation fournie
+if (isset($_GET['org'])) { // liste des MD pour l'organisation fournie
   $catid = $_GET['cat'];
   $cswServer = new CswServer($cats[$catid]['endpointURL'], $catid);
   $org = $_GET['org'];
@@ -82,12 +83,12 @@ if (isset($_GET['org'])) { // liste des JD pour l'organisation fournie
   }
 }
 
-if (isset($_GET['list'])) { // affiche toutes les MD du catalogue de type dataset ou series par leur titre avec lien vers complet
+if (isset($_GET['list'])) { // affiche ttes les MD data ou service par leur titre avec lien vers complet
   $catid = $_GET['cat'];
   $cswServer = new CswServer($cats[$catid]['endpointURL'], $catid);
   $nextRecord = 1;
   while ($nextRecord) {
-    echo "nextRecord=$nextRecord<br>\n";
+    //echo "nextRecord=$nextRecord<br>\n";
     try {
       $getRecords = $cswServer->getRecords($nextRecord);
     }
@@ -97,12 +98,20 @@ if (isset($_GET['list'])) { // affiche toutes les MD du catalogue de type datase
     foreach ($getRecords->csw_SearchResults->csw_BriefRecord as $briefRecord) {
       $dc_type = (string)$briefRecord->dc_type;
       //echo "$dc_type<br>\n";
-      if (!in_array($dc_type, ['dataset','series']))
-        continue;
-      echo "<a href='?cat=$catid&amp;id=",urlencode($briefRecord->dc_identifier),"'>",$briefRecord->dc_title,"</a><br>\n";
+      if ($_GET['list']=='data') {
+        if (!in_array($dc_type, ['dataset','series']))
+          continue;
+      }
+      else { // ($_GET['list']=='services')
+        if (!in_array($dc_type, ['service']))
+          continue;
+      }
+      echo "<a href='?cat=$catid&amp;id=",urlencode($briefRecord->dc_identifier),"'>",
+           $briefRecord->dc_title,"</a><br>\n";
       //print_r($briefRecord);
     }
-    $nextRecord = isset($getRecords->csw_SearchResults['nextRecord']) ? (int)$getRecords->csw_SearchResults['nextRecord'] : null;
+    $nextRecord = isset($getRecords->csw_SearchResults['nextRecord']) ?
+      (int)$getRecords->csw_SearchResults['nextRecord'] : null;
   }
 }
 
@@ -115,6 +124,7 @@ if (isset($_GET['id'])) { // affiche le JD sur id
     $mdrecord = Mdvars::extract($mdid, $isoRecord);
     echo "<pre>",Yaml::dump($mdrecord),"</pre>\n";
     echo "<a href='?cat=$catid&amp;id=",urlencode($mdid),"&amp;fmt=xml'>Affichage en XML</a><br>\n";
+    //echo "md5=",md5($mdid),"<br>\n";
   }
   else {
     header('Content-type: text/xml');

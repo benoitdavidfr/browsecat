@@ -3,13 +3,13 @@ path: /browsecat
 doc: |
   L'objectif est de parcourir des catalogues pour notamment trouver et consulter les MD relevant du ministère (AC + SD).
   harvest.php moissonne le catalogue en bufferisant le résultat dans un répertoire
-    et produit en sortie la liste des organisations déclarées comme responsables d'un JD.
+    et produit en sortie la liste des organisations déclarées comme responsables d'un JD ou d'un service.
   A partir de la sortie de harvest.php, il est possible de constituer une sélection des organisations qui doit être stockée
   dans un fichier {cat}Sel.yaml et qui sera alors utilisée dans index.php
   index.php utilise le résultat de cette moisson pour afficher:
     - soit les MD dont une organisation particulière est responsibleParty
     - soit la MD ayant un id particulier
-    - soit ttes les MD du catalogue, utile pour les petits catalogues
+    - soit ttes les MD du catalogue data ou service, utile pour les petits catalogues
   
   Utilisation des codes cswserver.inc.php, httpcache.inc.php et mdvars2.inc.php de geocat4
   Utilisation de la classe Yaml de Symfony.
@@ -20,6 +20,9 @@ doc: |
     - Sextant contient quelques MD intéressantes du ministère, ex. Classement sanitaire des zones conchylicoles de Seine-Maritime
     
   A priori ces MD ne proviennent pas de Géo-IDE.
+  
+  Les MD de Sextant peuvent être notamment de type 'publication' ou 'carte' ; ces MD ne peuvent pas être traduites
+  en ISO 19115 ; elles sont alors stockées en DublinCore.
 journal: |
   18/10/2021:
     - améliorations
@@ -29,5 +32,6 @@ phpScripts:
   - /browsecat/harvest.php
   - /browsecat/index.php
 phpIncludes:
+  - /browsecat/mdvars2.inc.php
   - /browsecat/cswserver.inc.php
   - /browsecat/httpcache.inc.php
