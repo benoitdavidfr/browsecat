@@ -1,11 +1,17 @@
 title: browsecat - parcours de catalogues pour identifier les JD appartenant aux services du ministère
 path: /browsecat
 doc: |
+  L'objectif est de parcourir des catalogues pour notamment trouver et consulter les MD relevant du ministère.
+  harvest.php moisonne le catalogue en bufferisant le résultat dans un répertoire
+    et produit en sortie la liste des organisations déclarées comme responsables d'un JD.
+  index.php utilise le résultat de la moisson pour afficher:
+    - soit les MD relevant d'une organisation particulière
+    - soit la MD ayant un id particulier 
 journal: |
   11/10/2021:
     - création
 phpScripts:
-  - /browsecat/index.php
+  - /browsecat/harvest.php
 phpIncludes:
   - /browsecat/cswserver.inc.php
   - /browsecat/httpcache.inc.php

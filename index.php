@@ -1,13 +1,17 @@
 <?php
 /*PhpDoc:
-title: index.php - moissonne un catalogue CSW
+title: index.php - visualise le contenu d'un catalogue moissonné
 name: index.php
 doc: |
 journal: |
-  11/10/2021:
+  18/10/2021:
     - création
 */
+require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/cswserver.inc.php';
+require_once __DIR__.'/mdvars2.inc.php';
+
+use Symfony\Component\Yaml\Yaml;
 
 $cats = [
   'Sextant'=> [
@@ -15,63 +19,71 @@ $cats = [
   ],
 ];
 
-if ($argc <= 1) {
-  echo "usage: php index.php {cat}\n";
-  echo " où {cat} vaut:\n";
-  foreach ($cats as $catid => $cat)
-    echo " - $catid\n";
-  exit;
+if (!isset($_GET['cat'])) { // liste des catalogues
+  echo "Catalogues:<ul>\n";
+  foreach ($cats as $catid => $cat) {
+    echo "<li><a href='?cat=$catid'>$catid</a></li>\n";
+  }
+  echo "</ul>\n";
+  die();
 }
 
-$catid = $argv[1];
-if (!file_exists($catid))
-  mkdir($catid);
+if (!isset($_GET['org']) && !isset($_GET['id'])) { // liste des organisations du catalogue + menu id
+  $catid = $_GET['cat'];
+  $sel = Yaml::parseFile("${catid}Sel.yaml")['pointOfContact']; // les organismes sélectionnés
 
-$cswServer = new CswServer($cats[$catid]['endpointURL'], $catid);
-
-if ($argc == 2) {
-  echo "Liste des organisations de $catid\n";
-  $idByOrgs = []; // Liste des record ids par organisation [$orgname => [ recid => 1]]
-  $nextRecord = 1;
-  while ($nextRecord) {
-    echo "nextRecord=$nextRecord\n";
-    try {
-      $getRecords = $cswServer->getRecords($nextRecord);
+  $catid = $_GET['cat'];
+  $idByOrgs = json_decode(file_get_contents("$catid/idbyorgs.json"), true);
+  
+  echo "<form>\n";
+  echo "<input type=hidden name='cat' value='$catid'>\n";
+  echo "id: <input type=text size='40' name='id'>\n";
+  echo "<input type=submit value='go'>\n";
+  echo "</form>\n";
+    
+  echo "Liste des organisations du catalogue $catid:<ul>\n";
+  foreach ($idByOrgs as $org => $ids) {
+    if (in_array($org, $sel)) {
+      $nb = count($ids);
+      echo "<li><a href='?cat=$catid&amp;org=",urlencode($org),"'>$org ($nb)</a></li>\n";
     }
-    catch (Exception $e) {
-      die($e->getMessage());
-    }
-    foreach ($getRecords->csw_SearchResults->csw_BriefRecord as $briefRecord) {
-      $dc_type = (string)$briefRecord->dc_type;
-      //echo "$dc_type\n";
-      if (!in_array($dc_type, ['dataset','series']))
-        continue;
-      //print_r($briefRecord);
-      //$record = $cswServer->getRecordById((string)$briefRecord->dc_identifier, 'dcat');
-      $record = $cswServer->getRecordById((string)$briefRecord->dc_identifier);
-      $record = preg_replace('!<(/)?([^:]+):!', '<$1$2_', $record);
-      //echo $record;
-      $xmlelt = new SimpleXmlElement($record);
-      //print_r($xmlelt);
-      //print_r($xmlelt->gmd_MD_Metadata->gmd_identificationInfo->gmd_MD_DataIdentification->gmd_pointOfContact);
-      if (!isset($xmlelt->gmd_MD_Metadata->gmd_identificationInfo)) {
-        echo "gmd_identificationInfo non défini pour ",(string)$briefRecord->dc_identifier,"\n";
-        continue;
-      }
-      foreach ($xmlelt->gmd_MD_Metadata->gmd_identificationInfo->gmd_MD_DataIdentification->gmd_pointOfContact as $pointOfContact) {
-        if (isset($pointOfContact->gmd_CI_ResponsibleParty)) {
-          $organisationName = (string)$pointOfContact->gmd_CI_ResponsibleParty->gmd_organisationName->gco_CharacterString;
-          if (!isset($idByOrgs[$organisationName]))
-            echo "  $organisationName\n";
-          $idByOrgs[$organisationName][(string)$briefRecord->dc_identifier] = 1;
-        }
-        else {
-          echo "Point de contact non gmd_CI_ResponsibleParty\n";
-          print_r($pointOfContact);
-        }
-      }
-    }
-    //die("Fin temporaire\n");
-    $nextRecord = isset($getRecords->csw_SearchResults['nextRecord']) ? (int)$getRecords->csw_SearchResults['nextRecord'] : null;
   }
+  echo "</ul>\n";
+  die();
+}
+
+if (isset($_GET['org'])) { // liste des JD pour l'organisation
+  $catid = $_GET['cat'];
+  $cswServer = new CswServer($cats[$catid]['endpointURL'], $catid);
+  $org = $_GET['org'];
+  $idByOrgs = json_decode(file_get_contents("$catid/idbyorgs.json"), true);
+  if (!isset($idByOrgs[$org]))
+    die("Organisme absent<br>\n");
+  foreach (array_keys($idByOrgs[$org]) as $mdid) {
+    echo "<b>id: $mdid</b><br>\n";
+    $isoRecord = $cswServer->getRecordById($mdid);
+  
+    $mdrecord = Mdvars::extract($mdid, $isoRecord);
+    echo "<pre>",Yaml::dump($mdrecord),"</pre>";
+  
+    //echo "<pre>",str_replace('<','&lt;', $isoRecord),"</pre>\n";
+    die();
+  }
+}
+
+if (isset($_GET['id'])) { // affiche le JD sur id
+  $catid = $_GET['cat'];
+  $mdid = $_GET['id'];
+  $cswServer = new CswServer($cats[$catid]['endpointURL'], $catid);
+  $isoRecord = $cswServer->getRecordById($mdid);
+  if (!isset($_GET['fmt'])) { // affichage en Yaml
+    $mdrecord = Mdvars::extract($mdid, $isoRecord);
+    echo "<pre>",Yaml::dump($mdrecord),"</pre>\n";
+    echo "<a href='?cat=$catid&amp;id=",urlencode($mdid),"&amp;fmt=xml'>Affichage en XML</a><br>\n";
+  }
+  else {
+    header('Content-type: text/xml');
+    echo $isoRecord;
+  }
+  die();
 }
