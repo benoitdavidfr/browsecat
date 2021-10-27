@@ -467,10 +467,10 @@ class CatInPgSql {
       id varchar(256) not null primary key, -- fileIdentifier
       record json, -- enregistrement de la fiche en JSON
       title varchar(256), -- 1.1. Intitulé de la ressource
-      type varchar(256), -- 1.3. Type de la ressource
-      keyword json, -- 3. MOT CLÉ
-      party json, -- 9.1. Partie responsable
-      mdContact json -- 10.1. Point de contact des métadonnées
+      type varchar(256) -- 1.3. Type de la ressource
+      -- keyword json, -- 3. MOT CLÉ
+      -- party json, -- 9.1. Partie responsable
+      -- mdContact json -- 10.1. Point de contact des métadonnées
     )");
   }
   
@@ -481,12 +481,14 @@ class CatInPgSql {
     $recjson = str_replace("'", "''", json_encode($record, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
     $title = str_replace("'", "''", $record['dct:title'][0]);
     $type = str_replace("'", "''", $record['dct:type'][0]);
-    $keyword = str_replace("'", "''", json_encode($record['keyword'] ?? [], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
-    $party = str_replace("'", "''", json_encode($record['responsibleParty'] ?? [], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
-    $mdContact = str_replace("'", "''", json_encode($record['mdContact'] ?? [], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+    //$keyword = str_replace("'", "''", json_encode($record['keyword'] ?? [], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+    //$party = str_replace("'", "''", json_encode($record['responsibleParty'] ?? [], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+    //$mdContact = str_replace("'", "''", json_encode($record['mdContact'] ?? [], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
 
-    PgSql::query("insert into catalog$catid(id,record,title,type,keyword,party,mdContact) "
-      ."values('$id','$recjson','$title','$type','$keyword','$party','$mdContact')");
+    //PgSql::query("insert into catalog$catid(id,record,title,type,keyword,party,mdContact) "
+      //."values('$id','$recjson','$title','$type','$keyword','$party','$mdContact')");
+    PgSql::query("insert into catalog$catid(id,record,title,type) "
+      ."values('$id','$recjson','$title','$type')");
   }
   
   /*function getRecords(): CatRecordsInPgSql {
