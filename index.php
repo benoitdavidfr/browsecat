@@ -1,32 +1,21 @@
 <?php
 /*PhpDoc:
-title: index.php - visualise le contenu d'un catalogue moissonné
+title: index.php - visualise et exploite le contenu d'un catalogue moissonné et stocké dans PgSql
 name: index.php
 doc: |
 journal: |
+  27/10/2021:
+    - réécriture nlle version utilisant PgSql
   18/10/2021:
     - création
 */
 require_once __DIR__.'/vendor/autoload.php';
-require_once __DIR__.'/cswserver.inc.php';
-require_once __DIR__.'/mdvars2.inc.php';
+require_once __DIR__.'/cats.inc.php';
+//require_once __DIR__.'/catinpgsql.inc.php';
 
 use Symfony\Component\Yaml\Yaml;
 
-// liste des catalogues
-$cats = [
-  'Sextant'=> [
-    'endpointURL'=> 'https://sextant.ifremer.fr/geonetwork/srv/eng/csw',
-  ],
-  'GeoRisques'=> [
-    'endpointURL'=> 'https://catalogue.georisques.gouv.fr/geonetwork/srv/fre/csw',
-  ],
-  'GpU'=> [
-    'endpointURL'=> 'http://www.mongeosource.fr/geosource/1270/fre/csw',
-  ],
-];
-
-if (!isset($_GET['cat'])) { // liste des catalogues
+if (!isset($_GET['cat'])) { // liste des catalogues pour en choisir un
   echo "Catalogues:<ul>\n";
   foreach ($cats as $catid => $cat) {
     echo "<li><a href='?cat=$catid'>$catid</a></li>\n";
@@ -35,100 +24,81 @@ if (!isset($_GET['cat'])) { // liste des catalogues
   die();
 }
 
-if (!isset($_GET['org']) && !isset($_GET['id']) && !isset($_GET['list'])) { // liste des organisations du catalogue + menu id
-  $catid = $_GET['cat'];
-  if (is_file("${catid}Sel.yaml"))
-    $sel = Yaml::parseFile("${catid}Sel.yaml")['pointOfContact']; // les organismes sélectionnés
-  else
-    $sel = null;
-
-  $idByOrgs = json_decode(file_get_contents("$catid/idbyorgs.json"), true);
-  
-  echo "<form>\n";
-  echo "<input type=hidden name='cat' value='$catid'>\n";
-  echo "id: <input type=text size='40' name='id'>\n";
-  echo "<input type=submit value='go'>\n";
-  echo "</form>\n";
-  
-  echo "<a href='?cat=$catid&amp;list=data'>Toutes les MD de type dataset ou series</a><br><br>\n";
-  echo "<a href='?cat=$catid&amp;list=services'>Toutes les MD de type service</a><br><br>\n";
-  
-  echo "Liste des organisations du catalogue $catid:<ul>\n";
-  foreach ($idByOrgs as $org => $ids) {
-    if (!$sel || in_array($org, $sel)) {
-      $nb = count($ids);
-      echo "<li><a href='?cat=$catid&amp;org=",urlencode($org),"'>$org ($nb)</a></li>\n";
-    }
-  }
+if (!isset($_GET['action'])) { // menu principal 
+  echo "Actions proposées:<ul>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=listdata'>Toutes les MD de type dataset ou series</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=listservices'>Toutes les MD de type service</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=orgsHorsSel'>Liste des organisations hors sélection</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=orgs'>Liste des organisations de la sélection</a></li>\n";
   echo "</ul>\n";
   die();
 }
 
-if (isset($_GET['org'])) { // liste des MD pour l'organisation fournie
-  $catid = $_GET['cat'];
-  $cswServer = new CswServer($cats[$catid]['endpointURL'], $catid);
-  $org = $_GET['org'];
-  $idByOrgs = json_decode(file_get_contents("$catid/idbyorgs.json"), true);
-  if (!isset($idByOrgs[$org]))
-    die("Organisme absent<br>\n");
-  foreach (array_keys($idByOrgs[$org]) as $mdid) {
-    echo "<b>id: $mdid</b><br>\n";
-    $isoRecord = $cswServer->getRecordById($mdid);
-  
-    $mdrecord = Mdvars::extract($mdid, $isoRecord);
-    echo "<pre>",Yaml::dump($mdrecord),"</pre>";
-  
-    //echo "<pre>",str_replace('<','&lt;', $isoRecord),"</pre>\n";
-    die();
-  }
-}
-
-if (isset($_GET['list'])) { // affiche ttes les MD data ou service par leur titre avec lien vers complet
-  $catid = $_GET['cat'];
-  $cswServer = new CswServer($cats[$catid]['endpointURL'], $catid);
-  $nextRecord = 1;
-  while ($nextRecord) {
-    //echo "nextRecord=$nextRecord<br>\n";
-    try {
-      $getRecords = $cswServer->getRecords($nextRecord);
-    }
-    catch (Exception $e) {
-      die($e->getMessage());
-    }
-    foreach ($getRecords->csw_SearchResults->csw_BriefRecord as $briefRecord) {
-      $dc_type = (string)$briefRecord->dc_type;
-      //echo "$dc_type<br>\n";
-      if ($_GET['list']=='data') {
-        if (!in_array($dc_type, ['dataset','series']))
-          continue;
-      }
-      else { // ($_GET['list']=='services')
-        if (!in_array($dc_type, ['service']))
-          continue;
-      }
-      echo "<a href='?cat=$catid&amp;id=",urlencode($briefRecord->dc_identifier),"'>",
-           $briefRecord->dc_title,"</a><br>\n";
-      //print_r($briefRecord);
-    }
-    $nextRecord = isset($getRecords->csw_SearchResults['nextRecord']) ?
-      (int)$getRecords->csw_SearchResults['nextRecord'] : null;
-  }
-}
-
-if (isset($_GET['id'])) { // affiche le JD sur id
-  $catid = $_GET['cat'];
-  $mdid = $_GET['id'];
-  $cswServer = new CswServer($cats[$catid]['endpointURL'], $catid);
-  $isoRecord = $cswServer->getRecordById($mdid);
-  if (!isset($_GET['fmt'])) { // affichage en Yaml
-    $mdrecord = Mdvars::extract($mdid, $isoRecord);
-    echo "<pre>",Yaml::dump($mdrecord),"</pre>\n";
-    echo "<a href='?cat=$catid&amp;id=",urlencode($mdid),"&amp;fmt=xml'>Affichage en XML</a><br>\n";
-    //echo "md5=",md5($mdid),"<br>\n";
-  }
-  else {
-    header('Content-type: text/xml');
-    echo $isoRecord;
+if ($_GET['action']=='listdata') { // Toutes les MD de type dataset ou series
+  echo "<ul>\n";
+  foreach (PgSql::query("select id,title from catalog$_GET[cat] where type in ('dataset','series')") as $record) {
+    echo "<li><a href='?cat=$_GET[cat]&amp;action=show&amp;id=$record[id]'>$record[title]</a></li>\n";
   }
   die();
 }
+
+if ($_GET['action']=='listservices') { // Toutes les MD de type service
+  echo "<ul>\n";
+  foreach (PgSql::query("select id,title,record from catalog$_GET[cat] where type='service'") as $record) {
+    $rec = json_decode($record['record'], true);
+    echo "<li><a href='?cat=$_GET[cat]&amp;action=show&amp;id=$record[id]'>$record[title]</a> (",
+      $rec['serviceType'][0],")</li>\n";
+  }
+  die();
+}
+
+if ($_GET['action']=='show') { // affiche une fiche
+  $record = PgSql::getTuples("select record from catalog$_GET[cat] where id='$_GET[id]'")[0];
+  $record = json_decode($record['record'], true);
+  //echo "<pre>",json_encode($record, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+  echo '<pre>',Yaml::dump($record, 2, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+  die();
+}
+
+if ($_GET['action']=='orgsHorsSel') { // liste les organisation hors sélection, permet de vérifier la sélection
+  if (!is_file("$_GET[cat]Sel.yaml"))
+    $orgNamesSel = [];
+  else
+    $orgNamesSel = Yaml::parseFile("$_GET[cat]Sel.yaml")['orgNames']; // les noms des organismes sélectionnés
+  $orgNames = [];
+  foreach (PgSql::query("select record from catalog$_GET[cat]") as $record) {
+    $record = json_decode($record['record'], true);
+    //echo "<pre>"; print_r($record); die();
+    foreach ($record['responsibleParty'] ?? [] as $party) {
+      if (isset($party['organisationName']) && !in_array($party['organisationName'], $orgNamesSel))
+        $orgNames[$party['organisationName']] = 1;
+    }
+  }
+  ksort($orgNames);
+  echo "<pre>\n";
+  foreach (array_keys($orgNames) as $orgName) {
+    echo "  - $orgName\n";
+  }
+  die();
+}
+
+if ($_GET['action']=='orgs') { // liste des organismes sélectionnés avec lien vers leurs MD
+  if (!is_file("$_GET[cat]Sel.yaml"))
+    die("Pas de sélection");
+  $orgNames = Yaml::parseFile("$_GET[cat]Sel.yaml")['orgNames']; // les noms des organismes sélectionnés
+  sort($orgNames);
+  echo "<ul>\n";
+  foreach ($orgNames as $orgName) {
+    echo "<li><a href='?cat=$_GET[cat]&amp;action=mdOfOrg&amp;org=",urlencode($orgName),"'>$orgName</li>\n";
+  }
+  die();
+}
+
+if ($_GET['action']=='mdOfOrg') { // liste les MD d'une organisation
+  echo "<ul>\n";
+  foreach (PgSql::query("select id,title,record from catalog$_GET[cat]") as $record) {
+    echo "<li><a href='?cat=$_GET[cat]&amp;action=show&amp;id=$record[id]'>$record[title]</a></li>\n";
+  }
+  die();
+}
+

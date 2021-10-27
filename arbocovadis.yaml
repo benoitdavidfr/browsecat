@@ -1,0 +1,241 @@
+title: Arborescence Covadis
+description: |
+  Structure simple de l'arborescence Covadis
+  Je considère que le prefLabel est le code Covadis, il n'y a donc pas de champ preflabel
+  L'objectif est donc principalement:
+  1) de permettre un nombre quelconque de niveaux
+  2) d'attacher à certains noeuds un ou plusieurs hiddenLabels
+  L'arborescence est complétée par les mot-clés de SigLoire définis par un voc. contrôlé Covadis
+journal: |
+  26/10/2021:
+    définition d'un schéma récursif
+  22/10/2021:
+    reprise et modifications pour browsecat
+  6/4/2017:
+    création
+
+$schema:
+  $id: http://bdavid.alwaysdata.net/browsecat/arbocovadis.yaml#/$schema
+  definitions:
+    children:
+      description: enfants définis chacun par un id, des propriétés et des enfants
+      type: object
+      additionalProperties: false
+      patternProperties:
+        '^[A-Za-z_]+$':
+          description: contenu du noeud
+          oneOf:
+            - description: noeud vide
+              type: 'null'
+            - description: noeud avec propriétés ou enfants
+              type: object
+              additionalProperties: false
+              properties:
+                hiddenLabels:
+                  description: liste d'étiquettes associées au noeud
+                  type: array
+                  items:
+                    description: étiquette
+                    type: string
+                children:
+                  description: sous-arborescence structuré avec un identifiant par noeud de second niveau
+                  $ref: '#/definitions/node'
+      
+  type: object
+  additionalProperties: false
+  properties:
+    title:
+      description: titre du catalogue
+      type: string
+    description:
+      description: commentaire sur le catalogue
+      type: string
+    journal:
+      description: historique des modifications
+      type: string
+    $schema:
+      description: schema JSON du document
+      $ref: http://json-schema.org/draft-07/schema#
+    children:
+      description: contenu de l'arborescence structuré avec un identifiant par noeud de premier niveau
+      $ref: '#/definitions/children'
+      
+
+children:
+  AGRICULTURE:
+    children:
+      N_AGRI_ENVIRONNEMENT:
+        hiddenLabels:
+          - Agriculture/Agri-environnement
+      N_AGRO_ALIMENTAIRE:
+      N_EXPLOITATION_ELEVAGE:
+      N_PARCELLAIRE_AGRICOLE:
+      N_SANTE_ANIMALE:
+      N_SANTE_VEGETALE:
+      N_ZONAGES_AGRICOLES:
+        hiddenLabels:
+          - ZONAGES AGRICOLES
+          - Agriculture/Zonages agricoles
+  AIR_CLIMAT:
+    children:
+      N_QUALITE_POLLUTION:
+        hiddenLabels:
+          - Air Climat/Qualité Pollution
+  AMENAGEMENT_URBANISME:
+    hiddenLabels:
+      - Aménagement Urbanisme
+    children:
+      N_ASSIETTE_SERVITUDE:
+        hiddenLabels:
+          - Aménagement Urbanisme/Assiette Servitude
+          - ASSIETTE SERVITUDE
+      N_POLITIQUE:
+      N_POLITIQUE_EUROPEENNE:
+      N_RENOVATION:
+      N_ZONAGES_AMENAGEMENT:
+        hiddenLabels:
+          - Aménagement Urbanisme/Zonages Aménagement
+      N_ZONAGES_ETUDE:
+        hiddenLabels:
+          - Aménagement Urbanisme / Zonages Étude
+          - Aménagement Urbanisme/Zonages Étude
+      N_ZONAGES_PLANIFICATION:
+        hiddenLabels:
+          - ZONAGES PLANIFICATION
+          - Aménagement Urbanisme/Zonages Planification
+  CULTURE_SOCIETE_SERVICE:
+    children:
+      N_ENSEIGNEMENT:
+      N_ERP_AUTRE:
+        hiddenLabels:
+          - Culture Société Service/ERP Autre
+      N_PATRIMOINE_CULTUREL:
+      N_TOURISME:
+        hiddenLabels:
+          - Culture Société Service/Tourisme
+  DONNEE_GENERIQUE:
+    children:
+      N_ACTION_PUBLIQUE:
+        hiddenLabels:
+          - Donnée générique/Action publique
+      N_ADMINISTRATIF:
+      N_INTERCOMMUNALITE:
+        hiddenLabels:
+          - Donnée générique/Intercommunalité
+  EAU:
+    children:
+      N_AEP:
+        hiddenLabels:
+          - Eau/AEP
+      N_ASSAINISSEMENT:
+        hiddenLabels:
+          - Eau/Assainissement
+      N_MASSE_EAU:
+      N_OUVRAGE:
+        hiddenLabels:
+          - Eau / Ouvrage
+      N_PECHE:
+        hiddenLabels:
+          - Eau / Pêche
+      N_SURVEILLANCE:
+        hiddenLabels:
+          - Eau/Surveillance
+      N_TRAVAUX_ACTION:
+      N_UTILISATION_AUTRE:
+      N_ZONAGES_EAU:
+        hiddenLabels:
+          - Eau/Zonages Eau
+  FONCIER_SOL:
+    children:
+      N_FONCIER_AGRICOLE:
+      N_OCCUPATION_SOL:
+        hiddenLabels:
+          - OCCUPATION SOL
+  FORET:
+    children:
+      N_DESCRIPTION:
+      N_DFCI:
+      N_GESTION:
+      N_REGLEMENT:
+      N_TRANSFORMATION :
+  HABITAT_POLITIQUE_DE_LA_VILLE:
+    hiddenLabels:
+      - Habitat Politique de la ville
+    children:
+      N_PARC_LOGEMENTS:
+        hiddenLabels:
+          - Habitat Politique de la ville/Parc Logements
+      N_POLITIQUE:
+        hiddenLabels:
+          - Habitat Politique de la ville/Politique
+  MER_LITTORAL:
+    children:
+      N_CULTURE_MARINE:
+        hiddenLabels:
+          - Mer Littoral/Culture marine
+      N_ECOLOGIE_LITTORAL:
+      N_LIM_ADMIN_SPECIALE:
+        hiddenLabels:
+          - Mer Littoral/Limite administrative spéciale
+      N_NAVIGATION_MARITIME:
+        hiddenLabels:
+          - Mer Littoral/Navigation maritime
+      N_TOPOGRAPHIE:
+        hiddenLabels:
+          - Mer Littoral/Topographie
+  NATURE_PAYSAGE_BIODIVERSITE:
+    children:
+      N_CHASSE:
+        hiddenLabels:
+          - Nature Paysage Biodiversité/Chasse
+      N_INVENTAIRE_NATURE_BIODIVERSITE:
+        hiddenLabels:
+          - Nature Paysage Biodiversité/Inventaire Nature Biodiversité
+          - INVENTAIRE NATURE BIODIVERSITE
+          - Nature Paysage Biodiversité / Inventaire Nature Biodiversité
+      N_INVENTAIRE_PAYSAGE:
+        hiddenLabels:
+          - Nature Paysage Biodiversité/Inventaire Paysage
+      N_ZONAGES_NATURE:
+        hiddenLabels:
+          - Nature Paysage Biodiversité/Zonages Nature
+  NUISANCE:
+    children:
+      N_BRUIT:
+        hiddenLabels:
+          - Nuisance/Bruit
+          - bruit
+      N_DECHET:
+  RISQUE:
+    children:
+      N_INONDATION:
+        hiddenLabels:
+          - Risque/Inondation
+      N_ZONAGES_RISQUE_NATUREL:
+        hiddenLabels:
+          - Risque/Zonages Risque naturel
+          - Zonages Risque naturel
+        children:
+          AAAANNNN:
+      N_ZONAGES_RISQUE_TECHNOLOGIQUE:
+        hiddenLabels:
+          - Risque/Zonages Risque technologique
+  SITE_INDUSTRIEL_PRODUCTION:
+    children:
+      N_SITE_EOLIEN:
+        hiddenLabels:
+          - Site industriel Production/Site éolien
+  TRANSPORTS_DEPLACEMENT:
+    children:
+      N_SECURITE_ROUTIERE:
+        hiddenLabels:
+          - Transports Déplacements/Sécurité routière
+  TRANSPORT_INFRASTRUCTURE:
+    children:
+      N_CIRCULATION_DOUCE:
+      N_FERROVIAIRE:
+        hiddenLabels:
+          - Transports Infrastructure/Ferroviaire
+      N_ROUTIER:
+        hiddenLabels:
+          - Transports Infrastructure/Routier

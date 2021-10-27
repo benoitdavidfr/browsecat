@@ -1,0 +1,144 @@
+title: annexes Inspire
+children:
+  rs:
+    prefLabel:
+      fr: Référentiels de coordonnées
+      en: Coordinate reference systems
+  gg:
+    prefLabel:
+      fr: Systèmes de maillage géographique
+      en: Geographical grid systems
+  gn:
+    prefLabel:
+      fr: Dénominations géographiques
+      en: Geographical names
+  au:
+    prefLabel:
+      fr: Unités administratives
+      en: Administrative units
+  ad:
+    prefLabel:
+      fr: Adresses
+      en: Addresses
+  cp:
+    prefLabel:
+      fr: Parcelles cadastrales
+      en: Cadastral parcels
+  tn:
+    prefLabel:
+      fr: Réseaux de transport
+      en: Transport networks
+  hy:
+    prefLabel:
+      fr: Hydrographie
+      en: Hydrography
+  ps:
+    prefLabel:
+      fr: Sites protégés
+      en: Protected sites
+  el:
+    prefLabel:
+      fr: Altitude
+      en: Elevation
+  lc:
+    prefLabel:
+      fr: Occupation des terres
+      en: Land cover
+  oi:
+    prefLabel:
+      fr: Ortho-imagerie
+      en: Orthoimagery
+  ge:
+    prefLabel:
+      fr: Géologie
+      en: Geology
+  su:
+    prefLabel:
+      fr: Unités statistiques
+      en: Statistical units
+  bu:
+    prefLabel:
+      fr: Bâtiments
+      en: Buildings
+  so:
+    prefLabel:
+      fr: Sols
+      en: Soil
+  lu:
+    prefLabel:
+      fr: Usage des sols
+      en: Land use
+  hh:
+    prefLabel:
+      fr: Santé et sécurité des personnes
+      en: Human health and safety
+  us:
+    prefLabel:
+      fr: Services d'utilité publique et services publics
+      en: Utility and governmental services
+  ef:
+    prefLabel:
+      fr: Installations de suivi environnemental
+      en: Environmental monitoring facilities
+  pf:
+    prefLabel:
+      fr: Lieux de production et sites industriels
+      en: Production and industrial facilities
+  af:
+    prefLabel:
+      fr: Installations agricoles et aquacoles
+      en: Agricultural and aquaculture facilities
+  pd:
+    prefLabel:
+      fr: Répartition de la population — démographie
+      en: Population distribution - demography
+  am:
+    prefLabel:
+      fr: Zones de gestion, de restriction ou de réglementation et unités de déclaration
+      en: Area management/restriction/regulation zones and reporting units
+    hiddenLabels:
+      - Zones de gestion de restriction ou de réglementation et unités de déclaration
+  nz:
+    prefLabel:
+      fr: Zones à risque naturel
+      en: Natural risk zones
+  ac-mf:
+    prefLabel:
+      fr: Conditions atmosphériques et caractéristiques géographiques météorologiques
+      en: Atmospheric Conditions and meteorological geographical features
+  ac:
+    prefLabel:
+      fr: Conditions atmosphériques
+      en: Atmospheric conditions
+  mf:
+    prefLabel:
+      fr: Caractéristiques géographiques météorologiques
+      en: Meteorological geographical features
+  of:
+    prefLabel:
+      fr: Caractéristiques géographiques océanographiques
+      en: Oceanographic geographical features
+  sr:
+    prefLabel:
+      fr: Régions maritimes
+      en: Sea regions
+  br:
+    prefLabel:
+      fr: Régions biogéographiques
+      en: Bio-geographical regions
+  hb:
+    prefLabel:
+      fr: Habitats et biotopes
+      en: Habitats and biotopes
+  sd:
+    prefLabel:
+      fr: Répartition des espèces
+      en: Species distribution
+  er:
+    prefLabel:
+      fr: Sources d'énergie
+      en: Energy resources
+  mr:
+    prefLabel:
+      fr: Ressources minérales
+      en: Mineral resources
