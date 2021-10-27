@@ -11,7 +11,7 @@ journal: |
 */
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/cats.inc.php';
-//require_once __DIR__.'/catinpgsql.inc.php';
+require_once __DIR__.'/catinpgsql.inc.php';
 
 use Symfony\Component\Yaml\Yaml;
 
@@ -60,7 +60,7 @@ if ($_GET['action']=='show') { // affiche une fiche
   die();
 }
 
-if ($_GET['action']=='orgsHorsSel') { // liste les organisation hors sélection, permet de vérifier la sélection
+if ($_GET['action']=='orgsHorsSel') { // liste les organisations hors sélection, permet de vérifier la sélection
   if (!is_file("$_GET[cat]Sel.yaml"))
     $orgNamesSel = [];
   else
@@ -82,7 +82,7 @@ if ($_GET['action']=='orgsHorsSel') { // liste les organisation hors sélection,
   die();
 }
 
-if ($_GET['action']=='orgs') { // liste des organismes sélectionnés avec lien vers leurs MD
+if ($_GET['action']=='orgs') { // liste des organisations sélectionnés avec lien vers leurs MD
   if (!is_file("$_GET[cat]Sel.yaml"))
     die("Pas de sélection");
   $orgNames = Yaml::parseFile("$_GET[cat]Sel.yaml")['orgNames']; // les noms des organismes sélectionnés
