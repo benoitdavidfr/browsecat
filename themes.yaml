@@ -1,0 +1,36 @@
+title: réflexion sur les thèmes
+content:
+  La navigation par thème me semble une fonctionnalité indispensable.
+  Cela consiste à sélectionner un thème plus éventuellement d'autres critères, comme un critère spatial,
+  pour sélectionner les données satisfaisant ces critères.
+  
+  Dans le périmètre ministériel, pour définir ces thèmes, on pourrait chercher à s'appuyer sur l'aborescence Covadis
+  qui a l'avantage d'être présente dans Géo-IDE et souvent utilisée dans les PF régionales.
+  
+  On pourrait aussi demander aux acteurs ministériels de renseigner un tel mot-clé.
+  
+  Pour tester cette possibilité, je pourrais estimer le pourcentage de MDD possédant au moins un mot-clé
+  qui pourrait correspondre à un concept de l'arborescence.
+estimations:
+  title: pourcentage des MDD ayant au moins comme mot-clé un des thèmes
+  abstract: |
+    Les thèmes sont l'arborescence Covadis et la liste des thèmes Inspire
+  cats:
+    GéoIDE:
+    Sextant: 455 / 500 = 91 %
+    GéoRisques: 1 / 36 = 3 %
+    GpU: 232 / 235 = 99 %
+    GeoLittoral: 72 / 74 = 97 %
+    drealNormandie: 286 / 563 = 51 %
+    drealCentreVdL: 144 / 169 = 85 %
+    dealReunion: 7 / 60 = 12 %
+    DatAra: 1060 / 1247 = 85 %
+    GéoBretagne: 578 / 629 = 92 %
+    pictoOccitanie: 6044 / 6111 = 99 %
+    SigLoire: 574 / 628 = 91 %
+    géo2France: 121 / 139 = 87 %
+    sigena: 
+    karuGeo:
+    geoMartinique:
+    geoGuyane:
+eof:

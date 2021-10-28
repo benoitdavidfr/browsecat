@@ -51,6 +51,7 @@ class HttpCache {
       return Http::request($url);
     $id = md5($url);
     $path = $this->path($id, $ext);
+    //echo "path=$path\n";
     if (file_exists($path)) {
       //echo "en cache\n";
       return file_get_contents($path);

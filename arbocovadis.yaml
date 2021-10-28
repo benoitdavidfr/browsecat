@@ -7,6 +7,9 @@ description: |
   2) d'attacher à certains noeuds un ou plusieurs hiddenLabels
   L'arborescence est complétée par les mot-clés de SigLoire définis par un voc. contrôlé Covadis
 journal: |
+  28/10/2021:
+    - ajout d'un champ note
+    - ajout d'une entrée MER_LITTORAL/N_PECHE_MARITIME
   26/10/2021:
     définition d'un schéma récursif
   22/10/2021:
@@ -37,9 +40,12 @@ $schema:
                   items:
                     description: étiquette
                     type: string
+                note:
+                  description: commentaire
+                  type: string
                 children:
                   description: sous-arborescence structuré avec un identifiant par noeud de second niveau
-                  $ref: '#/definitions/node'
+                  $ref: '#/definitions/children'
       
   type: object
   additionalProperties: false
@@ -180,6 +186,10 @@ children:
       N_NAVIGATION_MARITIME:
         hiddenLabels:
           - Mer Littoral/Navigation maritime
+      N_PECHE_MARITIME:
+        hiddenLabels:
+          - Mer Littoral/Pêche maritime
+        note: ajouté le 28/10/2021
       N_TOPOGRAPHIE:
         hiddenLabels:
           - Mer Littoral/Topographie
@@ -210,6 +220,7 @@ children:
     children:
       N_INONDATION:
         hiddenLabels:
+          - RISQUE/N_INONDATION
           - Risque/Inondation
       N_ZONAGES_RISQUE_NATUREL:
         hiddenLabels:

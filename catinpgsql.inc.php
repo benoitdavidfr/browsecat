@@ -466,7 +466,7 @@ class CatInPgSql {
     PgSql::query("create table catalog$catid(
       id varchar(256) not null primary key, -- fileIdentifier
       record json, -- enregistrement de la fiche en JSON
-      title varchar(256), -- 1.1. Intitulé de la ressource
+      title text, -- 1.1. Intitulé de la ressource
       type varchar(256) -- 1.3. Type de la ressource
       -- keyword json, -- 3. MOT CLÉ
       -- party json, -- 9.1. Partie responsable
@@ -477,9 +477,17 @@ class CatInPgSql {
   function storeRecord(array $record): void { // enregistre une fiche de métadonnées
     //print_r($record);
     $catid = $this->catid;
+    if (!isset($record['fileIdentifier'][0])) {
+      echo "fileIdentifier non défini dans storeRecord<br>\n";
+      print_r($record);
+      die();
+    }
     $id = $record['fileIdentifier'][0];
     $recjson = str_replace("'", "''", json_encode($record, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
-    $title = str_replace("'", "''", $record['dct:title'][0]);
+    if (isset($record['dct:title'][0]))
+      $title = str_replace("'", "''", $record['dct:title'][0]);
+    else
+      $title = "NON DEFINI";
     $type = str_replace("'", "''", $record['dct:type'][0]);
     //$keyword = str_replace("'", "''", json_encode($record['keyword'] ?? [], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
     //$party = str_replace("'", "''", json_encode($record['responsibleParty'] ?? [], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
@@ -487,7 +495,13 @@ class CatInPgSql {
 
     //PgSql::query("insert into catalog$catid(id,record,title,type,keyword,party,mdContact) "
       //."values('$id','$recjson','$title','$type','$keyword','$party','$mdContact')");
-    PgSql::query("insert into catalog$catid(id,record,title,type) values('$id','$recjson','$title','$type')");
+    try {
+      PgSql::query("insert into catalog$catid(id,record,title,type) values('$id','$recjson','$title','$type')");
+    }
+    catch (Exception $e) {
+      echo "Erreur dans storeRecord: ", $e->getMessage(),"<br>\n";
+      print_r($record);
+    }
   }
   
   /*function getRecords(): CatRecordsInPgSql {

@@ -107,14 +107,20 @@ if ($argc == 2) { // enregistre les fiches dans PostgreSql
   $numberOfRecordsMatched = null;
   while ($nextRecord) {
     if (!$numberOfRecordsMatched)
-      fprintf(STDERR, "nextRecord=%d\n", $nextRecord);
+      fprintf(STDERR, "$catid> nextRecord=%d\n", $nextRecord);
     else
-      fprintf(STDERR, "nextRecord=%d/numberOfRecordsMatched=%d\n", $nextRecord, $numberOfRecordsMatched);
+      fprintf(STDERR, "$catid> nextRecord=%d/numberOfRecordsMatched=%d\n", $nextRecord, $numberOfRecordsMatched);
     try {
       $getRecords = $cswServer->getRecords($nextRecord);
     }
     catch (Exception $e) {
       die($e->getMessage()."\n");
+    }
+    if (!$getRecords->csw_SearchResults->csw_BriefRecord) { // erreurs dans SigLoire le 28/10/2021
+      print_r($getRecords);
+      echo "** Erreur de getRecords() ligne ",__LINE__,"<br>\n";
+      $nextRecord += 20;
+      continue;
     }
     foreach ($getRecords->csw_SearchResults->csw_BriefRecord as $briefRecord) {
       $dc_type = (string)$briefRecord->dc_type;
@@ -131,6 +137,11 @@ if ($argc == 2) { // enregistre les fiches dans PostgreSql
       else { // dans le cas data ou service, j'utilise ISO19139
         $isoRecord = $cswServer->getRecordById($mdid);
         $mdrecord = Mdvars::extract($mdid, $isoRecord);
+        if (!$mdrecord) {
+          echo "Erreur: enregistrement ISO non défini pour $mdid\n";
+          print_r($briefRecord);
+          continue;
+        }
         $cat->storeRecord($mdrecord);
       }
     }

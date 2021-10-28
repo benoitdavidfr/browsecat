@@ -1,4 +1,40 @@
 title: annexes Inspire
+$schema:
+  $id: http://bdavid.alwaysdata.net/browsecat/annexesinspire.yaml#/$schema
+  type: object
+  additionalProperties: false
+  properties:
+    title:
+      description: titre du document
+      type: string
+    $schema:
+      description: schema JSON du document
+      $ref: http://json-schema.org/draft-07/schema#
+    children:
+      description: liste des annexes indexée sur un code
+      type: object
+      additionalProperties: false
+      patternProperties:
+        '^[a-z-]+$':
+          description: contenu du noeud
+          type: object
+          additionalProperties: false
+          properties:
+            prefLabel:
+              description: étiquette préférentielle en français et en anglais
+              type: object
+              additionalProperties: false
+              properties:
+                fr:
+                  description: étiquette préférentielle en français
+                en:
+                  description: étiquette préférentielle en anglais
+            hiddenLabels:
+              description: liste d'étiquettes considérées comme acceptables
+              type: array
+              items:
+                description: étiquette
+                type: string
 children:
   rs:
     prefLabel:

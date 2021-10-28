@@ -100,7 +100,16 @@ if ($_GET['action']=='orgs') { // liste des organisations sélectionnés avec li
 if ($_GET['action']=='mdOfOrg') { // liste les MD d'une organisation
   echo "<ul>\n";
   foreach (PgSql::query("select id,title,record from catalog$_GET[cat]") as $record) {
-    echo "<li><a href='?cat=$_GET[cat]&amp;action=show&amp;id=$record[id]'>$record[title]</a></li>\n";
+    $rec = json_decode($record['record'], true);
+    $mdOfOrg = false;
+    foreach ($rec['responsibleParty'] ?? [] as $party) {
+      if (isset($party['organisationName']) && ($party['organisationName'] == $_GET['org'])) {
+        $mdOfOrg = true;
+        break;
+      }
+    }
+    if ($mdOfOrg)
+      echo "<li><a href='?cat=$_GET[cat]&amp;action=show&amp;id=$record[id]'>$record[title]</a></li>\n";
   }
   die();
 }
@@ -126,7 +135,8 @@ if ($_GET['action']=='listkws') {
   $annexes = new Annexes('annexesinspire.yaml');
   $nbExplique = 0; // Nbre de MDD ayant une organisation dans la sélection et dont au moins un mot-clé appartient à un des thèmes
   $nbTotal = 0; // Nbre total de MDD ayant une organisation dans la sélection
-
+  $keywordValues = []; // liste des mots-clés pour ne les afficher qu'une seule fois
+  
   foreach (PgSql::query("select record from catalog$_GET[cat] where type in ('dataset','series')") as $record) {
     $record = json_decode($record['record'], true);
     //echo "<pre>"; print_r($record); echo "</pre>\n";
@@ -138,9 +148,12 @@ if ($_GET['action']=='listkws') {
       $kwValue = $keyword['value'] ?? null;
       if ($kwValue) {
         $in = $arbo->labelInArbo($kwValue) || $annexes->labelIn($kwValue);
-        echo $in ? '<b>' : '';
-        echo "$kwValue -> ", $in ? 'In' : 'Not', "<br>\n";
-        echo $in ? '</b>' : '';
+        if (!isset($keywordValues[$kwValue])) {
+          echo $in ? '<b>' : '';
+          echo "$kwValue -> ", $in ? 'In' : 'Not', "<br>\n";
+          echo $in ? '</b>' : '';
+          $keywordValues[$kwValue] = 1;
+        }
         if ($in) {
           $kwInThemes = true; // au moins un mot-clé appartient à un thème
           break;
@@ -151,6 +164,6 @@ if ($_GET['action']=='listkws') {
       $nbExplique++;
     $nbTotal++;
   }
-  printf("%d / %d = %.0f %%<br>\n", $nbExplique, $nbTotal, $nbExplique/$nbTotal*100);
+  printf("--<br>\n%d / %d = %.0f %%<br>\n", $nbExplique, $nbTotal, $nbExplique/$nbTotal*100);
   die();
 }
