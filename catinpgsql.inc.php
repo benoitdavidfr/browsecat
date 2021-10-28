@@ -487,8 +487,7 @@ class CatInPgSql {
 
     //PgSql::query("insert into catalog$catid(id,record,title,type,keyword,party,mdContact) "
       //."values('$id','$recjson','$title','$type','$keyword','$party','$mdContact')");
-    PgSql::query("insert into catalog$catid(id,record,title,type) "
-      ."values('$id','$recjson','$title','$type')");
+    PgSql::query("insert into catalog$catid(id,record,title,type) values('$id','$recjson','$title','$type')");
   }
   
   /*function getRecords(): CatRecordsInPgSql {

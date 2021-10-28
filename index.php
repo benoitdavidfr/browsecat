@@ -12,6 +12,8 @@ journal: |
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
+require_once __DIR__.'/arbo.inc.php';
+require_once __DIR__.'/annexes.inc.php';
 
 use Symfony\Component\Yaml\Yaml;
 
@@ -30,6 +32,7 @@ if (!isset($_GET['action'])) { // menu principal
   echo "<li><a href='?cat=$_GET[cat]&amp;action=listservices'>Toutes les MD de type service</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=orgsHorsSel'>Liste des organisations hors sélection</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=orgs'>Liste des organisations de la sélection</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=listkws'>Liste les mots-clés des fiches dont une org est dans la sélection</a></li>\n";
   echo "</ul>\n";
   die();
 }
@@ -102,3 +105,52 @@ if ($_GET['action']=='mdOfOrg') { // liste les MD d'une organisation
   die();
 }
 
+function orgInSel(array $record): bool {
+  static $orgNamesSel = null;
+  if ($orgNamesSel === null) {
+    if (!is_file("$_GET[cat]Sel.yaml"))
+      $orgNamesSel = [];
+    else
+      $orgNamesSel = Yaml::parseFile("$_GET[cat]Sel.yaml")['orgNames']; // les noms des organismes sélectionnés
+  }
+  foreach ($record['responsibleParty'] ?? [] as $party) {
+    if (isset($party['organisationName']) && in_array($party['organisationName'], $orgNamesSel)) {
+      return true; // si au moins une organisation est dans la sélection alors vrai
+    }
+  }
+  return false; // sinon faux
+}
+
+if ($_GET['action']=='listkws') {
+  $arbo = new Arbo('arbocovadis.yaml');
+  $annexes = new Annexes('annexesinspire.yaml');
+  $nbExplique = 0; // Nbre de MDD ayant une organisation dans la sélection et dont au moins un mot-clé appartient à un des thèmes
+  $nbTotal = 0; // Nbre total de MDD ayant une organisation dans la sélection
+
+  foreach (PgSql::query("select record from catalog$_GET[cat] where type in ('dataset','series')") as $record) {
+    $record = json_decode($record['record'], true);
+    //echo "<pre>"; print_r($record); echo "</pre>\n";
+    if (!orgInSel($record)) // si aucune organisation appartient à la sélection alors on saute
+      continue;
+    $kwInThemes = false; // par défaut aucun mot-clé appartient aux thèmes
+    foreach ($record['keyword'] ?? [] as $keyword) {
+      //echo "<pre>"; print_r($keyword); echo "</pre>\n";
+      $kwValue = $keyword['value'] ?? null;
+      if ($kwValue) {
+        $in = $arbo->labelInArbo($kwValue) || $annexes->labelIn($kwValue);
+        echo $in ? '<b>' : '';
+        echo "$kwValue -> ", $in ? 'In' : 'Not', "<br>\n";
+        echo $in ? '</b>' : '';
+        if ($in) {
+          $kwInThemes = true; // au moins un mot-clé appartient à un thème
+          break;
+        }
+      }
+    }
+    if ($kwInThemes)
+      $nbExplique++;
+    $nbTotal++;
+  }
+  printf("%d / %d = %.0f %%<br>\n", $nbExplique, $nbTotal, $nbExplique/$nbTotal*100);
+  die();
+}
