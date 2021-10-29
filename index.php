@@ -1,10 +1,10 @@
 <?php
 /*PhpDoc:
-title: index.php - visualise et exploite le contenu d'un catalogue moissonné et stocké dans PgSql
+title: index.php - visualise et exploite le contenu des catalogues moissonnés et stockés dans PgSql
 name: index.php
 doc: |
 journal: |
-  27/10/2021:
+  27-29/10/2021:
     - réécriture nlle version utilisant PgSql
   18/10/2021:
     - création
@@ -36,6 +36,7 @@ if (!isset($_GET['cat'])) {
     echo "<li><a href='?action=createAggTable'>Créer une table agrégée</a></li>\n";
     echo "<li><a href='?action=createAggSel'>Créer une sélection agrégée</a></li>\n";
     echo "<li><a href='?cat=agg&amp;action=listkws'>Liste des mots-clés du catalogue agrégé</a></li>\n";
+    echo "<li><a href='?action=croise'>Calcul du nbre de MD communes entre catalogues</a></li>\n";
     echo "</ul>\n";
   }
   elseif ($_GET['action']=='createAggTable') { // Créer une table agrégée
@@ -71,6 +72,35 @@ if (!isset($_GET['cat'])) {
       ])
     );
     echo "Ok\n";
+  }
+  elseif ($_GET['action']=='croise') {
+    echo "<h2>Nombre de métadonnées D+S communes entre catalogues</h2>\n";
+    echo "<table border=1><th></th>\n";
+    foreach (array_keys($cats) as $catid2) {
+      echo "<th>",substr($catid2, 0, 6),"</th>";
+    }
+    echo "\n";
+    
+    echo "<tr><td>count</td>";
+    foreach (array_keys($cats) as $catid2) {
+      $tuple = PgSql::getTuples("select count(*) c from catalog$catid2")[0];
+      echo "<td align='right'>$tuple[c]</td>";
+    }
+    echo "</tr>\n";
+
+    foreach (array_keys($cats) as $catid1) {
+      echo "<tr><td><b>$catid1</b></td>";
+      foreach (array_keys($cats) as $catid2) {
+        if ($catid2 == $catid1)
+          echo "<td align='center'>***</td>\n";
+        else {
+          $tuple = PgSql::getTuples("select count(*) c from catalog$catid1 c1, catalog$catid2 c2 where c1.id=c2.id")[0];
+          echo "<td align='right'><a href='?cat=$catid1&amp;action=commun&amp;cat2=$catid2'>$tuple[c]</a></td>";
+        }
+      }
+      echo "</tr>\n";
+    }
+    echo "</table>\n";
   }
   die();
 }
@@ -249,7 +279,7 @@ function existKwInThemes(array $keywords, array $themes, array $options=[]): boo
 
 if ($_GET['action']=='listkws') {
   $themes = [
-    //new Arbo('arbocovadis.yaml'),
+    new Arbo('arbocovadis.yaml'),
     new Annexes('annexesinspire.yaml'),
   ];
   $nbExplique = 0; // Nbre de MDD ayant une organisation dans la sélection et dont au moins un mot-clé appartient à un des thèmes
@@ -269,7 +299,7 @@ if ($_GET['action']=='listkws') {
   die();
 }
 
-if (in_array($_GET['action'], ['ldwkw','ldnkw'])) {
+if (in_array($_GET['action'], ['ldwkw','ldnkw'])) { // MDD dont au moins un / aucun mot-clé correspond à un des thèmes
   $themes = [
     new Arbo('arbocovadis.yaml'),
     new Annexes('annexesinspire.yaml'),
@@ -290,4 +320,17 @@ if (in_array($_GET['action'], ['ldwkw','ldnkw'])) {
     }
   }
   die();
+}
+
+if ($_GET['action']=='commun') { // données communes entre le catalogue $_GET['cat'] et $_GET['cat2']
+  echo "<h2>MD communes entre $_GET[cat] et $_GET[cat2]</h2>\n";
+  echo "<ul>\n";
+  //$sql = "select c1.id, c1.title from catalog$_GET[cat] c1, catalog$_GET[cat2] c2 where c1.id=c2.id";
+  $sql = "select id, title from catalog$_GET[cat] join catalog$_GET[cat2] using(id)";
+  echo "<pre>$sql</pre>\n";
+  foreach (PgSql::query($sql) as $record) {
+    echo "<li><a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$record[id]'>$record[title]</a></li>\n";
+  }
+  die();
+  
 }

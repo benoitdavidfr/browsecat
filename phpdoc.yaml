@@ -11,6 +11,7 @@ doc: |
   index.php exploite (en http) les moissons.
   
   Utilisation des codes cswserver.inc.php, httpcache.inc.php et mdvars2.inc.php de geocat4
+  Utilisation de la bibiothèque d'utilisation de PgSql'
   Utilisation de la classe Yaml de Symfony.
   
   Le résultat de cette analyse est le suivant:
