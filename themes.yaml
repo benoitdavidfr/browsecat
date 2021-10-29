@@ -16,7 +16,10 @@ estimations:
   abstract: |
     Les thèmes sont l'arborescence Covadis et la liste des thèmes Inspire
   cats:
-    agg: 26315 / 27460 = 96 %
+    agg:
+      les2: 26315 / 27460 = 96 %
+      arboCovadis: 29295 / 35767 = 82 %
+      themesInspire: 31998 / 35767 = 89 %
     GéoIDE:
     Sextant: 455 / 500 = 91 %
     GéoRisques: 1 / 36 = 3 %
@@ -34,5 +37,5 @@ estimations:
     ideoBFC: 782 / 805 = 97 %
     karuGeo: 115 / 122 = 94 %
     geoMartinique: 24 / 33 = 73 %
-    geoGuyane: 
+    geoGuyane: 351 / 352 = 100 %
 eof:

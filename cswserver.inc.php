@@ -10,6 +10,8 @@ journal: |
     - réécriture du code par défaut pour consulter interactivement le catalogue
   8/2/2021:
     - création
+includes:
+  - httpcache.inc.php
 */
 require_once __DIR__.'/httpcache.inc.php';
 
@@ -105,7 +107,7 @@ class CswServer {
   // $output prend pour valeur:
   //  - 'dc' pour Dublin Core
   //  - 'dcat' pour DCAT
-  //  - 'iso19139' pour ISO 19115/19139
+  //  - 'iso19139' pour ISO 19115/19139 (défaut)
   function getRecordById(string $id, string $output='iso19139', string $elementSetName='full'): string {
     try {
       return $this->cacheGetRecById->request($this->getRecordByIdUrl($id, $output, $elementSetName), 'xml');
@@ -119,6 +121,7 @@ class CswServer {
     return $this->cacheGetRecById->path(md5($this->getRecordByIdUrl($id, $output, $elementSetName)), 'xml');
   }
   
+  // Efface le fichier de cache stockant l'enregistrement id
   function delRecordById(string $id, string $output='iso19139', string $elementSetName='full'): void {
     $path = $this->getRecordByIdPath($id, $output, $elementSetName);
     unlink($path);

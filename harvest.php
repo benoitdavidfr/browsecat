@@ -1,20 +1,28 @@
 <?php
 /*PhpDoc:
-title: harvest.php - moissonne un catalogue CSW
+title: harvest.php - moissonne un catalogue CSW et stocke 
 name: harvest.php
 doc: |
   Propose de choisir un des catalogues proposés.
   Moissonne le catalogue choisi.
   Crée un répertoire ayant pour nom l'id du catalogue pour bufferiser les métadonnées.
   Enregistre la MD ISO pour les data et service et sinon la MD DublinCore full
-  N'enregistre rien pour les FeatureCatalog
+  N'enregistre rien pour les FeatureCatalog.
+  Stocke les MD de données et de service converties en JSON dans une base PgSql
 journal: |
+  28-29/10/2021:
+    - améliorations du moissonnage de Géo-IDE
   27/10/2021:
     - stockage en PostgreSql
   18/10/2021:
     - améliorations
   11/10/2021:
     - création
+includes:
+  - cswserver.inc.php
+  - mdvars2.inc.php
+  - cats.inc.php
+  - catinpgsql.inc.php
 */
 require_once __DIR__.'/cswserver.inc.php';
 require_once __DIR__.'/mdvars2.inc.php';

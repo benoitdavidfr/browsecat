@@ -80,6 +80,8 @@ children:
         hiddenLabels:
           - Agriculture/Parcellaire agricole
       N_SANTE_ANIMALE:
+        hiddenLabels:
+          - Agriculture/Santé animale
       N_SANTE_VEGETALE:
       N_ZONAGES_AGRICOLES:
         hiddenLabels:
@@ -103,6 +105,8 @@ children:
           - ASSIETTE SERVITUDE
       N_POLITIQUE:
       N_POLITIQUE_EUROPEENNE:
+        hiddenLabels:
+          - Aménagement Urbanisme/Politique européenne
       N_RENOVATION:
       N_ZONAGES_AMENAGEMENT:
         hiddenLabels:
@@ -125,12 +129,17 @@ children:
         hiddenLabels:
           - Culture Société Service/ERP Autre
       N_PATRIMOINE_CULTUREL:
+        hiddenLabels:
+          - Culture Société Service/Patrimoine culturel
       N_TOURISME:
         hiddenLabels:
           - Culture Société Service/Tourisme
       N_SANTE_SOCIAL:
         hiddenLabels:
           - Culture Société Service/Santé Social
+      N_EQUIPEMENT_SPORTIF_OU_CULTUREL:
+        hiddenLabels:
+          - Culture Société Service/Équipement sportif ou culturel
   DONNEE_GENERIQUE:
     children:
       N_ACTION_PUBLIQUE:
@@ -147,7 +156,10 @@ children:
           - Donnée générique/Intercommunalité
       N_DECOUPAGE_ELECTORAL:
         hiddenLabels:
-          - Donnée générique/Découpage électoral 
+          - Donnée générique/Découpage électoral
+      N_HABILLAGE:
+        hiddenLabels:
+          - Donnée générique/Habillage
   EAU:
     children:
       N_AEP:
@@ -157,6 +169,8 @@ children:
         hiddenLabels:
           - Eau/Assainissement
       N_MASSE_EAU:
+        hiddenLabels:
+          - Eau/Masse d'eau
       N_OUVRAGE:
         hiddenLabels:
           - Eau / Ouvrage
@@ -182,13 +196,25 @@ children:
         hiddenLabels:
           - Foncier Sol/Occupation du sol
           - OCCUPATION SOL
+      N_PROPRIETE_FONCIERE:
+        hiddenLabels:
+          - Foncier Sol/Propriété foncière
+      N_MUTATION_FONCIERE:
+        hiddenLabels:
+          - Foncier Sol/Mutation foncière
   FORET:
+    hiddenLabels:
+      - Forêt/Forêt
     children:
       N_DESCRIPTION:
         hiddenLabels:
           - Forêt/Description
       N_DFCI:
+        hiddenLabels:
+          - Forêt/DFCI
       N_GESTION:
+        hiddenLabels:
+          - Forêt/Gestion
       N_REGLEMENT:
         hiddenLabels:
           - Forêt/Règlement
@@ -200,15 +226,24 @@ children:
       N_PARC_LOGEMENTS:
         hiddenLabels:
           - Habitat Politique de la ville/Parc Logements
+          - Habitat Politique de la ville/Occupation des logements
+          - Habitat Politique de la ville/Besoins en logement
       N_POLITIQUE:
         hiddenLabels:
           - Habitat Politique de la ville/Politique
+          - "logement politique de la ville : politique de la ville"
       N_PARC_LOCATIF_SOCIAL:
         hiddenLabels:
           - Habitat Politique de la ville/Parc locatif social
       N_HABITAT_INDIGNE:
         hiddenLabels:
           - Habitat Politique de la ville/Habitat indigne
+      N_CONSTRUCTION:
+        hiddenLabels:
+          - Habitat Politique de la ville/Construction
+      N_RENOVATION:
+        hiddenLabels:
+          - Habitat Politique de la ville/Rénovation
   MER_LITTORAL:
     children:
       N_CULTURE_MARINE:
@@ -226,7 +261,12 @@ children:
       N_PECHE_MARITIME:
         hiddenLabels:
           - Mer Littoral/Pêche maritime
-        note: ajouté le 28/10/2021
+      N_CHASSE_MARITIME:
+        hiddenLabels:
+          - Mer Littoral/Chasse maritime
+      N_LUTTE_ANTI-POLLUTION:
+        hiddenLabels:
+          - Mer Littoral/Lutte anti-pollution
       N_TOPOGRAPHIE:
         hiddenLabels:
           - Mer Littoral/Topographie
@@ -264,6 +304,17 @@ children:
       N_POLLUTION_DU_SOL:
         hiddenLabels:
           - Nuisance/Pollution du sol
+  RESEAU_ENERGIE_DIVERS:
+    children:
+      N_ELECTRICITE:
+        hiddenLabels:
+          - Réseau Énergie Divers/Électricité
+      N_AMENAGEMENT_NUMERIQUE_DES_TERRITOIRES:
+        hiddenLabels:
+          - Réseau Énergie Divers/Aménagement numérique des territoires
+      N_TELECOMMUNICATION:
+        hiddenLabels:
+          - Réseau Énergie Divers/Télécommunication
   RISQUE:
     children:
       N_INONDATION:
@@ -276,6 +327,9 @@ children:
           - Zonages Risque naturel
           - risque/n_zonages_risque_naturel/id_gaspar
           - risques/n_zonages_risque_naturel/id_gaspar
+      N_RISQUE_MINIER:
+        hiddenLabels:
+          - Risque/Risque minier
       N_SEISME:
         hiddenLabels:
           - Risque/Séisme
@@ -297,6 +351,9 @@ children:
       N_SITE_INDUSTRIEL:
         hiddenLabels:
           - Site industriel Production/Site industriel
+      N_MINE_CARRIERE_GRANULATS:
+        hiddenLabels:
+          - Site industriel Production/Mine Carrière Granulats
   TRANSPORTS_DEPLACEMENT:
     children:
       N_SECURITE_ROUTIERE:
@@ -308,9 +365,20 @@ children:
       N_TRANSPORT_ROUTIER:
         hiddenLabels:
           - transport routier
+      N_TRANSPORT_EXCEPTIONNEL:
+        hiddenLabels:
+          - Transports Déplacements/Transport exceptionnel
+      N_TRANSPORT_COLLECTIF:
+        hiddenLabels:
+          - Transports Déplacements/Transport collectif
+      N_TRANSPORT_DE_MARCHANDISE:
+        hiddenLabels:
+          - Transports Déplacements/Transport de marchandise
   TRANSPORT_INFRASTRUCTURE:
     children:
       N_CIRCULATION_DOUCE:
+        hiddenLabels:
+          - Transports Infrastructure/Circulation douce
       N_FERROVIAIRE:
         hiddenLabels:
           - Transports Infrastructure/Ferroviaire

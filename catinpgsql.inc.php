@@ -6,6 +6,8 @@ doc: |
 journal: |
   27/10/2021:
     - création
+includes:
+  - ../phplib/pgsql.inc.php
 */
 require_once '../phplib/pgsql.inc.php';
 

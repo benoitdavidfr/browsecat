@@ -59,7 +59,7 @@ class Arbo {
     }
   }
   
-  function labelInArbo(string $label): bool { return isset($this->labels[strtolower($label)]); }
+  function labelIn(string $label): bool { return isset($this->labels[strtolower($label)]); }
   
   function prefLabel(string $label): ?string { return $this->labels[strtolower($label)] ?? null; }
 };

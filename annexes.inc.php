@@ -21,6 +21,7 @@ class Annexes {
     $yaml = Yaml::parseFile($filename);
     foreach ($yaml['children'] as $annex) {
       $this->labels[strtolower($annex['prefLabel']['fr'])] = 1;
+      $this->labels[strtolower($annex['prefLabel']['en'])] = 1;
       foreach ($annex['hiddenLabels'] ?? [] as $label)
         $this->labels[strtolower($label)] = 1;
     }

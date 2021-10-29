@@ -8,6 +8,12 @@ journal: |
     - réécriture nlle version utilisant PgSql
   18/10/2021:
     - création
+includes:
+  - cswserver.inc.php
+  - cats.inc.php
+  - catinpgsql.inc.php
+  - arbo.inc.php
+  - annexes.inc.php
 */
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/cswserver.inc.php';
@@ -75,9 +81,13 @@ if (!isset($_GET['action'])) { // menu principal
   echo "<li><a href='?cat=$_GET[cat]&amp;action=listservices'>Toutes les MD de type service</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=orgsHorsSel'>Liste des organisations hors sélection</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=orgs'>Liste des organisations de la sélection</a></li>\n";
-  echo "<li><a href='?cat=$_GET[cat]&amp;action=listkws'>Liste les mots-clés des fiches dont une org est dans la sélection</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=listkws'>",
+         "Liste les mots-clés des fiches dont une org est dans la sélection</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=ldwkw'>MDD dont au moins un mot-clé correspond à un des thèmes</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=ldnkw'>MDD dont aucun mot-clé correspond à un des thèmes</a></li>\n";
   echo "</ul>\n";
-  // 
+  // Menu
+  echo "Affichage d'une fiche à partir de son id<br>\n";
   echo "<form>\n";
   echo "<input type=hidden name='cat' value='$_GET[cat]'>\n";
   echo "id: <input type=text size='80' name='id'>\n";
@@ -211,9 +221,37 @@ function orgInSel(array $record): bool {
   return false; // sinon faux
 }
 
+// Un au moins des mots-clés appartient-il à un au moins des thèmes ?
+function existKwInThemes(array $keywords, array $themes, array $options=[]): bool {
+  static $keywordValues = []; // liste des mots-clés pour ne les afficher qu'une seule fois
+  
+  $kwInThemes = false; // par défaut aucun mot-clé appartient aux thèmes
+  foreach ($keywords as $keyword) {
+    //echo "<pre>"; print_r($keyword); echo "</pre>\n";
+    $kwValue = $keyword['value'] ?? null;
+    if ($kwValue) {
+      $in = false;
+      foreach ($themes as $theme)
+        $in = $in || $theme->labelIn($kwValue);
+      if (!isset($keywordValues[$kwValue]) && in_array('showKeywords', $options)) {
+        echo $in ? '<b>' : '';
+        echo "$kwValue -> ", $in ? 'In' : 'Not', "<br>\n";
+        echo $in ? '</b>' : '';
+        $keywordValues[$kwValue] = 1;
+      }
+      if ($in) {
+        return true; // au moins un mot-clé appartient à un des thèmes
+      }
+    }
+  }
+  return false;
+}
+
 if ($_GET['action']=='listkws') {
-  $arbo = new Arbo('arbocovadis.yaml');
-  $annexes = new Annexes('annexesinspire.yaml');
+  $themes = [
+    //new Arbo('arbocovadis.yaml'),
+    new Annexes('annexesinspire.yaml'),
+  ];
   $nbExplique = 0; // Nbre de MDD ayant une organisation dans la sélection et dont au moins un mot-clé appartient à un des thèmes
   $nbTotal = 0; // Nbre total de MDD ayant une organisation dans la sélection
   $keywordValues = []; // liste des mots-clés pour ne les afficher qu'une seule fois
@@ -223,28 +261,33 @@ if ($_GET['action']=='listkws') {
     //echo "<pre>"; print_r($record); echo "</pre>\n";
     if (!orgInSel($record)) // si aucune organisation appartient à la sélection alors on saute
       continue;
-    $kwInThemes = false; // par défaut aucun mot-clé appartient aux thèmes
-    foreach ($record['keyword'] ?? [] as $keyword) {
-      //echo "<pre>"; print_r($keyword); echo "</pre>\n";
-      $kwValue = $keyword['value'] ?? null;
-      if ($kwValue) {
-        $in = $arbo->labelInArbo($kwValue) || $annexes->labelIn($kwValue);
-        if (!isset($keywordValues[$kwValue])) {
-          echo $in ? '<b>' : '';
-          echo "$kwValue -> ", $in ? 'In' : 'Not', "<br>\n";
-          echo $in ? '</b>' : '';
-          $keywordValues[$kwValue] = 1;
-        }
-        if ($in) {
-          $kwInThemes = true; // au moins un mot-clé appartient à un thème
-          break;
-        }
-      }
-    }
-    if ($kwInThemes)
+    if (existKwInThemes($record['keyword'] ?? [], $themes, ['showKeywords']))
       $nbExplique++;
     $nbTotal++;
   }
   printf("--<br>\n%d / %d = %.0f %%<br>\n", $nbExplique, $nbTotal, $nbExplique/$nbTotal*100);
+  die();
+}
+
+if (in_array($_GET['action'], ['ldwkw','ldnkw'])) {
+  $themes = [
+    new Arbo('arbocovadis.yaml'),
+    new Annexes('annexesinspire.yaml'),
+  ];
+  foreach (PgSql::query("select id,title,record from catalog$_GET[cat] where type in ('dataset','series')") as $record) {
+    $id = $record['id'];
+    $title = $record['title'];
+    $record = json_decode($record['record'], true);
+    if (!orgInSel($record)) // si aucune organisation appartient à la sélection alors on saute
+      continue;
+    if (existKwInThemes($record['keyword'] ?? [], $themes)) {
+      if ($_GET['action'] == 'ldwkw')
+        echo "<a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$id'>$title</a><br>\n";
+    }
+    else {
+      if ($_GET['action'] <> 'ldwkw')
+        echo "<a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$id'>$title</a><br>\n";
+    }
+  }
   die();
 }

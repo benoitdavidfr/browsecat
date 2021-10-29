@@ -10,6 +10,8 @@ doc: |
 journal: |
   8/1/2021:
     - création
+includes:
+  - ../phplib/http.inc.php
 */
 require_once __DIR__.'/../phplib/http.inc.php';
 
