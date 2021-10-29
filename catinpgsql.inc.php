@@ -469,14 +469,12 @@ class CatInPgSql {
       id varchar(256) not null primary key, -- fileIdentifier
       record json, -- enregistrement de la fiche en JSON
       title text, -- 1.1. Intitulé de la ressource
-      type varchar(256) -- 1.3. Type de la ressource
-      -- keyword json, -- 3. MOT CLÉ
-      -- party json, -- 9.1. Partie responsable
-      -- mdContact json -- 10.1. Point de contact des métadonnées
+      type varchar(256), -- 1.3. Type de la ressource
+      perimetre varchar(256) -- 'Min','Op','Autres' ; null si non défini
     )");
   }
   
-  function storeRecord(array $record): void { // enregistre une fiche de métadonnées
+  function storeRecord(array $record, ?string $perimetre=null): void { // enregistre une fiche de métadonnées
     //print_r($record);
     $catid = $this->catid;
     if (!isset($record['fileIdentifier'][0])) {
@@ -491,28 +489,15 @@ class CatInPgSql {
     else
       $title = "NON DEFINI";
     $type = str_replace("'", "''", $record['dct:type'][0]);
-    //$keyword = str_replace("'", "''", json_encode($record['keyword'] ?? [], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
-    //$party = str_replace("'", "''", json_encode($record['responsibleParty'] ?? [], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
-    //$mdContact = str_replace("'", "''", json_encode($record['mdContact'] ?? [], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+    $perimetre2 = $perimetre ? "'".$perimetre."'" : 'null';
 
-    //PgSql::query("insert into catalog$catid(id,record,title,type,keyword,party,mdContact) "
-      //."values('$id','$recjson','$title','$type','$keyword','$party','$mdContact')");
     try {
-      PgSql::query("insert into catalog$catid(id,record,title,type) values('$id','$recjson','$title','$type')");
+      PgSql::query("insert into catalog$catid(id,record,title,type,perimetre)"
+        ." values('$id','$recjson','$title','$type',$perimetre2)");
     }
     catch (Exception $e) {
       echo "Erreur dans storeRecord: ", $e->getMessage(),"<br>\n";
       print_r($record);
     }
   }
-  
-  /*function getRecords(): CatRecordsInPgSql {
-    $catid = $this->catid;
-    return new CatRecordsInPgSql(PgSql::query("select record from catalog$catid"));
-  }*/
-
-  /*function getRecords(): PgSql {
-    $catid = $this->catid;
-    return PgSql::query("select record from catalog$catid");
-  }*/
 };

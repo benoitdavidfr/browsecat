@@ -23,19 +23,28 @@ includes:
   - mdvars2.inc.php
   - cats.inc.php
   - catinpgsql.inc.php
+  - orginsel.inc.php
 */
 require_once __DIR__.'/cswserver.inc.php';
 require_once __DIR__.'/mdvars2.inc.php';
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
+require_once __DIR__.'/orginsel.inc.php';
 
 if ($argc <= 1) {
-  echo "usage: php index.php {cat} [{firstRecord}]\n";
+  echo "usage: php $argv[0] {cat}|all [{firstRecord}]\n";
   echo " où {cat} vaut:\n";
   foreach ($cats as $catid => $cat)
     echo " - $catid\n";
   echo " et où {firstRecord} est le num. du premier enregistrement requêté, par défaut 1\n";
-  exit;
+  die();
+}
+
+if ($argv[1] == 'all') { // génère les cmdes pour remoissonner tous les catalogues
+  foreach (array_keys($cats) as $catid) {
+    echo "php $argv[0] $catid\n";
+  }
+  die();
 }
 
 $catid = $argv[1];
@@ -94,7 +103,7 @@ while ($nextRecord) {
           continue;
         }
       }
-      $cat->storeRecord($mdrecord);
+      $cat->storeRecord($mdrecord, orgInSel($catid, $mdrecord) ? 'Min' : null);
     }
   }
   $nextRecord = isset($getRecords->csw_SearchResults['nextRecord']) ?

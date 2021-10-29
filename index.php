@@ -14,6 +14,7 @@ includes:
   - catinpgsql.inc.php
   - arbo.inc.php
   - annexes.inc.php
+  - orginsel.inc.php
 */
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/cswserver.inc.php';
@@ -21,11 +22,11 @@ require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
 require_once __DIR__.'/arbo.inc.php';
 require_once __DIR__.'/annexes.inc.php';
+require_once __DIR__.'/orginsel.inc.php';
 
 use Symfony\Component\Yaml\Yaml;
 
-
-if (!isset($_GET['cat'])) {
+if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
   if (!isset($_GET['action'])) { // liste des catalogues pour en choisir un
     echo "Catalogues:<ul>\n";
     foreach ($cats as $catid => $cat) {
@@ -46,12 +47,13 @@ if (!isset($_GET['cat'])) {
       id varchar(256) not null, -- fileIdentifier
       record json, -- enregistrement de la fiche en JSON
       title text, -- 1.1. Intitulé de la ressource
-      type varchar(256) -- 1.3. Type de la ressource
+      type varchar(256), -- 1.3. Type de la ressource
+      perimetre varchar(256) -- 'Min','Op','Autres' ; null si non défini
     )");
 
     foreach (array_keys($cats) as $i => $catid) {
-      $sql = "insert into catalogagg(cat, id, record, title, type)\n";
-      $sql .= "  select '$catid', id, record, title, type from catalog$catid\n";
+      $sql = "insert into catalogagg(cat, id, record, title, type, perimetre)\n";
+      $sql .= "  select '$catid', id, record, title, type, perimetre from catalog$catid\n";
       echo "<pre>$sql</pre>\n";
       PgSql::query($sql);
     }
@@ -83,7 +85,7 @@ if (!isset($_GET['cat'])) {
     
     echo "<tr><td>count</td>";
     foreach (array_keys($cats) as $catid2) {
-      $tuple = PgSql::getTuples("select count(*) c from catalog$catid2")[0];
+      $tuple = PgSql::getTuples("select count(*) c from catalog$catid2 where perimetre='Min'")[0];
       echo "<td align='right'>$tuple[c]</td>";
     }
     echo "</tr>\n";
@@ -94,7 +96,11 @@ if (!isset($_GET['cat'])) {
         if ($catid2 == $catid1)
           echo "<td align='center'>***</td>\n";
         else {
-          $tuple = PgSql::getTuples("select count(*) c from catalog$catid1 c1, catalog$catid2 c2 where c1.id=c2.id")[0];
+          $sql =
+            "select count(*) c
+             from catalog$catid1 c1, catalog$catid2 c2
+             where c1.id=c2.id and c1.perimetre='Min' and c2.perimetre='Min'";
+          $tuple = PgSql::getTuples($sql)[0];
           echo "<td align='right'><a href='?cat=$catid1&amp;action=commun&amp;cat2=$catid2'>$tuple[c]</a></td>";
         }
       }
@@ -115,6 +121,7 @@ if (!isset($_GET['action'])) { // menu principal
          "Liste les mots-clés des fiches dont une org est dans la sélection</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=ldwkw'>MDD dont au moins un mot-clé correspond à un des thèmes</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=ldnkw'>MDD dont aucun mot-clé correspond à un des thèmes</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=setPerimetre'>Enregistre le primetre sur les MD</a></li>\n";
   echo "</ul>\n";
   // Menu
   echo "Affichage d'une fiche à partir de son id<br>\n";
@@ -235,21 +242,6 @@ if ($_GET['action']=='mdOfOrg') { // liste les MD d'une organisation
   die();
 }
 
-function orgInSel(array $record): bool {
-  static $orgNamesSel = null;
-  if ($orgNamesSel === null) {
-    if (!is_file("$_GET[cat]Sel.yaml"))
-      $orgNamesSel = [];
-    else
-      $orgNamesSel = Yaml::parseFile("$_GET[cat]Sel.yaml")['orgNames']; // les noms des organismes sélectionnés
-  }
-  foreach ($record['responsibleParty'] ?? [] as $party) {
-    if (isset($party['organisationName']) && in_array($party['organisationName'], $orgNamesSel)) {
-      return true; // si au moins une organisation est dans la sélection alors vrai
-    }
-  }
-  return false; // sinon faux
-}
 
 // Un au moins des mots-clés appartient-il à un au moins des thèmes ?
 function existKwInThemes(array $keywords, array $themes, array $options=[]): bool {
@@ -277,6 +269,17 @@ function existKwInThemes(array $keywords, array $themes, array $options=[]): boo
   return false;
 }
 
+if ($_GET['action']=='setPerimetre') { // met à jour le périmetre dans la table
+  foreach (PgSql::query("select id,record from catalog$_GET[cat]") as $record) {
+    $id = $record['id'];
+    $record = json_decode($record['record'], true);
+    if (orgInSel($_GET['cat'], $record)) {
+      PgSql::query("update catalog$_GET[cat] set perimetre='Min' where id='$id'");
+    }
+  }
+  die("Ok<br>\n");
+}
+
 if ($_GET['action']=='listkws') {
   $themes = [
     new Arbo('arbocovadis.yaml'),
@@ -289,7 +292,7 @@ if ($_GET['action']=='listkws') {
   foreach (PgSql::query("select record from catalog$_GET[cat] where type in ('dataset','series')") as $record) {
     $record = json_decode($record['record'], true);
     //echo "<pre>"; print_r($record); echo "</pre>\n";
-    if (!orgInSel($record)) // si aucune organisation appartient à la sélection alors on saute
+    if (!orgInSel($_GET['cat'], $record)) // si aucune organisation appartient à la sélection alors on saute
       continue;
     if (existKwInThemes($record['keyword'] ?? [], $themes, ['showKeywords']))
       $nbExplique++;
@@ -308,7 +311,7 @@ if (in_array($_GET['action'], ['ldwkw','ldnkw'])) { // MDD dont au moins un / au
     $id = $record['id'];
     $title = $record['title'];
     $record = json_decode($record['record'], true);
-    if (!orgInSel($record)) // si aucune organisation appartient à la sélection alors on saute
+    if (!orgInSel($_GET['cat'], $record)) // si aucune organisation appartient à la sélection alors on saute
       continue;
     if (existKwInThemes($record['keyword'] ?? [], $themes)) {
       if ($_GET['action'] == 'ldwkw')
@@ -325,8 +328,8 @@ if (in_array($_GET['action'], ['ldwkw','ldnkw'])) { // MDD dont au moins un / au
 if ($_GET['action']=='commun') { // données communes entre le catalogue $_GET['cat'] et $_GET['cat2']
   echo "<h2>MD communes entre $_GET[cat] et $_GET[cat2]</h2>\n";
   echo "<ul>\n";
-  //$sql = "select c1.id, c1.title from catalog$_GET[cat] c1, catalog$_GET[cat2] c2 where c1.id=c2.id";
-  $sql = "select id, title from catalog$_GET[cat] join catalog$_GET[cat2] using(id)";
+  $sql = "select c1.id, c1.title from catalog$_GET[cat] c1, catalog$_GET[cat2] c2
+    where c1.id=c2.id and c1.perimetre='Min' and c2.perimetre='Min'";
   echo "<pre>$sql</pre>\n";
   foreach (PgSql::query($sql) as $record) {
     echo "<li><a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$record[id]'>$record[title]</a></li>\n";

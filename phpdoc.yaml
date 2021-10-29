@@ -40,6 +40,7 @@ phpScripts:
 phpIncludes:
   - /browsecat/cats.inc.php
   - /browsecat/catinpgsql.inc.php
+  - /browsecat/orginsel.inc.php
   - /browsecat/annexes.inc.php
   - /browsecat/arbo.inc.php
   - /browsecat/mdvars2.inc.php
