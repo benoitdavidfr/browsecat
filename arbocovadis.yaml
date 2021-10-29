@@ -65,7 +65,6 @@ $schema:
     children:
       description: contenu de l'arborescence structuré avec un identifiant par noeud de premier niveau
       $ref: '#/definitions/children'
-      
 
 children:
   AGRICULTURE:
@@ -75,7 +74,11 @@ children:
           - Agriculture/Agri-environnement
       N_AGRO_ALIMENTAIRE:
       N_EXPLOITATION_ELEVAGE:
+        hiddenLabels:
+          - Agriculture/Exploitation Élevage
       N_PARCELLAIRE_AGRICOLE:
+        hiddenLabels:
+          - Agriculture/Parcellaire agricole
       N_SANTE_ANIMALE:
       N_SANTE_VEGETALE:
       N_ZONAGES_AGRICOLES:
@@ -87,6 +90,9 @@ children:
       N_QUALITE_POLLUTION:
         hiddenLabels:
           - Air Climat/Qualité Pollution
+      N_CHANGEMENT_CLIMATIQUE:
+        hiddenLabels:
+          - Air Climat/Changement climatique
   AMENAGEMENT_URBANISME:
     hiddenLabels:
       - Aménagement Urbanisme
@@ -101,6 +107,7 @@ children:
       N_ZONAGES_AMENAGEMENT:
         hiddenLabels:
           - Aménagement Urbanisme/Zonages Aménagement
+          - zonages aménagement
       N_ZONAGES_ETUDE:
         hiddenLabels:
           - Aménagement Urbanisme / Zonages Étude
@@ -112,6 +119,8 @@ children:
   CULTURE_SOCIETE_SERVICE:
     children:
       N_ENSEIGNEMENT:
+        hiddenLabels:
+          - Culture Société Service/Enseignement
       N_ERP_AUTRE:
         hiddenLabels:
           - Culture Société Service/ERP Autre
@@ -119,15 +128,26 @@ children:
       N_TOURISME:
         hiddenLabels:
           - Culture Société Service/Tourisme
+      N_SANTE_SOCIAL:
+        hiddenLabels:
+          - Culture Société Service/Santé Social
   DONNEE_GENERIQUE:
     children:
       N_ACTION_PUBLIQUE:
         hiddenLabels:
           - Donnée générique/Action publique
       N_ADMINISTRATIF:
+        hiddenLabels:
+          - Donnée générique/Administratif
+      N_DEMOGRAPHIE:
+        hiddenLabels:
+          - Donnée générique/Démographie
       N_INTERCOMMUNALITE:
         hiddenLabels:
           - Donnée générique/Intercommunalité
+      N_DECOUPAGE_ELECTORAL:
+        hiddenLabels:
+          - Donnée générique/Découpage électoral 
   EAU:
     children:
       N_AEP:
@@ -140,14 +160,18 @@ children:
       N_OUVRAGE:
         hiddenLabels:
           - Eau / Ouvrage
+          - Eau/Ouvrage
       N_PECHE:
         hiddenLabels:
+          - Eau/Pêche
           - Eau / Pêche
       N_SURVEILLANCE:
         hiddenLabels:
           - Eau/Surveillance
       N_TRAVAUX_ACTION:
       N_UTILISATION_AUTRE:
+        hiddenLabels:
+         - Eau/Utilisation Autre
       N_ZONAGES_EAU:
         hiddenLabels:
           - Eau/Zonages Eau
@@ -156,13 +180,18 @@ children:
       N_FONCIER_AGRICOLE:
       N_OCCUPATION_SOL:
         hiddenLabels:
+          - Foncier Sol/Occupation du sol
           - OCCUPATION SOL
   FORET:
     children:
       N_DESCRIPTION:
+        hiddenLabels:
+          - Forêt/Description
       N_DFCI:
       N_GESTION:
       N_REGLEMENT:
+        hiddenLabels:
+          - Forêt/Règlement
       N_TRANSFORMATION :
   HABITAT_POLITIQUE_DE_LA_VILLE:
     hiddenLabels:
@@ -174,12 +203,20 @@ children:
       N_POLITIQUE:
         hiddenLabels:
           - Habitat Politique de la ville/Politique
+      N_PARC_LOCATIF_SOCIAL:
+        hiddenLabels:
+          - Habitat Politique de la ville/Parc locatif social
+      N_HABITAT_INDIGNE:
+        hiddenLabels:
+          - Habitat Politique de la ville/Habitat indigne
   MER_LITTORAL:
     children:
       N_CULTURE_MARINE:
         hiddenLabels:
           - Mer Littoral/Culture marine
       N_ECOLOGIE_LITTORAL:
+        hiddenLabels:
+          - Mer Littoral/Écologie du littoral
       N_LIM_ADMIN_SPECIALE:
         hiddenLabels:
           - Mer Littoral/Limite administrative spéciale
@@ -193,6 +230,9 @@ children:
       N_TOPOGRAPHIE:
         hiddenLabels:
           - Mer Littoral/Topographie
+      N_AUTRES_ACTIVITES:
+        hiddenLabels:
+          - Mer Littoral/Autres activités
   NATURE_PAYSAGE_BIODIVERSITE:
     children:
       N_CHASSE:
@@ -209,6 +249,9 @@ children:
       N_ZONAGES_NATURE:
         hiddenLabels:
           - Nature Paysage Biodiversité/Zonages Nature
+      N_ZONAGES_PAYSAGE:
+        hiddenLabels:
+          - Nature Paysage Biodiversité/Zonages Paysage
   NUISANCE:
     children:
       N_BRUIT:
@@ -216,6 +259,11 @@ children:
           - Nuisance/Bruit
           - bruit
       N_DECHET:
+        hiddenLabels:
+          - Nuisance/Déchet
+      N_POLLUTION_DU_SOL:
+        hiddenLabels:
+          - Nuisance/Pollution du sol
   RISQUE:
     children:
       N_INONDATION:
@@ -226,21 +274,40 @@ children:
         hiddenLabels:
           - Risque/Zonages Risque naturel
           - Zonages Risque naturel
-        children:
-          AAAANNNN:
+          - risque/n_zonages_risque_naturel/id_gaspar
+          - risques/n_zonages_risque_naturel/id_gaspar
+      N_SEISME:
+        hiddenLabels:
+          - Risque/Séisme
       N_ZONAGES_RISQUE_TECHNOLOGIQUE:
         hiddenLabels:
           - Risque/Zonages Risque technologique
+          - Risque/Risque technologique
+      N_RADON:
+        hiddenLabels:
+          - Risque/Radon
   SITE_INDUSTRIEL_PRODUCTION:
     children:
       N_SITE_EOLIEN:
         hiddenLabels:
           - Site industriel Production/Site éolien
+      N_SITE_DE_PRODUCTION_DENERGIE:
+        hiddenLabels:
+          - Site industriel Production/Site de production d'énergie
+      N_SITE_INDUSTRIEL:
+        hiddenLabels:
+          - Site industriel Production/Site industriel
   TRANSPORTS_DEPLACEMENT:
     children:
       N_SECURITE_ROUTIERE:
         hiddenLabels:
           - Transports Déplacements/Sécurité routière
+      N_TRAFIC:
+        hiddenLabels:
+          - Transports Déplacements/Trafic
+      N_TRANSPORT_ROUTIER:
+        hiddenLabels:
+          - transport routier
   TRANSPORT_INFRASTRUCTURE:
     children:
       N_CIRCULATION_DOUCE:

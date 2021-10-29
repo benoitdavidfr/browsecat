@@ -118,6 +118,11 @@ class CswServer {
   function getRecordByIdPath(string $id, string $output='iso19139', string $elementSetName='full'): string {
     return $this->cacheGetRecById->path(md5($this->getRecordByIdUrl($id, $output, $elementSetName)), 'xml');
   }
+  
+  function delRecordById(string $id, string $output='iso19139', string $elementSetName='full'): void {
+    $path = $this->getRecordByIdPath($id, $output, $elementSetName);
+    unlink($path);
+  }
 };
 
 

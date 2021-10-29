@@ -10,8 +10,8 @@ journal: |
 
 $cats = [
   // catalogues nationaux
-  'geoide'=> [
-    'endpointURL'=> 'http://ogc.geo-ide.developpement-durable.gouv.fr/csw/all-harvestable',
+  'geoide'=> [ // uniquement les MDD
+    'endpointURL'=> 'http://ogc.geo-ide.developpement-durable.gouv.fr/csw/dataset-harvestable',
   ],
   'Sextant'=> [
     'endpointURL'=> 'https://sextant.ifremer.fr/geonetwork/srv/eng/csw',

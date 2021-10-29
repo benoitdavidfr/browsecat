@@ -16,6 +16,7 @@ estimations:
   abstract: |
     Les thèmes sont l'arborescence Covadis et la liste des thèmes Inspire
   cats:
+    agg: 26315 / 27460 = 96 %
     GéoIDE:
     Sextant: 455 / 500 = 91 %
     GéoRisques: 1 / 36 = 3 %
@@ -29,8 +30,9 @@ estimations:
     pictoOccitanie: 6044 / 6111 = 99 %
     SigLoire: 574 / 628 = 91 %
     géo2France: 121 / 139 = 87 %
-    sigena: 
-    karuGeo:
-    geoMartinique:
-    geoGuyane:
+    sigena: 3482 / 3639 = 96 %
+    ideoBFC: 782 / 805 = 97 %
+    karuGeo: 115 / 122 = 94 %
+    geoMartinique: 24 / 33 = 73 %
+    geoGuyane: 
 eof:
