@@ -3,6 +3,9 @@
 title: index.php - visualise et exploite le contenu des catalogues moissonnés et stockés dans PgSql
 name: index.php
 doc: |
+  Je m'intéresse principalement aux MDD du périmètre ministériel, cad les MDD dont un au moins des responsibleParty
+  est une DG du pôle ministériel (MTE/MCTRCT/MM) ou un service déconcentré du pôle ou une DTT(M).
+  Les mdContacts de ces MDD ne sont parfois pas des organisations du pôle.
 journal: |
   27-29/10/2021:
     - réécriture nlle version utilisant PgSql
@@ -26,6 +29,66 @@ require_once __DIR__.'/orginsel.inc.php';
 
 use Symfony\Component\Yaml\Yaml;
 
+// Liste des thèmes auxquels les mots-clés peuvent appartenir
+$themes = [
+  'arboCovadis'=> new Arbo('arbocovadis.yaml'),
+  'annexesInspire'=> new Annexes('annexesinspire.yaml'),
+];
+
+
+// Un au moins des mots-clés appartient-il à un au moins des thèmes ? Renvoie la liste des clés des thèmes
+// Si $options contient 'showKeywords' alors la liste des mots-clés est affichée
+function kwInThemes(array $keywords, array $themes, array $options=[]): array {
+  static $keywordValuesShown = []; // liste des mots-clés affichés pour ne les afficher chacun qu'une seule fois
+
+  $inThemes = []; // liste des themes auquel un des mots-clés appartient, sous forme [themeid => 1]
+  foreach ($keywords as $keyword) {
+    //echo "<pre>"; print_r($keyword); echo "</pre>\n";
+    if ($kwValue = $keyword['value'] ?? null) {
+      $in = false; // appartenance de ce mot-clé à un des thèmes
+      foreach ($themes as $themeid => $theme) {
+        if ($theme->labelIn($kwValue)) {
+          $in = true;
+          $inThemes[$themeid] = 1;
+        }
+      }
+      if (!isset($keywordValuesShown[$kwValue]) && in_array('showKeywords', $options)) { // affichage éventuel 
+        echo $in ? '<b>' : '';
+        echo "$kwValue -> ", $in ? 'In' : 'Not', "<br>\n";
+        echo $in ? '</b>' : '';
+        $keywordValuesShown[$kwValue] = 1;
+      }
+    }
+  }
+  ksort($inThemes);
+  return array_keys($inThemes);
+}
+
+// calcule le nbre de mots-clés des MDD du périmètre du catalogue $catid appartenant à un des thèmes définis dans $themes
+// retourne une liste constituée:
+//  - Pour chaque thème, nbre de MDD du périmètre dont au moins un mot-clé appartient au thème
+//  - Nbre total de MDD du périmètre
+// Si $options contient 'showKeywords' alors la liste des mots-clés est affichée
+function listkws(string $catid, array $themes, array $options): array {
+  $nbExplique = []; // Pour chaque thème, nbre de MDD du périmètre dont au moins un mot-clé appartient au thème
+  $nbTotal = 0; // Nbre total de MDD ayant une organisation dans la sélection
+  
+  foreach (PgSql::query("select record from catalog$catid where type in ('dataset','series')") as $tuple) {
+    $record = json_decode($tuple['record'], true);
+    //echo "<pre>"; print_r($record); echo "</pre>\n";
+    if (!orgInSel($catid, $record)) // si aucune organisation appartient à la sélection alors on saute
+      continue;
+    $kwInThemes = kwInThemes($record['keyword'] ?? [], $themes, $options);
+    foreach ($kwInThemes as $theme)
+      $nbExplique[$theme] = 1 + ($nbExplique[$theme] ?? 0);
+    if ($kwInThemes)
+      $nbExplique['tousThemes'] = 1 + ($nbExplique['tousThemes'] ?? 0);
+    $nbTotal++;
+  }
+  ksort($nbExplique);
+  return [$nbExplique, $nbTotal];
+}
+
 if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
   if (!isset($_GET['action'])) { // liste des catalogues pour en choisir un
     echo "Catalogues:<ul>\n";
@@ -37,6 +100,7 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
     echo "<li><a href='?action=createAggTable'>Créer une table agrégée</a></li>\n";
     echo "<li><a href='?action=createAggSel'>Créer une sélection agrégée</a></li>\n";
     echo "<li><a href='?cat=agg&amp;action=listkws'>Liste des mots-clés du catalogue agrégé</a></li>\n";
+    echo "<li><a href='?action=listkws'>Synthèse des taux d'appartenance des mots-clés aux thèmes</a></li>\n";
     echo "<li><a href='?action=croise'>Calcul du nbre de MD communes entre catalogues</a></li>\n";
     echo "</ul>\n";
   }
@@ -52,8 +116,10 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
     )");
 
     foreach (array_keys($cats) as $i => $catid) {
-      $sql = "insert into catalogagg(cat, id, record, title, type, perimetre)\n";
-      $sql .= "  select '$catid', id, record, title, type, perimetre from catalog$catid\n";
+      $sql = "insert into catalogagg(cat, id, record, title, type, perimetre)\n"
+            ."  select '$catid', id, record, title, type, perimetre\n"
+            ."  from catalog$catid\n"
+            ."  where id not in (select id from catalogagg)";
       echo "<pre>$sql</pre>\n";
       PgSql::query($sql);
     }
@@ -75,7 +141,7 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
     );
     echo "Ok\n";
   }
-  elseif ($_GET['action']=='croise') {
+  elseif ($_GET['action']=='croise') { // Calcul du nbre de MD communes entre catalogues
     echo "<h2>Nombre de métadonnées D+S communes entre catalogues</h2>\n";
     echo "<table border=1><th></th>\n";
     foreach (array_keys($cats) as $catid2) {
@@ -101,27 +167,39 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
              from catalog$catid1 c1, catalog$catid2 c2
              where c1.id=c2.id and c1.perimetre='Min' and c2.perimetre='Min'";
           $tuple = PgSql::getTuples($sql)[0];
-          echo "<td align='right'><a href='?cat=$catid1&amp;action=commun&amp;cat2=$catid2'>$tuple[c]</a></td>";
+          if ($tuple['c']==0)
+            echo "<td></td>";
+          else
+            echo "<td align='right'><a href='?cat=$catid1&amp;action=commun&amp;cat2=$catid2'>$tuple[c]</a></td>";
         }
       }
       echo "</tr>\n";
     }
     echo "</table>\n";
   }
+  elseif ($_GET['action']=='listkws') { // Synthèse des taux d'appartenance des mots-clés aux thèmes
+    echo "<pre>\n";
+    foreach (array_merge(['agg'], array_keys($cats)) as $catid) {
+      list ($nbExplique, $nbTotal) = listkws($catid, $themes, []);
+      echo "$catid:\n";
+      foreach ($nbExplique as $theme => $nb)
+        printf("  $theme: %d / %d = %.0f %%\n", $nb, $nbTotal, $nb/$nbTotal*100);
+    }
+  }
   die();
 }
   
 if (!isset($_GET['action'])) { // menu principal 
   echo "Actions proposées:<ul>\n";
-  echo "<li><a href='?cat=$_GET[cat]&amp;action=listdata'>Toutes les MD de type dataset ou series</a></li>\n";
-  echo "<li><a href='?cat=$_GET[cat]&amp;action=listservices'>Toutes les MD de type service</a></li>\n";
-  echo "<li><a href='?cat=$_GET[cat]&amp;action=orgsHorsSel'>Liste des organisations hors sélection</a></li>\n";
-  echo "<li><a href='?cat=$_GET[cat]&amp;action=orgs'>Liste des organisations de la sélection</a></li>\n";
-  echo "<li><a href='?cat=$_GET[cat]&amp;action=listkws'>",
-         "Liste les mots-clés des fiches dont une org est dans la sélection</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=listdata'>Toutes les MDD (type dataset ou series)</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=listservices'>Toutes les MD de service</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=orgsHorsSel'>Liste des organisations hors périmètre</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=orgs'>Liste des organisations du périmètre</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=listkws'>Liste les mots-clés des MDD du périmètre</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=ldwkw'>MDD dont au moins un mot-clé correspond à un des thèmes</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=ldnkw'>MDD dont aucun mot-clé correspond à un des thèmes</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=setPerimetre'>Enregistre le primetre sur les MD</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=mdContacts'>Liste les mdContacts des MDD du périmètre</a></li>\n";
   echo "</ul>\n";
   // Menu
   echo "Affichage d'une fiche à partir de son id<br>\n";
@@ -242,34 +320,8 @@ if ($_GET['action']=='mdOfOrg') { // liste les MD d'une organisation
   die();
 }
 
-
-// Un au moins des mots-clés appartient-il à un au moins des thèmes ?
-function existKwInThemes(array $keywords, array $themes, array $options=[]): bool {
-  static $keywordValues = []; // liste des mots-clés pour ne les afficher qu'une seule fois
-  
-  $kwInThemes = false; // par défaut aucun mot-clé appartient aux thèmes
-  foreach ($keywords as $keyword) {
-    //echo "<pre>"; print_r($keyword); echo "</pre>\n";
-    $kwValue = $keyword['value'] ?? null;
-    if ($kwValue) {
-      $in = false;
-      foreach ($themes as $theme)
-        $in = $in || $theme->labelIn($kwValue);
-      if (!isset($keywordValues[$kwValue]) && in_array('showKeywords', $options)) {
-        echo $in ? '<b>' : '';
-        echo "$kwValue -> ", $in ? 'In' : 'Not', "<br>\n";
-        echo $in ? '</b>' : '';
-        $keywordValues[$kwValue] = 1;
-      }
-      if ($in) {
-        return true; // au moins un mot-clé appartient à un des thèmes
-      }
-    }
-  }
-  return false;
-}
-
 if ($_GET['action']=='setPerimetre') { // met à jour le périmetre dans la table
+  PgSql::query("update catalog$_GET[cat] set perimetre=null");
   foreach (PgSql::query("select id,record from catalog$_GET[cat]") as $record) {
     $id = $record['id'];
     $record = json_decode($record['record'], true);
@@ -280,40 +332,22 @@ if ($_GET['action']=='setPerimetre') { // met à jour le périmetre dans la tabl
   die("Ok<br>\n");
 }
 
-if ($_GET['action']=='listkws') {
-  $themes = [
-    new Arbo('arbocovadis.yaml'),
-    new Annexes('annexesinspire.yaml'),
-  ];
-  $nbExplique = 0; // Nbre de MDD ayant une organisation dans la sélection et dont au moins un mot-clé appartient à un des thèmes
-  $nbTotal = 0; // Nbre total de MDD ayant une organisation dans la sélection
-  $keywordValues = []; // liste des mots-clés pour ne les afficher qu'une seule fois
-  
-  foreach (PgSql::query("select record from catalog$_GET[cat] where type in ('dataset','series')") as $record) {
-    $record = json_decode($record['record'], true);
-    //echo "<pre>"; print_r($record); echo "</pre>\n";
-    if (!orgInSel($_GET['cat'], $record)) // si aucune organisation appartient à la sélection alors on saute
-      continue;
-    if (existKwInThemes($record['keyword'] ?? [], $themes, ['showKeywords']))
-      $nbExplique++;
-    $nbTotal++;
-  }
-  printf("--<br>\n%d / %d = %.0f %%<br>\n", $nbExplique, $nbTotal, $nbExplique/$nbTotal*100);
-  die();
+if ($_GET['action']=='listkws') { // Liste les mots-clés des MDD dont une org est dans la sélection
+  list ($nbExplique, $nbTotal) = listkws($_GET['cat'], $themes, ['showKeywords']);
+  echo "--<br>\n";
+  foreach ($nbExplique as $theme => $nb)
+    printf("$theme: %d / %d = %.0f %%<br>\n", $nb, $nbTotal, $nb/$nbTotal*100);
+  die("<br>\n");
 }
 
 if (in_array($_GET['action'], ['ldwkw','ldnkw'])) { // MDD dont au moins un / aucun mot-clé correspond à un des thèmes
-  $themes = [
-    new Arbo('arbocovadis.yaml'),
-    new Annexes('annexesinspire.yaml'),
-  ];
   foreach (PgSql::query("select id,title,record from catalog$_GET[cat] where type in ('dataset','series')") as $record) {
     $id = $record['id'];
     $title = $record['title'];
     $record = json_decode($record['record'], true);
     if (!orgInSel($_GET['cat'], $record)) // si aucune organisation appartient à la sélection alors on saute
       continue;
-    if (existKwInThemes($record['keyword'] ?? [], $themes)) {
+    if (kwInThemes($record['keyword'] ?? [], $themes)) {
       if ($_GET['action'] == 'ldwkw')
         echo "<a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$id'>$title</a><br>\n";
     }
@@ -336,4 +370,21 @@ if ($_GET['action']=='commun') { // données communes entre le catalogue $_GET['
   }
   die();
   
+}
+
+if ($_GET['action']=='mdContacts') { // Liste les mdContacts des MDD du périmètre
+  echo "<h2>Liste des MDD du périmètre dont le mdContact n'est pas une organisation du périmètre</h2>\n";
+  foreach (PgSql::query("select id,title, record from catalog$_GET[cat] where type in ('dataset','series')") as $tuple) {
+    $record = json_decode($tuple['record'], true);
+    if (!orgInSel($_GET['cat'], $record)) // si aucune organisation appartient à la sélection alors on saute
+      continue;
+    if (!orgInSel($_GET['cat'], $record, 'mdContact')) {
+      echo "<pre>title: <a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</a>\n";
+      echo Yaml::dump([
+        'responsibleParty'=> $record['responsibleParty'],
+        'mdContact'=> $record['mdContact'] ?? "NON DEFINI",
+      ]), "</pre>\n";
+    }
+  }
+  die();
 }

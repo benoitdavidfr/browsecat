@@ -5,11 +5,11 @@ description: |
   L'objectif est donc principalement:
   1) de permettre un nombre quelconque de niveaux
   2) d'attacher à certains noeuds un ou plusieurs hiddenLabels
-  L'arborescence est complétée par les mot-clés de SigLoire définis par un voc. contrôlé Covadis
+  L'arborescence est complétée par les mot-clés trouvés dans les catalogues
 journal: |
-  28/10/2021:
+  28-30/10/2021:
     - ajout d'un champ note
-    - ajout d'une entrée MER_LITTORAL/N_PECHE_MARITIME
+    - ajout d'entrées issues des jeux de données
   26/10/2021:
     définition d'un schéma récursif
   22/10/2021:
@@ -73,6 +73,8 @@ children:
         hiddenLabels:
           - Agriculture/Agri-environnement
       N_AGRO_ALIMENTAIRE:
+        hiddenLabels:
+          - Agriculture/Agro-alimentaire
       N_EXPLOITATION_ELEVAGE:
         hiddenLabels:
           - Agriculture/Exploitation Élevage
@@ -192,6 +194,8 @@ children:
   FONCIER_SOL:
     children:
       N_FONCIER_AGRICOLE:
+        hiddenLabels:
+          - Foncier Sol/Foncier agricole
       N_OCCUPATION_SOL:
         hiddenLabels:
           - Foncier Sol/Occupation du sol
@@ -309,12 +313,18 @@ children:
       N_ELECTRICITE:
         hiddenLabels:
           - Réseau Énergie Divers/Électricité
+      N_HYDROCARBURE:
+        hiddenLabels:
+          - Réseau Énergie Divers/Hydrocarbure
       N_AMENAGEMENT_NUMERIQUE_DES_TERRITOIRES:
         hiddenLabels:
           - Réseau Énergie Divers/Aménagement numérique des territoires
       N_TELECOMMUNICATION:
         hiddenLabels:
           - Réseau Énergie Divers/Télécommunication
+      N_AUTRE:
+        hiddenLabels:
+          - Réseau Énergie Divers/Autre
   RISQUE:
     children:
       N_INONDATION:
@@ -377,6 +387,9 @@ children:
       N_TRANSPORT_DE_MARCHANDISE:
         hiddenLabels:
           - Transports Déplacements/Transport de marchandise
+      N_TRANSPORT_DE_MATIERE_DANGEREUSE:
+        hiddenLabels:
+          - Transports Déplacements/Transport de matière dangereuse
   TRANSPORT_INFRASTRUCTURE:
     children:
       N_CIRCULATION_DOUCE:

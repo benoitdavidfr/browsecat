@@ -20,7 +20,9 @@ doc: |
     - Sextant contient quelques MD intéressantes du ministère, ex. Classement sanitaire des zones conchylicoles de Seine-Maritime
   
     - Geolittoral
-  
+    - CeremaData
+    - EauFrance
+    
   A priori ces MD ne proviennent pas de Géo-IDE.
 
   Les MD de Sextant peuvent être notamment de type 'publication' ou 'carte' ; ces MD ne peuvent pas être traduites

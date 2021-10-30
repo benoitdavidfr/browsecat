@@ -13,11 +13,17 @@ $cats = [
   'geoide'=> [ // uniquement les MDD
     'endpointURL'=> 'http://ogc.geo-ide.developpement-durable.gouv.fr/csw/dataset-harvestable',
   ],
+  'eauFrance' => [
+    'endpointURL'=> 'http://www.data.eaufrance.fr/geosource/srv/fre/csw',
+  ],
   'Sextant'=> [
     'endpointURL'=> 'https://sextant.ifremer.fr/geonetwork/srv/eng/csw',
   ],
   'GeoRisques'=> [
     'endpointURL'=> 'https://catalogue.georisques.gouv.fr/geonetwork/srv/fre/csw',
+  ],
+  'cerema'=> [
+    'endpointURL'=> 'https://www.cdata.cerema.fr/geonetwork/srv/fre/csw-catalogue-cdata',
   ],
   
   // catalogues MonGeosource
