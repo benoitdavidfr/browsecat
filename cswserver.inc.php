@@ -5,6 +5,8 @@ title: cswserver.inc.php - gère les appels à un serveur CSW
 classes:
 doc: |
 journal: |
+  31/10/2021:
+    - utilisation de maxRetry
   16/1/2021:
     - extension des options de getRecords() et getRecordById()
     - réécriture du code par défaut pour consulter interactivement le catalogue
@@ -28,9 +30,9 @@ class CswServer {
   
   function __construct(string $baseUrl, string $cacheDir) {
     $this->baseUrl = $baseUrl;
-    $this->cacheGetCap = new HttpCache("$cacheDir/cap");
-    $this->cacheGetRecs = new HttpCache("$cacheDir/recs");
-    $this->cacheGetRecById = new HttpCache("$cacheDir/byid");
+    $this->cacheGetCap = new HttpCache("$cacheDir/cap", ['maxRetry'=> 0]);
+    $this->cacheGetRecs = new HttpCache("$cacheDir/recs", ['maxRetry'=> 0]);
+    $this->cacheGetRecById = new HttpCache("$cacheDir/byid", ['maxRetry'=> 0]);
   }
   
   // effectue un GetCapabilities et retourne le résultat XML

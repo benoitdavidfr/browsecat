@@ -97,9 +97,9 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
     }
     echo "</ul>\n";
     echo "Actions globales:<ul>\n";
-    echo "<li><a href='?action=createAggTable'>Créer une table agrégée</a></li>\n";
-    echo "<li><a href='?action=createAggSel'>Créer une sélection agrégée</a></li>\n";
-    echo "<li><a href='?cat=agg&amp;action=listkws'>Liste des mots-clés du catalogue agrégé</a></li>\n";
+    echo "<li><a href='?action=createAggTable'>(Re)Créer une table agrégeant les catalogues</a></li>\n";
+    echo "<li><a href='?action=createAggSel'>(Re)Créer un fichier agrégeant les organisations du périmètre</a></li>\n";
+    echo "<li><a href='?cat=agg&amp;action=listkws'>Lister les mots-clés du catalogue agrégé</a></li>\n";
     echo "<li><a href='?action=listkws'>Synthèse des taux d'appartenance des mots-clés aux thèmes</a></li>\n";
     echo "<li><a href='?action=croise'>Calcul du nbre de MD communes entre catalogues</a></li>\n";
     echo "</ul>\n";
@@ -115,7 +115,8 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
       perimetre varchar(256) -- 'Min','Op','Autres' ; null si non défini
     )");
 
-    foreach (array_keys($cats) as $i => $catid) {
+    foreach ($cats as $catid => $cat) {
+      if ($cat['dontAgg'] ?? false) continue;
       $sql = "insert into catalogagg(cat, id, record, title, type, perimetre)\n"
             ."  select '$catid', id, record, title, type, perimetre\n"
             ."  from catalog$catid\n"
@@ -126,10 +127,13 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
   }
   elseif ($_GET['action']=='createAggSel') { // Créer une sélection agrégée
     $orgNames = [];
-    foreach (array_keys($cats) as $i => $catid) {
-      foreach (Yaml::parseFile("${catid}Sel.yaml")['orgNames'] as $orgName) {
-        if (!in_array($orgName, $orgNames))
-          $orgNames[] = $orgName;
+    foreach ($cats as $catid => $cat) {
+      if ($cat['dontAgg'] ?? false) continue;
+      if (is_file("${catid}Sel.yaml")) {
+        foreach (Yaml::parseFile("${catid}Sel.yaml")['orgNames'] as $orgName) {
+          if (!in_array($orgName, $orgNames))
+            $orgNames[] = $orgName;
+        }
       }
     }
     asort($orgNames);
@@ -144,12 +148,19 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
   elseif ($_GET['action']=='croise') { // Calcul du nbre de MD communes entre catalogues
     echo "<h2>Nombre de métadonnées D+S communes entre catalogues</h2>\n";
     echo "<table border=1><th></th>\n";
-    foreach (array_keys($cats) as $catid2) {
-      echo "<th>",substr($catid2, 0, 6),"</th>";
+    foreach ($cats as $catid1 => $cat) {
+      echo "<th>",$cat['shortName'] ?? substr($catid1, 0, 6),"</th>";
     }
     echo "\n";
     
-    echo "<tr><td>count</td>";
+    echo "<tr><td>nbTotal</td>";
+    foreach (array_keys($cats) as $catid2) {
+      $tuple = PgSql::getTuples("select count(*) c from catalog$catid2")[0];
+      echo "<td align='right'>$tuple[c]</td>";
+    }
+    echo "</tr>\n";
+
+    echo "<tr><td>nb in Min</td>";
     foreach (array_keys($cats) as $catid2) {
       $tuple = PgSql::getTuples("select count(*) c from catalog$catid2 where perimetre='Min'")[0];
       echo "<td align='right'>$tuple[c]</td>";
@@ -192,6 +203,7 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
 if (!isset($_GET['action'])) { // menu principal 
   echo "Actions proposées:<ul>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=listdata'>Toutes les MDD (type dataset ou series)</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=listdataYaml'>Toutes les MDD (type dataset ou series) en Yaml</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=listservices'>Toutes les MD de service</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=orgsHorsSel'>Liste des organisations hors périmètre</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=orgs'>Liste des organisations du périmètre</a></li>\n";
@@ -221,6 +233,15 @@ if ($_GET['action']=='listdata') { // Toutes les MD de type dataset ou series
   echo "<ul>\n";
   foreach (PgSql::query("select id,title from catalog$_GET[cat] where type in ('dataset','series')") as $record) {
     echo "<li><a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$record[id]'>$record[title]</a></li>\n";
+  }
+  die();
+}
+
+if ($_GET['action']=='listdataYaml') { // Toutes les MD de type dataset ou series en Yaml
+  echo "<pre>\n";
+  foreach (PgSql::query("select record from catalog$_GET[cat] where type in ('dataset','series')") as $tuple) {
+    $record = json_decode($tuple['record'], true);
+    echo Yaml::dump([$record], 3, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
   }
   die();
 }

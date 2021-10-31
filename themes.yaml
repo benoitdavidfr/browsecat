@@ -9,15 +9,21 @@ abstract:
   
   Pour tester cette possibilité, j'estime le pourcentage de MDD possédant au moins un mot-clé
   correspondant soit à un concept de l'arborescence, soit à une annexe Inspire.
+  
+conclusions:
+  1) Sur le périmètre ministériel, il est intéressant d'utiliser les annexes Inspire et l'aborescence Covadis
+     en les complétant comme je l'ai fait.
+  
 estimations:
   title: pourcentage des MDD du périmètre dont au moins un mot-clé appartient à un des thèmes
   abstract: |
     Les thèmes sont l'arborescence Covadis et la liste des thèmes Inspire
   cats:
     agg:
-      annexesInspire: 25349 / 28842 = 88 %
-      arboCovadis: 22748 / 28842 = 79 %
-      tousThemes: 27895 / 28842 = 97 %
+      annexesInspire: 25387 / 28883 = 88 %
+      arboCovadis: 22748 / 28883 = 79 %
+      tousThemes: 27933 / 28883 = 97 %
+    geocatalogue:
     geoide:
       annexesInspire: 20218 / 22777 = 89 %
       arboCovadis: 21839 / 22777 = 96 %
@@ -25,6 +31,9 @@ estimations:
     eauFrance:
       annexesInspire: 69 / 70 = 99 %
       tousThemes: 69 / 70 = 99 %
+    sandreAtlas:
+      annexesInspire: 70 / 70 = 100 %
+      tousThemes: 70 / 70 = 100 %
     Sextant:
       annexesInspire: 460 / 500 = 92 %
       arboCovadis: 1 / 500 = 0 %
@@ -35,6 +44,11 @@ estimations:
     cerema:
       annexesInspire: 17 / 17 = 100 %
       tousThemes: 17 / 17 = 100 %
+    ign:
+      annexesInspire: 17 / 19 = 89 %
+      tousThemes: 17 / 19 = 89 %
+    ignInspire:
+    shom:
     GpU:
       annexesInspire: 232 / 235 = 99 %
       arboCovadis: 18 / 235 = 8 %
@@ -42,6 +56,7 @@ estimations:
     geolittoral:
       annexesInspire: 72 / 74 = 97 %
       tousThemes: 72 / 74 = 97 %
+    onf:
     drealNormandie:
       annexesInspire: 284 / 563 = 50 %
       arboCovadis: 20 / 563 = 4 %

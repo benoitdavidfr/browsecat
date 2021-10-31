@@ -8,12 +8,14 @@ doc: |
   La requête est identifiée par le MD5 de l'url de requête
   Le cache est stocké dans un répertoire avec un sous-répertoire défini par les 3 premiers caractères du MD5
 journal: |
+  31/10/2021:
+    - utilisation de HttpRetry pour gérer des relances en cas d'erreur
   8/1/2021:
     - création
 includes:
   - ../phplib/http.inc.php
 */
-require_once __DIR__.'/../phplib/http.inc.php';
+require_once __DIR__.'/httpretry.inc.php';
 
 /*PhpDoc: classes
 name: HttpCache
@@ -50,7 +52,7 @@ class HttpCache {
   */
   function request(string $url, string $ext=''): string {
     if (!$this->dirPath)
-      return Http::request($url);
+      return Http::request($url, $this->httpOptions);
     $id = md5($url);
     $path = $this->path($id, $ext);
     //echo "path=$path\n";

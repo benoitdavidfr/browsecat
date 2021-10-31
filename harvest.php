@@ -57,10 +57,14 @@ $cswServer->getCapabilities();
 
 echo "Moissonnage de $catid et chargement dans PostgreSql\n";
 $cat = new CatInPgSql($catid);
-$cat->create(); // recrée une nlle table
 $nextRecord = $argv[2] ?? 1;
+if ($nextRecord == 1)
+  $cat->create(); // recrée une nlle table
+$maxRecordNum = $argv[3] ?? -1;
 $numberOfRecordsMatched = null;
 while ($nextRecord) {
+  if (($maxRecordNum <> -1) && ($nextRecord >= $maxRecordNum))
+    die("Arrêt sur nextRecord=$nextRecord >= maxRecordNum=$maxRecordNum\n");
   if (!$numberOfRecordsMatched)
     fprintf(STDERR, "$catid> nextRecord=%d\n", $nextRecord);
   else
