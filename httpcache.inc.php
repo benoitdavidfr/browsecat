@@ -13,7 +13,7 @@ journal: |
   8/1/2021:
     - création
 includes:
-  - ../phplib/http.inc.php
+  - httpretry.inc.php
 */
 require_once __DIR__.'/httpretry.inc.php';
 
@@ -23,7 +23,7 @@ title: class HttpCache -- gestion d'un cache Http
 methods:
 doc: |
   Si le paramètre $dirPath vaut null alors aucun cache n'est mis en oeuvre
-  Les options http sont celles définies pour la classe Http
+  Les options http sont celles définies pour la classe HttpRetry
 */
 class HttpCache {
   protected ?string $dirPath; // chemin du répertoire de stockage ou null si pas de stockage
@@ -52,7 +52,7 @@ class HttpCache {
   */
   function request(string $url, string $ext=''): string {
     if (!$this->dirPath)
-      return Http::request($url, $this->httpOptions);
+      return HttpRetry::request($url, $this->httpOptions);
     $id = md5($url);
     $path = $this->path($id, $ext);
     //echo "path=$path\n";
@@ -60,7 +60,7 @@ class HttpCache {
       //echo "en cache\n";
       return file_get_contents($path);
     }
-    $return = Http::request($url, $this->httpOptions);
+    $return = HttpRetry::request($url, $this->httpOptions);
     if (!file_exists(dirname($path)))
       mkdir(dirname($path));
     file_put_contents($path, $return['body']);

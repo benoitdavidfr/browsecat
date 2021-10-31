@@ -5,6 +5,7 @@ title: httpretry.inc.php - gère des requêtes Http avec un mécanisme de relanc
 classes:
 doc: |
   Utilise le même nom de méthode request() que la classe Http dans ../phplib/http.inc.php
+  
 journal: |
   30/10/2021:
     - création
@@ -18,14 +19,15 @@ name: HttpRetry
 title: class HttpRetry -- gestion des requêtes Http avec un mécanisme de relance en cas d'erreur
 methods:
 doc: |
-  Ajouter un mécanisme de réessai en cas d'erreur avec un délai par ex de 2**n sec.
+  Ajoute un mécanisme de réessai en cas d'erreur avec un délai de 2**n sec.
 */
 class HttpRetry {
   /*PhpDoc: methods
   name: request
   title: "static function request(string $url, array $options=[]): array"
   doc: |
-    Renvoie un array constitué d'un champ 'headers' et d'un champ 'body'
+    Retourne un array constitué d'un champ 'headers' et d'un champ 'body'.
+    Si l'option ignore_errors est non définie ou fausse alors lève une exception en cas d'erreur HTTP.
     Les options possibles sont:
       'referer'=> referer à utiliser
       'proxy'=> proxy à utiliser
@@ -40,7 +42,7 @@ class HttpRetry {
       'content'=> texte à envoyer en POST ou PUT
   */
   static function request(string $url, array $options=[]): array {
-    echo "HttpRetry::request($url, ",json_encode($options),")<br>\n";
+    //echo "HttpRetry::request($url, ",json_encode($options),")<br>\n";
     if (!isset($options['maxRetry']) || ($options['maxRetry']==0))
       return Http::request($url, $options);
     $maxRetry = $options['maxRetry'];
@@ -63,15 +65,15 @@ class HttpRetry {
       echo "nbRetry=$nbRetry, errorCode=$errorCode<br>\n";
       if ($nbRetry >= $maxRetry)
         break;
-      //sleep(2 ** $nbRetry); echo "sleep(",2 ** $nbRetry,")<br>\n";
+      sleep(2 ** $nbRetry); //echo "sleep(",2 ** $nbRetry,")<br>\n";
       $nbRetry++;
     }
     // je sors de la boucle forcément sur une erreur
-    if (!$return) // si retour par exception alors je lève une exception avec le message réçue de Http::request
+    if (!$return) // si retour d'une exception alors je lève une exception avec le message réçu de Http::request()
       throw new Exception($e->getMessage());
     elseif (!$ignore_errors) // si l'option ignore_errors était fausse alors je lève une exception
       throw new Exception("Erreur '".$return['headers'][0]."' dans HttpRetry::query() : sur url=$url");
-    else { // sinon je retourne l'erreur
+    else { // sinon je retourne le etour de Http::request()
       //print_r($return);
       return $return;
     }
@@ -92,5 +94,6 @@ $host = 'localhost';
 $host = 'bdavid.alwaysdata.net';
   
 // Test avec redirect en localhost ou sur Alwaysdata
-$return = HttpRetry::request("http://$host/browsecat/server.php?redirect=true", ['maxRetry'=> 5, 'ignore_errors'=> true]);
+//$return = HttpRetry::request("http://$host/browsecat/server.php?redirect=true", ['maxRetry'=> 5, 'ignore_errors'=> true]);
+$return = HttpRetry::request("http://$host/browsecat/server.php?redirect=true", ['maxRetry'=> 5]);
 echo '<pre>'; print_r($return);

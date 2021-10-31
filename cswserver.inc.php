@@ -30,9 +30,9 @@ class CswServer {
   
   function __construct(string $baseUrl, string $cacheDir) {
     $this->baseUrl = $baseUrl;
-    $this->cacheGetCap = new HttpCache("$cacheDir/cap", ['maxRetry'=> 0]);
-    $this->cacheGetRecs = new HttpCache("$cacheDir/recs", ['maxRetry'=> 0]);
-    $this->cacheGetRecById = new HttpCache("$cacheDir/byid", ['maxRetry'=> 0]);
+    $this->cacheGetCap = new HttpCache("$cacheDir/cap", ['maxRetry'=> 5]);
+    $this->cacheGetRecs = new HttpCache("$cacheDir/recs", ['maxRetry'=> 5]);
+    $this->cacheGetRecById = new HttpCache("$cacheDir/byid", ['maxRetry'=> 5]);
   }
   
   // effectue un GetCapabilities et retourne le résultat XML
