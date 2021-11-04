@@ -455,7 +455,7 @@ $mdvars = [
   ],
 ];
 
-PgSql::open('host=pgsqlserver dbname=gis user=docker');
+//PgSql::open('host=pgsqlserver dbname=gis user=docker');
 //PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public');
 
 class CatInPgSql {

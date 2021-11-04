@@ -1,4 +1,6 @@
 title: arborescence des organisations
+description:
+
 $schema:
   $id: http://bdavid.alwaysdata.net/browsecat/arbocovadis.yaml#/$schema
   definitions:
@@ -48,10 +50,10 @@ $schema:
   additionalProperties: false
   properties:
     title:
-      description: titre du catalogue
+      description: titre du document
       type: string
     description:
-      description: commentaire sur le catalogue
+      description: commentaire sur le document
       type: string
     journal:
       description: historique des modifications
@@ -90,7 +92,10 @@ children:
       - Ministère de la Transition écologique et solidaire
       - Ministère de la Transition écologique et solidaire (MEEM)
       - Ministére de la Transition écologique et solidaire
-      - Ministère de l’Énvironnement, de l'Energie et de la Mer
+      - Ministère de l'Énvironnement, de l'Energie et de la Mer
+      - Ministery of Ecology, Sustainable Development and Energy (MEDDE)
+      - Ministère de la Cohésion des territoires
+      - MTES
     children:
       CGDD:
         prefLabels: {fr: Commissariat général au développement Durable}
@@ -103,6 +108,7 @@ children:
           - MEDDTL/CGDD/SOeS
           - MEEDDE/CGDD/SOeS
           - SDES
+          - CGDD - SOeS
           - SOeS – SSP, Enquêtes "Eau et assainissement"
           - Service de l'observation et des statistiques (SOeS)
           - Service de la donnée et des études statistiques (SDES)
@@ -113,7 +119,7 @@ children:
           - Direction Générale de l'Aviation Civile
           - Direction de la Sécurité de l'Aviation Civile
           - Direction des Services de la navigation aérienne (DSNA)
-          - DSAC Sud (Direction de la Sécurité de l’Aviation civile Interrégionale Sud)
+          - DSAC Sud (Direction de la Sécurité de l'Aviation civile Interrégionale Sud)
       DGALN:
         prefLabels: {fr: "DGALN (Direction Générale de l'Aménagement, du Logement et de la Nature)"}
         altLabels:
@@ -125,13 +131,14 @@ children:
           - Direction de l'Eau et de la Biodiversité (MTES/DGALN/DEB)
           - MEEM / DGALN
           - Ministère de l'Ecologie, du Développement Durable et de l'Energie / Direction Générale de l'Aménagement, du Logement et de la Nature / Direction de l'Eau et de la Biodiversité
+          - MTES - DEB
           - Ministère chargé de l'environnement - Direction de l'Eau et de la Biodiversité
           - Ministère de la Transition écologique et solidaire - Direction de l'eau et de la biodiversité
           - Ministére de la Transition écologique et solidaire - Direction de l'eau et de la biodiversité
           - DGALN/DEB/LM3
           - Ministère chargé de l'environnement / DGALN - DEB - ELM3
           - Ministère de la Transition Ecologique - Camino
-          - Ministère de l’Écologie et du Développement durable (DNP)
+          - Ministère de l'Écologie et du Développement durable (DNP)
       DGEC:
         prefLabels: {fr: Direction Générale de l'Energie et du Climat}
         altLabels:
@@ -145,6 +152,7 @@ children:
           - Ministère en charge de l'environnement / DGITM - DAM - DML
           - Ministère en charge de l'environnement / DGITM - DEB
           - Ministère en charge de l'environnement / DGITM / DEB
+          - MTES - DGITM
           - Medde-DGITM
           - Ministère de la Mer, DGITM, Direction des Affaires maritimes - Service "Mission de la flotte de commerce"
           - Ministère de la Mer, Direction Générale des Infrastructures, des Transports et de la Mer (DGITM), Direction des Affaires maritimes - Service "Mission de la flotte de commerce"
@@ -202,9 +210,11 @@ children:
           - Direction Départementale des Territoires 04
           - DDT04
       DDT05:
-        prefLabels: {fr: DDT 05 (Direction Départementale des Territoires des Hautes-Alpes}
+        prefLabels: {fr: DDT 05 (Direction Départementale des Territoires des Hautes-Alpes)}
         altLabels:
           - Direction Départementale des Territoires des Hautes Alpes
+        hiddenLabels:
+          - DDT 05 (Direction Départementale des territoires des Hautes-Alpes
       DDT06:
         prefLabels: {fr: DDTM 06 (Direction Départementale des territoires et de la Mer des Alpes-Maritimes)}
       DDT07:
@@ -380,7 +390,7 @@ children:
       DDT35:
         prefLabels: {fr: DDTM 35 (Direction Départementale des Territoires et de la Mer d'Ille-et-Vilaine)}
         altLabels:
-          - Direction départementale des Territoires et de la Mer d’Ille-et-Vilaine
+          - Direction départementale des Territoires et de la Mer d'Ille-et-Vilaine
           - DDTM 35
           - DDTM35/METSSI (Direction Départementale des Territoires et de la Mer d'Ille-et-Vilaine/Mission de l'Expertise Territoriale et de la Stratégie du Système d'Information)
           - Direction Départementale des Affaires Maritimes d'Ille-et-Vilaine
@@ -393,7 +403,9 @@ children:
           - DDT de l'Indre
           - Direction Départementale des Territoires de l'Indre
       DDT37:
-        prefLabels: {fr: DDT 37 (Direction Départementale des Territoires  d'Indre-et-Loire)}
+        prefLabels: {fr: DDT 37 (Direction Départementale des Territoires d'Indre-et-Loire)}
+        altLabels:
+          - DDT 37 (Direction départementale des territoires  d'Indre-et-Loire)
       DDT38:
         prefLabels: {fr: DDT 38 (Direction Départementale des Territoires de l'Isère)}
         altLabels:
@@ -486,6 +498,7 @@ children:
         prefLabels: {fr: DDT 53 (Direction Départementale des Territoires de la Mayenne)}
         altLabels:
           - DDT de la Mayenne
+          - DDT 53
           - DDT53
       DDT54:
         prefLabels: {fr: DDT 54 (Direction Départementale des Territoires de Meurthe-et-Moselle)}
@@ -626,7 +639,9 @@ children:
         altLabels:
           - DDT des DEUX-SEVRES
           - DDT des Deux-Sèvres
+          - DDT deux-sèvres
           - DDT 79
+          - ddt79
           - DDT 79/SAT (Service Agriculture et Territoires)
           - DDT 79/SEE (Service Eau et Environnement)
           - DDT 79/SPPH/Prospective
@@ -728,7 +743,7 @@ children:
       Deal:
         prefLabels: {fr: DEAL}
         altLabels:
-          - Direction de l’Environnement, de l’Aménagement et du Logement (DEAL)
+          - Direction de l'Environnement, de l'Aménagement et du Logement (DEAL)
         hiddenLabels:
           - Direction de l'Aménagement, de l'Environnement et du Logement (DEA
       DM:
@@ -793,7 +808,7 @@ children:
       - DREALs
       - DREAL -mMinistere-environnement
       - DIREN, BRGM, DRIRE
-      - Direction régional de l’Environnement, de l’Aménagement et du logement
+      - Direction régional de l'Environnement, de l'Aménagement et du logement
       - Direction régionale de l'environnement, de l'aménagement et du logement
     children:
       ARA:
@@ -810,11 +825,11 @@ children:
           - Direction régionale de l'environnement, de l'aménagement et du logement Rhône Alpes
           - DIREN du bassin Rhône-Méditerranée
         hiddenLabels:
-          - Direction Régionale de l’Environnement de l’Aménagement et du Logement d'Auvergne-Rhône-Alpes (Direction Régionale de l’Environnement de l’Aménagement et du Logement d'Auvergne-Rhône-Alpes (DREAL Auvergne-Rhône-Alpes))
+          - Direction Régionale de l'Environnement de l'Aménagement et du Logement d'Auvergne-Rhône-Alpes (Direction Régionale de l'Environnement de l'Aménagement et du Logement d'Auvergne-Rhône-Alpes (DREAL Auvergne-Rhône-Alpes))
           - Direction Régionale de de l'Environnement, de l'Aménagement, de l'Environnement et du Logementd'Auvergne-Rhône-Alpes (Direction Régionale de l'Alimentation de l'Agriculture et de la Forêt d'Auvergne-Rhône-Alpes (DREAL Auvergne-Rhône-Alpes))
           - DREAL Auvergne- Rhône-Alpes
           - DREAL Auvergne-Rhone-Alpes
-          - Direction Régionale de l’Environnement de l’Aménagement et du Logement d'Auvergne-Rhône-Alpes (DREAL Auvergne-Rhône-Alpes)/ DZC
+          - Direction Régionale de l'Environnement de l'Aménagement et du Logement d'Auvergne-Rhône-Alpes (DREAL Auvergne-Rhône-Alpes)/ DZC
           - Dreal Rhône-Alpes
       BFC:
         prefLabels: {fr: "DREAL Bourgogne-Franche-Comté (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Bourgogne-Franche-Comté)"}
@@ -834,9 +849,9 @@ children:
       CVL:
         prefLabels: {fr: "DREAL Centre-Val de Loire (Direction régionale de l'environnement, de l'aménagement et du logement)"}
         altLabels:
-          - Direction Régionale de l’Environnement de l’Aménagement et du Logement Centre-Val de Loire (DREAL Centre-Val de Loire)
+          - Direction Régionale de l'Environnement de l'Aménagement et du Logement Centre-Val de Loire (DREAL Centre-Val de Loire)
           - Direction régionale de l'Environnement, de l'Aménagement et du Logement région Centre - Val de Loire
-          - Direction régional de l’Environnement, de l’Aménagement et du Logement du Centre-Val de Loire
+          - Direction régional de l'Environnement, de l'Aménagement et du Logement du Centre-Val de Loire
           - Direction régionale de l'environnement, de l'aménagement et du logement Centre-Val de Loire
           - DREAL CENTRE-VAL DE LOIRE / SEB
           - DREAL Centre
@@ -851,7 +866,7 @@ children:
           - Direction régionale de l'environnement, de l'aménagement et du logement Centre-Val de Loirede la série de données --
             - Direction régionale de l'environnement, de l'aménagement et du logement Centre-Val de Loiree de la série de données --
       COR:
-        prefLabels: {fr: "Direction régionale de l’environnement, de l’aménagement et du logement de Corse"}
+        prefLabels: {fr: "Direction régionale de l'environnement, de l'aménagement et du logement de Corse"}
         altLabels:
           - Dreal Corse
           - DIREN du bassin Corse
@@ -872,7 +887,7 @@ children:
       HDF:
         prefLabels: {fr: "DREAL HdF (Direction Régionale de l'Environnement, de l'Aménagement et du Logement des Hauts-de-France)"}
         altLabels:
-          - Direction Régionale de l’Environnement, de l’Aménagement et du Logement Hauts-de-France
+          - Direction Régionale de l'Environnement, de l'Aménagement et du Logement Hauts-de-France
           - DREAL Hauts-de-France
           - DREAL HdF (Direction Régionale de l'Environnement de l'Aménagement et du Logement des Hauts de France)
           - DREAL HdF (Direction Régionale de l'Environnement de l'Aménagement et du Logement des Hauts-de-France)
@@ -882,7 +897,7 @@ children:
       IDF:
         prefLabels:
           fr: >
-            DRIEAT Île-de-France (Direction régionale et interdépartementale de l’environnement, de l’aménagement
+            DRIEAT Île-de-France (Direction régionale et interdépartementale de l'environnement, de l'aménagement
             et des transports)
         altLabels:
           - DRIEA-IF Siège
@@ -891,13 +906,13 @@ children:
           - DRIEA-IF/UTEA94
           - UD93 (Unité départementale de Seine-Saint-Denis)
           - UDEA94 (Unité départementale du Val de Marne)
-          - DRIEAT IF (Direction régionale et interdépartementale de l’Environnement, de l’Aménagement et des Transports d’Île-de-France)
+          - DRIEAT IF (Direction régionale et interdépartementale de l'Environnement, de l'Aménagement et des Transports d'Île-de-France)
           - DRIEE IF (Direction Régionale et Interdépartementale de l'Environnement et de l'Énergie d'Ile-de-France)
           - DRIEE Île-de-France - Délégation de bassin Seine-Normandie
           - DRIEE Île-de-France - Service développement durable des territoires et des entreprises
           - Driee Ile-de-France
           - Direction Régionale et Interdépartementale de l'Environnement et de l'Energie_2
-          - Direction Régionale et Interdépartementale de l’Environnement et de l’Energie d’Île-de-France
+          - Direction Régionale et Interdépartementale de l'Environnement et de l'Energie d'Île-de-France
           - DIREN du bassin Seine-Normandie
       NOR:
         prefLabels: {fr: "DREAL Normandie (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Normandie)"}

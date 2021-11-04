@@ -12,7 +12,7 @@ journal: |
 
 $cats = [
   // catalogues nationaux
-  'geocatalogue'=> [
+  'geocatalogue'=> [ // Le Géocatalogue est utilisé uniquement commé référence
     'dontAgg'=> true, // ne pas prendre en compte dans l'agrégation
     'endpointURL'=> 'http://www.geocatalogue.fr/api-public/servicesRest', // Totalité du Géocatalogue
     //'endpointURL'=> 'http://www.geocatalogue.fr/api-public/inspire/servicesRest', // Catalogue Inspire

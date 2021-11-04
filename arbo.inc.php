@@ -84,6 +84,13 @@ class Arbo { // une arboresence = ens. de thèmes structurés hiérarchiquement
   // $yaml correspond à la description d'un thème, chaque appel construit un thème
   private function build(bool $keyIsPrefLabel, array $yaml, array $path=[]): Concept {
     //echo "Thematic::build($path)<br>\n";
+    foreach (['prefLabels','altLabels','hidenLabels'] as $var) {
+      if (isset($$var)) {
+        foreach ($$var as $id => $label) {
+          $$var[$id] = str_replace(["’"],["'"], $label); // apostrophe problématique
+        }
+      }
+    }
     if (!$keyIsPrefLabel) {
       foreach ($yaml['prefLabels'] ?? [] as $label)
         $this->labels[strtolower($label)] = $path;
@@ -104,7 +111,9 @@ class Arbo { // une arboresence = ens. de thèmes structurés hiérarchiquement
     }
     return new Concept(
       $path,
-      $path ? ($keyIsPrefLabel ? ['fr'=> '/'.implode('/',$path)] : $yaml['prefLabels']) : [],
+      $path ?
+         (($keyIsPrefLabel || !isset($yaml['prefLabels'])) ? ['fr'=> '/'.implode('/',$path)] : $yaml['prefLabels'])
+         : [],
       $yaml['altLabels'] ?? [],
       $yaml['hiddenLabels'] ?? [],
       $children,
@@ -144,10 +153,16 @@ class Arbo { // une arboresence = ens. de thèmes structurés hiérarchiquement
       return $this->children[$first]->getChild($path);
     }
   }
+  
   // le label est-il défini ?
-  function labelIn(string $label): bool { return isset($this->labels[strtolower($label)]); }
+  function labelIn(string $label): bool {
+    $label = str_replace(["’"],["'"], $label); // apostrophe problématique
+    return isset($this->labels[strtolower($label)]);
+  }
+  
   // retrouve le prefLabel à partir d'un label
   function prefLabel(string $label): ?string {
+    $label = str_replace(["’"],["'"], $label); // apostrophe problématique
     if ($path = $this->labels[strtolower($label)] ?? null) {
       $prefLabel = $this->getChild($path)->prefLabel('fr');
       //echo "Thematic::prefLabel($label)->$prefLabel<br>\n";

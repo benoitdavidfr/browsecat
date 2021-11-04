@@ -6,8 +6,11 @@ doc: |
   Je m'intéresse principalement aux MDD du périmètre ministériel, cad les MDD dont un au moins des responsibleParty
   est une DG du pôle ministériel (MTE/MCTRCT/MM) ou un service déconcentré du pôle ou une DTT(M).
   Les mdContacts de ces MDD ne sont parfois pas des organisations du pôle.
+
+  A FAIRE:
+    remplacer l'utilisation des *Sel.yaml par celle de organisation.yaml
 journal: |
-  27-29/10/2021:
+  27/10-4/11/2021:
     - réécriture nlle version utilisant PgSql
   18/10/2021:
     - création
@@ -32,6 +35,10 @@ $arbos = [
   'arboCovadis'=> new Arbo('arbocovadis.yaml'),
   'annexesInspire'=> new Arbo('annexesinspire.yaml'),
 ];
+
+// Choisir le serveur
+PgSql::open('host=pgsqlserver dbname=gis user=docker');
+//PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public');
 
 
 // Renvoie la liste prefLabels structurée par arbo, [ {arboid} => [ {prefLabel} ]]
@@ -121,6 +128,7 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
     echo "<li><a href='?action=listkws'>Synthèse des taux d'appartenance des mots-clés aux arborescences</a></li>\n";
     echo "<li><a href='?action=croise'>Calcul du nbre de MD communes entre catalogues</a></li>\n";
     echo "<li><a href='?action=diffgeocat'>Affichage des MDD du Géocatalogue du périmètre n'appartenant pas à agg</a></li>\n";
+    echo "<li><a href='?action=testorganisation'>Test de l'arbo. de organisations</a></li>\n";
     echo "</ul>\n";
   }
   elseif ($_GET['action']=='createAggTable') { // Créer une table agrégée
@@ -237,6 +245,15 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
     $offset = $limit + ($_GET['offset'] ?? 0);
     echo "<a href='?action=diffgeocat&amp;offset=$offset'>next</a>\n";
   }
+  elseif ($_GET['action']=='testorganisation') { // Tests sur l'arbo. des organisations 
+    $arboOrgs = new Arbo('organisation.yaml');
+    foreach ([
+        "DDT de l'Ain Unité SIG",
+        "DDT de l’Ain unité SIG",
+      ] as $orgname) {
+        echo "$orgname -> ",$arboOrgs->labelIn($orgname) ? 'In' : 'NotIn',"<br>\n";
+    }
+  }
   die();
 }
   
@@ -245,7 +262,8 @@ if (!isset($_GET['action'])) { // menu principal
   echo "<li><a href='?cat=$_GET[cat]&amp;action=listdata'>Toutes les MDD (type dataset ou series)</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=listdataYaml'>Toutes les MDD (type dataset ou series) en Yaml</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=listservices'>Toutes les MD de service</a></li>\n";
-  echo "<li><a href='?cat=$_GET[cat]&amp;action=orgsHorsSel'>Liste des organisations hors périmètre</a></li>\n";
+  //echo "<li><a href='?cat=$_GET[cat]&amp;action=orgsHorsSel'>Liste des organisations hors périmètre</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=orgsHorsArbo'>Liste des organisations hors arbo. des orgs.</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=orgs'>Liste des organisations du périmètre</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=listdataperimetre'>Liste les MDD du périmètre</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=listkws'>Liste les mots-clés des MDD du périmètre</a></li>\n";
@@ -342,7 +360,7 @@ if ($_GET['action']=='extract') { // réalise la transformation ISO->JSON sur la
   die();
 }
 
-if ($_GET['action']=='orgsHorsSel') { // liste les organisations hors sélection, permet de vérifier la sélection
+if ($_GET['action']=='orgsHorsSel') { // liste les organisations hors sélection, utilise les fichiers *Sel.yaml 
   if (!is_file("$_GET[cat]Sel.yaml"))
     $orgNamesSel = [];
   else
@@ -359,6 +377,30 @@ if ($_GET['action']=='orgsHorsSel') { // liste les organisations hors sélection
   ksort($orgNames);
   echo "<pre>\n";
   foreach (array_keys($orgNames) as $orgName) {
+    echo "  - $orgName\n";
+  }
+  die();
+}
+
+if ($_GET['action']=='orgsHorsArbo') { // liste les organisations hors de l'arbo des organisations 
+  if (!is_file("organisation.yaml"))
+    $arboOrgs = null;
+  else
+    $arboOrgs = new Arbo('organisation.yaml');
+  $orgNames = []; // liste des organisations hors Arbo
+  foreach (PgSql::query("select record from catalog$_GET[cat]") as $tuple) {
+    $record = json_decode($tuple['record'], true);
+    //echo "<pre>"; print_r($record); die();
+    foreach ($record['responsibleParty'] ?? [] as $party) {
+      if (isset($party['organisationName'])) {
+        if (!$arboOrgs || !$arboOrgs->labelIn($party['organisationName']))
+          $orgNames[strtolower($party['organisationName'])] = $party['organisationName'];
+      }
+    }
+  }
+  ksort($orgNames);
+  echo "<pre>\n";
+  foreach ($orgNames as $orgName) {
     echo "  - $orgName\n";
   }
   die();
