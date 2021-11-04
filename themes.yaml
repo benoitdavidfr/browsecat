@@ -11,8 +11,27 @@ abstract:
   correspondant soit à un concept de l'arborescence, soit à une annexe Inspire.
   
 conclusions:
-  1) Sur le périmètre ministériel, il est intéressant d'utiliser les annexes Inspire et l'aborescence Covadis
-     en les complétant comme je l'ai fait.
+  1) Sur le périmètre ministériel, il est intéressant d'utiliser comme thèmes les annexes Inspire (88%)
+    et l'aborescence Covadis (79%) en les complétant comme je l'ai fait. Total 97%
+  2) comment définir le périmètre ministériel ?
+    On définit les organisations du périmètre comme les services AC/SD de l'un des 3 ministères + les DDT.
+    Les données du périmètre sont-elles
+     - celles dont au moins un responsibleParty est une organisation du périmètre ou
+     - celles dont au moins un mdContact est une organisation du périmètre
+    La première définition est plus logique mais pose des questions sur l'organisation de ces MD dans CKAN
+    car l'organisation chapeau devrait plutôt être un mdContact.
+    Cela voudrait dire que pour le périmètre ministériel, il faut définir des organisations comme l'Ifremer
+    qui est mdContact de données dont l'un des responsibleParty est dans le périmètre ministériel.
+  3) pour la première définition, outre Géo-IDE et les les PF régionales, les catalogues intéressants sont
+    - GéoRisques (50)
+    - Sextant (501-28=473)
+    - GeoLittoral (77)
+    - GpU (231)
+    - EauFrance (70-49=21)
+    - Céréma (8)
+    - Shom (3)
+  Finalement Sextant est intéressant non par les MDD déclarées par les organisations du périmètre mais par les MDD
+  déclarées par d'autres ayant comme resposibleParty une organisation du périmètre ministériel.
   
 estimations:
   title: pourcentage des MDD du périmètre dont au moins un mot-clé appartient à un des thèmes

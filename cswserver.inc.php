@@ -5,6 +5,8 @@ title: cswserver.inc.php - gère les appels à un serveur CSW
 classes:
 doc: |
 journal: |
+  2/11/2021:
+    - erreur dans getRecordById() pour les id trop longs
   31/10/2021:
     - utilisation de maxRetry
   16/1/2021:
@@ -30,9 +32,9 @@ class CswServer {
   
   function __construct(string $baseUrl, string $cacheDir) {
     $this->baseUrl = $baseUrl;
-    $this->cacheGetCap = new HttpCache("$cacheDir/cap", ['maxRetry'=> 5]);
-    $this->cacheGetRecs = new HttpCache("$cacheDir/recs", ['maxRetry'=> 5]);
-    $this->cacheGetRecById = new HttpCache("$cacheDir/byid", ['maxRetry'=> 5]);
+    $this->cacheGetCap = new HttpCache("$cacheDir/cap", ['maxRetry'=> 5, 'timeout'=> 60]);
+    $this->cacheGetRecs = new HttpCache("$cacheDir/recs", ['maxRetry'=> 5, 'timeout'=> 60]);
+    $this->cacheGetRecById = new HttpCache("$cacheDir/byid", ['maxRetry'=> 5, 'timeout'=> 60]);
   }
   
   // effectue un GetCapabilities et retourne le résultat XML
@@ -67,12 +69,11 @@ class CswServer {
     try {
       $records = $this->cacheGetRecs->request($url, 'xml');
     } catch (Exception $e) {
-      throw new Exception("Erreur de GetRecords sur ".$this->baseUrl." avec message ".$e->getMessage());
-      //die($e->getMessage." ligne ".__LINE__." du fichier ".__FILE__);
+      throw new Exception("Erreur dans CswServer::GetRecords($start, $elementSetName) avec message ".$e->getMessage());
     }
     $records = preg_replace('!<(/)?([^:]+):!', '<$1$2_', $records);
-    //$records = str_replace(['</csw:','<csw:','</dc:','<dc:','</ows:'],['</csw_','<csw_','</dc_','<dc_'], $records);
-    return new SimpleXMLElement($records);
+    $result = new SimpleXMLElement($records);
+    return $result;
   }
   
   // Retourne le chemin du fichier du cache stockant le GetRecords
@@ -111,10 +112,13 @@ class CswServer {
   //  - 'dcat' pour DCAT
   //  - 'iso19139' pour ISO 19115/19139 (défaut)
   function getRecordById(string $id, string $output='iso19139', string $elementSetName='full'): string {
+    if (strlen($id) > 256) {
+      throw new Exception("Erreur dans CswServer::getRecordById($id): ID trop long");
+    }
     try {
       return $this->cacheGetRecById->request($this->getRecordByIdUrl($id, $output, $elementSetName), 'xml');
     } catch (Exception $e) {
-       die($e->getMessage()." ligne ".__LINE__." du fichier ".__FILE__."\n");
+       throw new Exception("Erreur dans CswServer::getRecordById($id): ".$e->getMessage());
     }
   }
   

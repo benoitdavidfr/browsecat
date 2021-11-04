@@ -1,0 +1,992 @@
+title: arborescence des organisations
+$schema:
+  $id: http://bdavid.alwaysdata.net/browsecat/arbocovadis.yaml#/$schema
+  definitions:
+    labels:
+      description: liste d'étiquettes associées au noeud
+      type: array
+      items:
+        description: étiquette
+        type: string
+    children:
+      description: enfants définis chacun par un id, des propriétés et des enfants
+      type: object
+      additionalProperties: false
+      patternProperties:
+        '^[-A-Za-z0-9_]+$':
+          description: contenu du noeud
+          oneOf:
+            - description: noeud vide
+              type: 'null'
+            - description: noeud avec propriétés ou enfants
+              type: object
+              additionalProperties: false
+              properties:
+                description:
+                  description: explication issue du document source
+                  type: string
+                prefLabels:
+                  type: object
+                  additionalProperties: false
+                  patternProperties:
+                    '^(fr|en)$':
+                      type: string
+                altLabels:
+                  description: liste de synonymes associées au noeud
+                  $ref: '#/definitions/labels'
+                hiddenLabels:
+                  description: liste d'étiquettes cachées associées au noeud, orthographe, graphie, ...
+                  $ref: '#/definitions/labels'
+                note:
+                  description: commentaire complémentaire
+                  type: string
+                children:
+                  description: sous-arborescence structuré avec un identifiant par noeud de niveau supérieur
+                  $ref: '#/definitions/children'
+      
+  type: object
+  additionalProperties: false
+  properties:
+    title:
+      description: titre du catalogue
+      type: string
+    description:
+      description: commentaire sur le catalogue
+      type: string
+    journal:
+      description: historique des modifications
+      type: string
+    $schema:
+      description: schema JSON du document
+      $ref: http://json-schema.org/draft-07/schema#
+    keyIsPrefLabel:
+      description: indique que la clé constitue le prefLabel
+      const: false
+    children:
+      description: contenu de l'arborescence structuré avec un identifiant par noeud de premier niveau
+      $ref: '#/definitions/children'
+    source:
+      type: string
+    eof:
+      description: marque de fin de fichier
+      const: null
+
+keyIsPrefLabel: false
+children:
+  AC:
+    note: organsation en centrale, à ce niveau les appellations génériques du ministère, puis découpage par DG
+    altLabels:
+      - MEDDE
+      - MEDDTL
+      - Ministère de l'Environnement, d el'Energie et de la Mer
+      - Ministère de l'Environnement, de l'Energie et de la Mer
+      - Ministère de l'Environnement, de l'Energie et de la Mer (MEEM)
+      - MEEM
+      - MEEM / Mission Zonale de Défense et de Sécurité
+      - Ministère en charge de l'environnement / Mission Zonale de Défense et de Sécurité
+      - Ministère de l'Ecologie du Développement Durable et de l'Energie
+      - Ministère de l'Ecologie et du Développement Durable
+      - Ministère de la Transition Ecologique et Solidaire
+      - Ministère de la Transition écologique et solidaire
+      - Ministère de la Transition écologique et solidaire (MEEM)
+      - Ministére de la Transition écologique et solidaire
+      - Ministère de l’Énvironnement, de l'Energie et de la Mer
+    children:
+      CGDD:
+        prefLabels: {fr: Commissariat général au développement Durable}
+        altLabels:
+          - Ministère de l'Environnement, de l'Energie et de la Mer - Service de l'observation et des statistiques (SOeS)
+          - Ministère de la Transition Ecologique et Solidaire - CGDD/SOeS/SDES
+          - MEDDE-CGDD-SOes
+          - MEDDE/CGDD/DRI/MIG
+          - MEDDE/CGDD/SOeS
+          - MEDDTL/CGDD/SOeS
+          - MEEDDE/CGDD/SOeS
+          - SDES
+          - SOeS – SSP, Enquêtes "Eau et assainissement"
+          - Service de l'observation et des statistiques (SOeS)
+          - Service de la donnée et des études statistiques (SDES)
+      DGAC:
+        prefLabels: {fr: Direction Générale de l'Aviation Civile (DGAC)}
+        altLabels:
+          - DGAC
+          - Direction Générale de l'Aviation Civile
+          - Direction de la Sécurité de l'Aviation Civile
+          - Direction des Services de la navigation aérienne (DSNA)
+          - DSAC Sud (Direction de la Sécurité de l’Aviation civile Interrégionale Sud)
+      DGALN:
+        prefLabels: {fr: "DGALN (Direction Générale de l'Aménagement, du Logement et de la Nature)"}
+        altLabels:
+          - Ministère en charge de l'environnement / DGALN
+          - Ministère en charge de l'environnement / DGALN - CGDD - DML
+          - Ministère en charge de l'environnement / DGALN - DEB
+          - Ministère en charge de l'environnement / DGALN-CGDD-DML
+          - Direction de l'Eau et de la Biodiversité (DEB)
+          - Direction de l'Eau et de la Biodiversité (MTES/DGALN/DEB)
+          - MEEM / DGALN
+          - Ministère de l'Ecologie, du Développement Durable et de l'Energie / Direction Générale de l'Aménagement, du Logement et de la Nature / Direction de l'Eau et de la Biodiversité
+          - Ministère chargé de l'environnement - Direction de l'Eau et de la Biodiversité
+          - Ministère de la Transition écologique et solidaire - Direction de l'eau et de la biodiversité
+          - Ministére de la Transition écologique et solidaire - Direction de l'eau et de la biodiversité
+          - DGALN/DEB/LM3
+          - Ministère chargé de l'environnement / DGALN - DEB - ELM3
+          - Ministère de la Transition Ecologique - Camino
+          - Ministère de l’Écologie et du Développement durable (DNP)
+      DGEC:
+        prefLabels: {fr: Direction Générale de l'Energie et du Climat}
+        altLabels:
+          - Ministère en charge de l'environnement / DGEC
+          - Ministère en charge de l'environnement/ DGEC
+          - MEEM / DGEC
+      DGITM:
+        prefLabels: {fr: "Direction Générale des Infrastructures, des Transports et de la Mer (DGITM)"}
+        altLabels:
+          - Ministère en charge de l'environnement / DGITM
+          - Ministère en charge de l'environnement / DGITM - DAM - DML
+          - Ministère en charge de l'environnement / DGITM - DEB
+          - Ministère en charge de l'environnement / DGITM / DEB
+          - Medde-DGITM
+          - Ministère de la Mer, DGITM, Direction des Affaires maritimes - Service "Mission de la flotte de commerce"
+          - Ministère de la Mer, Direction Générale des Infrastructures, des Transports et de la Mer (DGITM), Direction des Affaires maritimes - Service "Mission de la flotte de commerce"
+          - Direction des affaires maritimes (DAM)
+      DGPR:
+        prefLabels: {fr: Direction Générale de la Prévention des Risques (DGPR)}
+        altLabels:
+          - Direction Générale de la Prévention des Risques
+          - Ministère de la Transition écologique - Direction générale de la prévention des risques
+          - Ministère en charge de l'environnement / DGPR
+          - DGPR
+          - MEEM / DGPR
+          - DGPR (base de données Gaspar)
+          - SCHAPI
+          - DGPR/DAGSI
+          - DGPR/MTES
+          - DGPR/SRSEDPD/MBAP
+          - Direction Générale de la Prévention des Risques (DGPR/DAGSI)
+          - Ministère en charge de l'environnement - Direction générale de la prévention des risques - Inspection des installations classées
+          - georisques.gouv.fr
+      SG:
+        prefLabels: {fr: Secrétariat Général}
+        altLabels:
+          - Ministére de la Transition écologique et solidaire - Direction des affaires européennes et internationales
+  DDT:
+    altLabels:
+      - Directions Départementales des Territoires et de la Mer (DDTM)
+      - DDTMs
+      - DDT/SPAE/NSER
+      - DDTM/SEF/BECV
+      - Délégation à la Mer et au Littoral
+      - DDE
+      - DDAM - Service Cultures marines
+  DDT01-25:
+    children:
+      DDT01:
+        prefLabels: {fr: DDT 01 (Direction Départementale des Territoires de l'Ain)}
+        altLabels:
+          - DDT de l'Ain
+          - DDT de l'Ain - Unité SIG
+          - DDT de l'Ain Unité SIG
+          - Direction Départementale des Territoires de l'Ain - unité SIG
+      DDT02:
+        prefLabels: {fr: DDT 02 (Direction Départementale des Territoires de l'Aisne)}
+        altLabels:
+          - DDT 02
+          - DDT de l'Aisne - Unité Connaissance des Territoires
+      DDT03:
+        prefLabels: {fr: DDT 03 (Direction Départementale des Territoires de l'Allier)}
+        altLabels:
+          - DDT de l'Allier
+      DDT04:
+        prefLabels: {fr: DDT 04 (Direction Départementale des Territoires des Alpes de Haute-Provence)}
+        altLabels:
+          - Direction Départementale des Territoires 04
+          - DDT04
+      DDT05:
+        prefLabels: {fr: DDT 05 (Direction Départementale des Territoires des Hautes-Alpes}
+        altLabels:
+          - Direction Départementale des Territoires des Hautes Alpes
+      DDT06:
+        prefLabels: {fr: DDTM 06 (Direction Départementale des territoires et de la Mer des Alpes-Maritimes)}
+      DDT07:
+        prefLabels: {fr: DDT 07 (Direction Départementale des Territoires de l'Ardèche)}
+        altLabels:
+          - DDT de l'Ardeche
+      DDT08:
+        prefLabels: {fr: DDT 08 (Direction Départementale des Territoires des Ardennes)}
+        altLabels:
+          - Direction Départementale des Territoires des Ardennes DDT 08
+          - DDT08 - service environnement - eau
+          - DDT08 - service sécurité et bâtiment durable - risque et sécurité routière
+      DDT09:
+        prefLabels: {fr: DDT 09 (Direction Départementale des Territoires de l'Ariège)}
+        altLabels:
+          - Direction départementale des Territoires de l'Ariège
+          - DDT de l'Ariège
+      DDT10:
+        prefLabels: {fr: DDT 10 (Direction Départementale des Territoires de l'Aube)}
+        altLabels:
+          - Direction Départementale des Territoires de l'Aube
+      DDT11:
+        prefLabels: {fr: DDTM 11 (Direction Départementale des Territoires et de la Mer de l'Aude)}
+        altLabels:
+          - DDTM 11
+          - DDTM 11 (Direction Départementale des Territoires de l'Aude)
+          - DDTM de l'Aude
+      DDT12:
+        prefLabels: {fr: DDT 12 (Direction Départementale des Territoires de l'Aveyron)}
+        altLabels:
+          - DDT12
+          - Direction Départementale des Territoires de l'Aveyron
+      DDT13:
+        prefLabels: {fr: DDTM 13 (Direction Départementale des Territoires et de la Mer des Bouches-du-Rhône)}
+      DDT14:
+        prefLabels: {fr: DDTM 14 (Direction départementale des territoires et de la Mer du Calvados)}
+        altLabels:
+          - DDTM du Calvados
+          - DDTM 14
+          - DDTM14
+          - DDTM 14 - Délégation Mer et Littoral
+      DDT15:
+        prefLabels: {fr: DDT 15 (Direction Départementale des Territoires du Cantal)}
+        altLabels:
+          - DDT du Cantal
+          - DDT 15
+          - DDT 15 (Direction Départementale des Territoires du Cantal) Service Connaissance Aménagement Développement
+          - DDT 15 (Direction Départementale des Territoires du Cantal) Service Economie Agricole
+          - DDT 15 (Direction Départementale des Territoires du Cantal) Service Environnement
+          - DDT 15 (Direction Départementale des Territoires du Cantal) Service Habitat Logement
+      DDT16:
+        prefLabels: {fr: DDT 16 (Direction Départementale des Territoires de Charente)}
+      DDT17:
+        prefLabels: {fr: DDTM 17 (Direction Départementale des Territoires et de la Mer de Charente-Maritime)}
+        altLabels:
+          - DDTM 17
+          - DDTM17
+          - Direction Départementale des Territoires et de la Mer 17
+          - Direction Départementale des Territoires et de la Mer de la Charente-Maritime
+          - DDTM 17 - MSIG
+          - DDTM 17 - MTP
+          - DDTM 17 - SCTE - Connaissances
+          - DDTM 17 - Services des activités maritimes - Cultures marines et pêche
+          - DDTM 17 - service littoral - gestion intégrée du DPM
+          - DDTM 17/UARDD/Amenagement
+          - DDTM17 - Mission SIG
+          - DDTM17/EBDD/Unité gestion quantitative de l'eau.
+          - DDTM17/MSIG
+          - DDTM17/MTP -  89, avenue des Cordeliers  - 17018 La Rochelle Cédex
+          - DDTM17/PLDS/HABITAT
+          - DDTM17/PLDS/SCTE/unité connaissances
+          - DDTM17/RSL/GL
+          - DDTM17/Service Littoral
+          - DDE 17
+      DDT18:
+        prefLabels: {fr: DDT 18 (Direction Départementale des Territoires du Cher)}
+      DDT19:
+        prefLabels: {fr: DDT 19 (Direction Départementale des Territoires de la Corrèze)}
+        altLabels:
+          - DDT19 - SAET - UACT
+      DDT21:
+        prefLabels: {fr: DDT 21 (Direction Départementale des Territoires de Côte-d'Or)}
+        altLabels:
+          - Direction départementale des territoires de la Côte-d'Or
+          - DDT21/SPAE/NSER
+      DDT22:
+        prefLabels: {fr: DDTM 22 (Direction Départementale des Territoires et de la Mer des Côtes-d'Armor)}
+        altLabels:
+          - DDTM des Côtes-d'Armor
+          - DDTM 22
+          - DDTM 22 (Direction Départementale des Territoires et de la Mer des Côtes d'Armor)
+          - DDTM 22 / MOTDDP / EC
+      DDT23:
+        prefLabels: {fr: DDT 23 (Direction Départementale des Territoires de la Creuse)}
+        altLabels:
+          - DDT 23 / MSIG
+          - DDT23 / MSIG
+        hiddenLabels:
+          - DDT 23 (Direction Départemntale des Territoires de la Creuse)
+      DDT24:
+        prefLabels: {fr: DDT 24 (Direction Départementale des Territoires de la Dordogne)}
+        altLabels:
+          - DDT24 - Direction Departementale des Territoires de Dordogne
+          - DDT24-Direction Départementale des Territoires de la Dordogne
+          - DDT 24
+          - DDT de la Dordogne
+      DDT25:
+        prefLabels: {fr: DDT 25 (Direction Départementale des Territoires du Doubs)}
+        altLabels:
+          - Direction Départementale des Territoires du Doubs
+          - Direction Départementale des Territoires du Doubs (DDT 25)
+  DDT26-50:
+    children:
+      DDT26:
+        prefLabels: {fr: DDT 26 (Direction Départementale des Territoires de la Drôme) }
+        altLabels:
+          - DDT 26 (Direction Départementale des Territoires de la Drôme) - SDSR/PDEU
+          - DDT26
+          - DDT26/SDSR/PDEU
+          - Direction Départementale des Territoires de la Drôme - Service Aménagement Territoires et Risques - Pôle Risques
+          - Direction Départementale des Territoires de la Drôme -Service Eaux Forêts et Espaces Naturels - Pôle Forêt
+      DDT27:
+        prefLabels: {fr: DDTM 27 (Direction Départementale des Territoires et de la Mer de l'Eure)}
+        altLabels:
+          - DDTM de l'Eure
+      DDT28:
+        prefLabels: {fr: DDT 28 (Direction Départementale des Territoires d'Eure-et-Loir)}
+        hiddenLabels:
+          - DDT 28 (Direction Départementale des Territoires du Eure-et-Loir)
+          - Direction Départementale des Territoire d'Eure-et-Loir
+      DDT29:
+        prefLabels: {fr: DDTM 29 (Direction Départementale des Territoires et de la Mer du Finistère)}
+        altLabels:
+          - DDTM29 - Direction Départementale des Territoires et de la Mer du Finistère
+          - DDTM 29
+          - DDTM 29 - Direction Départementale des Territoires et de la Mer du Finistère
+          - DDTM 29 SEA UEEC (Unité Évolution des Exploitations et Conjoncture)
+          - DDTM 29/CST/SIG (Système d'Information Géographique)
+          - DDTM 29/SEB/UMISEN (Service Eau et Biodiversité - Unité animation de la MISEN)
+          - DDTM 29/SL/UEGE (Service du Littoral - Unité Etudes Générales et Expertises)
+          - DDE du Finistère
+          - DDE du Finistère - Service Prévention Eau et Affaires Juridiques
+      DDT2A:
+        prefLabels: {fr: DDTM 2A (Direction Départementale des Territoires et de la Mer de Corse-du-Sud)}
+        altLabels:
+          - DDTM2A/SREF
+      DDT2B:
+        prefLabels: {fr: DDTM 2B (Direction Départementale des Territoires et de la Mer de Haute-Corse)}
+      DDT30:
+        prefLabels: {fr: DDTM 30 (Direction Départementale des Territoires et de la Mer du Gard)}
+        altLabels:
+          - DDTM30 - SEF
+          - DDTM30 - SSB - ICR
+          - DDTM 30 - SEA
+          - DDTM 30 - SEF - Forêt/DFCI
+          - DDTM 30 - SER
+          - DDTM 30 - SUH - HI
+      DDT31:
+        prefLabels: {fr: DDT 31 (Direction Départementale des Territoires de Haute-Garonne)}
+      DDT32:
+        prefLabels: {fr: DDT 32 (Direction Départementale des Territoires du Gers)}
+        altLabels:
+          - DDT du Gers
+      DDT33:
+        prefLabels: {fr: DDTM 33 (Direction Départementale des Territoires et de la Mer de Gironde)}
+        altLabels:
+          - DDTM 33 Mission Observation et stratégies territoriales
+          - DDTM33 PSIT
+      DDT34:
+        prefLabels: {fr: DDTM 34 (Direction Départementale des Territoires et de la Mer de l'Hérault)}
+        altLabels:
+          - DDTM de l'Hérault -service web
+      DDT35:
+        prefLabels: {fr: DDTM 35 (Direction Départementale des Territoires et de la Mer d'Ille-et-Vilaine)}
+        altLabels:
+          - Direction départementale des Territoires et de la Mer d’Ille-et-Vilaine
+          - DDTM 35
+          - DDTM35/METSSI (Direction Départementale des Territoires et de la Mer d'Ille-et-Vilaine/Mission de l'Expertise Territoriale et de la Stratégie du Système d'Information)
+          - Direction Départementale des Affaires Maritimes d'Ille-et-Vilaine
+          - DDAM d'Ille-et-Vilaine - Service Cultures marines
+          - DDAM d'Ille-et-Vilaine - Sevice cultures Marines
+          - DDAM d'Ille-et-Vilaine- Service Cultures marines
+      DDT36:
+        prefLabels: {fr: DDT 36 (Direction Départementale des Territoires de l'Indre)}
+        altLabels:
+          - DDT de l'Indre
+          - Direction Départementale des Territoires de l'Indre
+      DDT37:
+        prefLabels: {fr: DDT 37 (Direction Départementale des Territoires  d'Indre-et-Loire)}
+      DDT38:
+        prefLabels: {fr: DDT 38 (Direction Départementale des Territoires de l'Isère)}
+        altLabels:
+          - Direction départementale des territoires de l'Isère
+          - DDT38
+          - DDT de l'Isère
+          - DDT 38 (Direction Départementale des Territoires de l'Isère) Service Environement
+      DDT39:
+        prefLabels: {fr: DDT 39 (Direction Départementale des Territoires du Jura)}
+        altLabels:
+          - DDT du Jura
+      DDT40:
+        prefLabels: {fr: DDTM 40 (Direction Départementale des Territoires et de la Mer des Landes)}
+        altLabels:
+          - DDT 40
+      DDT41:
+        prefLabels: {fr: DDT 41 (Direction Départementale des Territoires du Loir-et-Cher)}
+        altLabels:
+          - DDT de Loir-et-Cher
+      DDT42:
+        prefLabels: {fr: DDT 42 (Direction Départementale des Territoires de la Loire)}
+        altLabels:
+          - DDT 42
+          - DDT Loire
+        hiddenLabels:
+          - DDT 42 (Direction Départementale des Territoires de la Loire) (Direction Départementale des Territoires de la Loire)
+          - DDT 42 (Direction Départementale des Territoires de la Loire) (Direction Départementale des Territoires de la Loire) (Direction Départementale des Territoires de la Loire)
+      DDT43:
+        prefLabels: {fr: DDT 43 (Direction Départementale des Territoires de la Haute-Loire)}
+        altLabels:
+          - Direction Départementale des Territoires de la Haute-Loire (DDT 43)
+          - DDT de la Haute-Loire
+      DDT44:
+        prefLabels: {fr: DDTM 44 (Direction Départementale des Territoires et de la Mer de Loire-Atlantique)}
+        altLabels:
+          - DDTM de Loire-Atlantique
+          - DDTM 44 (Direction Départementale des Territoires et de la Mer de Loire-Atlantique) - Service Transports et Risques
+      DDT45:
+        prefLabels: {fr: DDT 45 (Direction Départementale des Territoires du Loiret)}
+        altLabels:
+          - DDT45
+          - DDT_45
+          - DDT45 - Bruit PPBE
+          - DDT45 - SEEF
+          - DDT45 - SHRU
+          - DDT45 - SUADT
+      DDT46:
+        prefLabels: {fr: DDT 46 (Direction Départementale des Territoires du Lot)}
+        altLabels:
+          - DDT_46
+          - DDT du Lot
+      DDT47:
+        prefLabels: {fr: DDT 47 (Direction Départementale des Territoires du Lot-et-Garonne)}
+        altLabels:
+          - DDT47/SRS/PR
+        hiddenLabels:
+          - DDT 47 (Direction Départementale des Territoires de Lot-et-Garonne)
+      DDT48:
+        prefLabels: {fr: DDT 48 (Direction Départementale des Territoires de la Lozère)}
+        altLabels:
+          - DDT48
+          - DDT 48 - Service Economie Agricole - Unité accompagnement des exploitations
+          - DDT 48 - Service Sécurité Risques Energie Construction - Unité Prévention des risques et gestion de crise
+          - DDT 48 -Service Aménagement - Urbanisme et Territoire
+          - DDT 48 -Service Aménagement et Logement- Urbanisme et Territoires
+      DDT49:
+        prefLabels: {fr: DDT 49 (Direction Départementale des Territoires de Maine-et-Loire)}
+        altLabels:
+          - DDT 49 (Direction Départementale des Territoires de Maine-et-Loire) - Service Urbanisme Aménagement et Risques
+          - DDT 49 (Direction départementale des territoires du Maine-et-Loire)
+          - DDT 49 / Mission Développement Durable et Connaissance des Territoires
+          - DDT 49 / Service Eau Environnement et Biodiversité
+          - DDT 49 / Service Sécurité Routière Gestion de Crise
+          - DDT 49 / Service Urbanisme Aménagement et Risques
+          - DDT de Maine-et-Loire Service Urbanisme Aménagement et Risques
+      DDT50:
+        prefLabels: {fr: DDT 50 (Direction Départementale des Territoires de la Manche)}
+        altLabels:
+          - DDTM de la Manche
+          - DDTM50
+          - DDTM 50 - DML/DPM-CM
+          - DDTM 50 - DML/IML - Chargé de mission SIG Littoral
+  DDT51-75:
+    children:
+      DDT51:
+        prefLabels: {fr: DDT 51 (Direction Départementale des Territoires de la Marne)}
+      DDT52:
+        prefLabels: {fr: DDT 52 (Direction Départementale des Territoires de la Haute-Marne)}
+      DDT53:
+        prefLabels: {fr: DDT 53 (Direction Départementale des Territoires de la Mayenne)}
+        altLabels:
+          - DDT de la Mayenne
+          - DDT53
+      DDT54:
+        prefLabels: {fr: DDT 54 (Direction Départementale des Territoires de Meurthe-et-Moselle)}
+        altLabels:
+          - DDT54
+      DDT55:
+        prefLabels: {fr: DDT 55 (Direction départementale des Territoires de la Meuse)}
+        altLabels:
+          - DDT 55 / SE
+          - DDT 55 / SUH
+      DDT56:
+        prefLabels: {fr: DDTM 56 (Direction Départementale des Territoires et de la Mer du Morbihan)}
+        altLabels:
+          - DDTM du Morbihan
+          - DDTM 56
+          - DDTM56 (Direction Départementale des Territoires et de la Mer du Morbihan)
+          - DDTM 56/DML/SAMEL (Service Aménagement Mer et Littoral)
+          - DDTM du Morbihan  SUH  PH
+          - DDTM 56/SENB/ASS-GSP (Assainissement Gestion Services Publics)
+          - DDTM 56/SENB/MARE
+          - DDTM 56/SENB/PoleEau
+          - DDEA du Morbihan
+          - Direction départementale  des affaires maritimes du Morbihan
+      DDT57:
+        prefLabels: {fr: DDTM 57 (Direction Départementale des Territoires de la Moselle)}
+        altLabels:
+          - Direction départementale des territoires de la Moselle
+          - DDT de la Moselle
+      DDT58:
+        prefLabels: {fr: DDT 58 (Direction Départementale des Territoires de la Nièvre)}
+        altLabels:
+          - Direction Départementale des Territoires de la Nièvre
+          - DDT 58 (Service Aménagement Urbanisme Habitat)
+          - DDT 58 (Service Economie Agricole)
+          - DDT 58 (Service Loire Sécurité Risques)
+      DDT59:
+        prefLabels: {fr: DDT 59 (Direction Départementale des Territoires du Nord)}
+        altLabels:
+          - Direction Départementale du Territoire et de la Mer du Nord
+          - DDTM du Nord
+          - DDTM59
+      DDT60:
+        altLabels:
+          - DDT de l'Oise
+      DDT61:
+        prefLabels: {fr: DDT 61 (Direction Départementale des Territoires de l'Orne)}
+        altLabels:
+          - DDT 61
+          - DDT de l'Orne
+        hiddenLabels:
+          - DDT 61 (Direction Départemental des territoires de l'Orne)
+      DDT62:
+        prefLabels: {fr: DDTM 62 (Direction départementale des territoires et de la mer du Pas-de-Calais)}
+        altLabels:
+          - Direction Départementale du Territoire et de la Mer du Pas-de-Calais
+          - DDTM du Pas-de-Calais / MCSIG
+          - DDE62
+      DDT63:
+        prefLabels: {fr: DDT 63 (Direction Départementale des Territoires du Puy-de-Dôme)}
+        altLabels:
+          - DDT du Puy de Dôme
+      DDT64:
+        prefLabels: {fr: DDTM 64 (Direction Départementale des Territoires et de la Mer des Pyrénées-Atlantiques)}
+      DDT65:
+        prefLabels: {fr: DDT 65 (Direction Départementale des Territoires des Hautes-Pyrénées)}
+      DDT66:
+        prefLabels: {fr: DDTM 66 (Direction Départementale des Territoires et de la Mer des Pyrénées-Orientales)}
+        altLabels:
+          - DDTM 66 (Direction Départementale des Territoires et de la Mer des Pyrénées Orientales)
+          - DDTM 66 - DML - Délégation à la Mer et au Littoral 66-11 / Unité Gestion du Littoral
+      DDT67:
+        prefLabels: {fr: DDT 67 (Direction Départementale des Territoires du Bas-Rhin)}
+        altLabels:
+          - DDT du Bas-Rhin
+          - Direction Départementale des Territoires du Bas-Rhin
+          - Direction Départementale des Territoires du Bas-Rhin)
+      DDT68:
+        prefLabels: {fr: DDT 68 (Direction Départementale des Territoires du Haut-Rhin)}
+        altLabels:
+          - DDT 68 -  MIT
+          - DDT 68/DIR/MIT
+          - Direction Départementale des Territoires du Haut-Rhin - Service Connaissance , Aménagement et Urtbanisme
+      DDT69:
+        prefLabels: {fr: DDT 69 (Direction Départementale des Territoires du Rhône)}
+        altLabels:
+          - Direction Départementale des Territoires du Rhône
+          - DDT du Rhône
+          - DDT 69 - Direction Départementale des Territoires du Rhône
+          - DDT 69
+      DDT70:
+        prefLabels: {fr: DDT 70 (Direction Départementale des Territoires de la Haute-Saône)}
+        altLabels:
+          - DDT 70 SER/Prévention des Risques et gestion de Crises
+          - DDT70-SER/EAU
+      DDT71:
+        prefLabels: {fr: DDT 71 (Direction Départementale des Territoires de Saône-et-Loire)}
+        altLabels:
+          - DDT 71
+          - DDT de Saône-et-Loire
+          - DDT71
+      DDT72:
+        prefLabels: {fr: DDT 72 (Direction Départementale des Territoires de la Sarthe)}
+        altLabels:
+          - DDT 72
+      DDT73:
+        prefLabels: {fr: DDT 73 (Direction Départementale des Territoires de la Savoie)}
+      DDT74:
+        prefLabels: {fr: DDT 74 (Direction Départementale des Territoires de la Haute-Savoie)}
+  DDT76-95:
+    children:
+      DDT76:
+        prefLabels: {fr: DDTM 76 (Direction Départementale des Territoires et de la Mer de Seine-Maritime)}
+        altLabels:
+          - DDTM de Seine-Maritime
+          - DDTM 76
+          - DDTM 76 - Délégation Mer et Littoral
+          - DDTM 76 - SRMT  Bureau des Risques Naturels
+          - DDTM76 SPERIC
+          - DDTM76/SPERIC/BRNT
+          - DDEA 76/SMNO/PBH
+      DDT77:
+        prefLabels: {fr: DDT 77 (Direction Départementale des Territoires de Seine-et-Marne)}
+        altLabels:
+          - Direction départementale des territoires de Seine et Marne
+          - DDT de Seine et Marne
+          - DDT 77 -  Service Habitat et Rénovation Urbaine
+          - DDT 77 - Service Environnement, Prévention des Risques
+          - DDT 77 - Service Territoires, Aménagements et Connaissances - Pôle des Systèmes d'Information
+          - DDT 77 - Service énergies, mobilités et cadre de vie (SEMCV)
+          - DDT 77 – Service Territoires, Aménagements et Connaissances
+      DDT78:
+        prefLabels: {fr: DDT 78 (Direction Départementale des Territoires des Yvelines)}
+        altLabels:
+          - DDT des Yvelines
+          - DDT 78
+      DDT79:
+        prefLabels: {fr: DDT 79 (Direction Départementale des Territoires des Deux-Sèvres)}
+        altLabels:
+          - DDT des DEUX-SEVRES
+          - DDT des Deux-Sèvres
+          - DDT 79
+          - DDT 79/SAT (Service Agriculture et Territoires)
+          - DDT 79/SEE (Service Eau et Environnement)
+          - DDT 79/SPPH/Prospective
+          - DDT79/SPPH/Prospective
+      DDT80:
+        prefLabels: {fr: DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)}
+        altLabels:
+          - Direction Départementale des Territoires et de la Mer de la Somme
+          - DDTM80
+      DDT81:
+        prefLabels: {fr: DDT 81 (Direction Départementale des Territoires du Tarn)}
+        altLabels:
+          - DDT du Tarn
+          - DDT 81
+          - Direction Départementale des Territoires du Tarn
+          - Direction Départementale des Territoires du Tarn - SERES
+      DDT82:
+        prefLabels: {fr: DDT 82 (Direction Départementale des Territoires de Tarn-et-Garonne)}
+      DDT83:
+        prefLabels: {fr: DDTM 83 (Direction Départementale des Territoires et de la Mer du Var)}
+        altLabels:
+          - Direction départementale des territoires et de la mer du Var
+          - DDTM 83/SEBIO
+          - DDTM 83/SML
+          - DDTM 83/SPP/PR
+          - DDTM 83/SPP/PSIGP/BSIG
+          - DDTM83/DML
+          - DDTM83/DML/BATB
+          - DDTM83/DML/BLO/BATB
+          - DDTM83/SAD/BECV
+          - DDTM83/SAD/BR
+          - DDTM83/SAD/BTA/SIG
+          - DDTM83/SAD/PR
+          - DDTM83/SAEF/BFDFCI
+          - DDTM83/SAF
+          - DDTM83/SEADR
+          - DDTM83/SEF
+          - DDTM83/SEF/BCFS
+          - DDTM83/SEF/PFDFCI
+          - DDTM83/SML/BLO
+      DDT84:
+        prefLabels: {fr: DDT 84 (Direction Départementale des Territoires du Vaucluse)}
+        altLabels:
+          - DDT 84 - DDT DE de Vaucluse
+          - DDT 84 Vaucluse
+          - DDT de Vaucluse
+          - DDT84 MSIG
+      DDT85:
+        prefLabels: {fr: DDTM 85 (Direction Départementale des Territoires et de la Mer de Vendée)}
+        altLabels:
+          - DDTM 85 (Direction Départementale des Territoires et de la Mer de la Vendée)
+          - DDTM 85 (Direction Départementale des Territoires et de la Mer de Vendée) MITRA
+          - DDTM 85 (Direction Départementale des Territoires et de la Mer de Vendée)- SERN
+          - DDTM 85 (Direction Départementale des Territoires et de la Mer de Vendée)-SUA
+          - Direction Départemental de l'Equipement Vendée
+      DDT86:
+        prefLabels: {fr: DDT 86 (Direction Départementale des Territoires de la Vienne)}
+        altLabels:
+          - DDT 86
+          - DDT86
+          - DDT de la Vienne
+      DDT87:
+        prefLabels: {fr: DDT 87 (Direction Départementale des Territoires de la Haute-Vienne)}
+        altLabels:
+          - DDT de la Haute-Vienne
+          - Direction Départementale des Territoires de la Haute-Vienne
+          - DDT87
+          - DDT87/SIT/MCAT
+          - DDT87/SUL
+      DDT88:
+        prefLabels: {fr: DDT 88 (Direction Départementale des Territoires des Vosges)}
+        altLabels:
+          - Direction Départementale des Territoires des Vosges
+      DDT89:
+        prefLabels: {fr: DDT 89 (Direction Départementale des Territoires de l'Yonne)}
+        altLabels:
+          - DDT de l'Yonne
+          - DDT89/SCTEP/Connaissance des Territoires et Etudes Générales
+          - DDT89/SEFREN/UMAAP
+          - DDT89/SIDDS/EDUCATION ROUTIERE
+          - DDT89/SUHR/Habitat et Logement Social
+      DDT90:
+        prefLabels: {fr: DDT 90 (DDT Territoire de Belfort)}
+        altLabels:
+          - DDT90
+          - DDT 090
+      DDT91:
+        prefLabels: {fr: DDT 91 (Direction Départementale des Territoires de l'Essonne)}
+        altLabels:
+          - DDT de l'Essonne
+          - DDT 91 / Service Territoire et Prospective
+      DDT95:
+        prefLabels: {fr: DDT 95 (Direction Départementale des Territoires du Val-d'Oise)}
+        altLabels:
+          - DDT95 - Pôle Urbanisme
+          - DDT95 - Pôle risques et bruit
+  Outre-mer:
+    children:
+      Deal:
+        prefLabels: {fr: DEAL}
+        altLabels:
+          - Direction de l’Environnement, de l’Aménagement et du Logement (DEAL)
+        hiddenLabels:
+          - Direction de l'Aménagement, de l'Environnement et du Logement (DEA
+      DM:
+        prefLabels: {fr: Direction de la Mer}
+      DealGP:
+        prefLabels: {fr: DEAL Guadeloupe}
+        hiddenLabels:
+          - DEAL de la Guadeloupe
+          - DEAL GUADELOUPE
+          - Déal Guadeloupe
+      DgtmGF:
+        prefLabels: {fr: DGTM Guyane}
+        altLabels:
+          - DGTM
+        children:
+          DealGF:
+            prefLabels: {fr: DEAL Guyane}
+            altLabels:
+              - Direction de l'Environnement, de l'Aménagement et du Logement de Guyane (DEAL)
+              - DIREN Guyane
+      DealMQ:
+        prefLabels: {fr: "DEAL (Direction de l'environnement, de l'Aménagement et du Logement) Martinique"}
+        altLabels:
+          - Direction de l'Aménagement, de l'Environnement et du Logement (DEAL) de la Martinique
+          - DEAL Martinique
+          - DEAL Martinique - Unité SIG
+          - DEAL Martinique - Unité Statistiques
+          - DEAL Martinique, Unité Statistiques
+      DmMQ:
+        prefLabels: {fr: Direction de la Mer de Martinique}
+      DealYT:
+        prefLabels: {fr: DEAL Mayotte}
+      DealRE:
+        prefLabels: {fr: DEAL La Réunion}
+        hiddenLabels:
+          - DEAL 974\SPREI
+          - DEAL REUNION/SCED/UCSI
+          - DEAL REUNION/Service Eau et Biodiversité
+          - DEAL Réunion
+          - DEAL Réunion / Service Eau et Biodiversité
+          - DIREN de La Réunion / Cellule SIE
+          - DIREN de la Réunion
+          - DIREN de la Réunion / Cellule SIE
+          - DIREN de la Réunion / Cellule SINP
+          - DDE 974 / PROSPET / CARG
+          - DDE 974 / PROSPET / PCTS
+          - DDE 974 / SGR / CPER
+          - DDE 974 / SGT / CMO
+          - DDE 974 / SHAU / CPRN
+          - DDE 974 / SHAU / CUP
+      DtamPM:
+        prefLabels: {fr: DTAM Saint Pierre et Miquelon}
+        altLabels:
+          - Direction des Territoires de l'Alimentation et de la Mer (DTAM) Saint Pierre et Miquelon
+  DREAL:
+    prefLabels: {fr: DREAL}
+    altLabels:
+      - DIREN
+      - DREAL
+      - DREAL des régions
+      - DREAL et DEAL
+      - DREALs
+      - DREAL -mMinistere-environnement
+      - DIREN, BRGM, DRIRE
+      - Direction régional de l’Environnement, de l’Aménagement et du logement
+      - Direction régionale de l'environnement, de l'aménagement et du logement
+    children:
+      ARA:
+        prefLabels: {fr: "DREAL Auvergne (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Auvergne)"}
+        altLabels:
+          - Direction Régionale de l'Aménagement, de l'Environnement et du Logement Auvergne-Rhône-Alpes (DREAL ARA)
+          - Direction Régionale de l'Environnement de l'Aménagement et du Logement d'Auvergne-Rhône-Alpes (DREAL Auvergne-Rhône-Alpes)
+          - Direction régionale de l'environnement, de l'aménagement et du logement Auvergne-Rhône Alpes
+          - DREAL Auvergne Rhône Alpes
+          - DREAL Auvergne-Rhône-Alpes
+          - DREAL ARA
+          - DREAL AUVERGNE-RHONE-ALPES
+          - DREAL de Bassin Rhône-Méditerranée
+          - Direction régionale de l'environnement, de l'aménagement et du logement Rhône Alpes
+          - DIREN du bassin Rhône-Méditerranée
+        hiddenLabels:
+          - Direction Régionale de l’Environnement de l’Aménagement et du Logement d'Auvergne-Rhône-Alpes (Direction Régionale de l’Environnement de l’Aménagement et du Logement d'Auvergne-Rhône-Alpes (DREAL Auvergne-Rhône-Alpes))
+          - Direction Régionale de de l'Environnement, de l'Aménagement, de l'Environnement et du Logementd'Auvergne-Rhône-Alpes (Direction Régionale de l'Alimentation de l'Agriculture et de la Forêt d'Auvergne-Rhône-Alpes (DREAL Auvergne-Rhône-Alpes))
+          - DREAL Auvergne- Rhône-Alpes
+          - DREAL Auvergne-Rhone-Alpes
+          - Direction Régionale de l’Environnement de l’Aménagement et du Logement d'Auvergne-Rhône-Alpes (DREAL Auvergne-Rhône-Alpes)/ DZC
+          - Dreal Rhône-Alpes
+      BFC:
+        prefLabels: {fr: "DREAL Bourgogne-Franche-Comté (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Bourgogne-Franche-Comté)"}
+        altLabels:
+          - DREAL Bourgogne-Franche-Comté
+          - DREAL de Bourgogne-Franche-Comté
+          - DREAL Bourgogne
+          - DREAL BOURGOGNE-FRANCHE-COMTE
+          - DREAL Franche-Comté - Service EDAD - Département Information Géographique
+      BRE:
+        prefLabels: {fr: DREAL Bretagne}
+        altLabels:
+          - DREAL BRETAGNE/SPPR/Service prévention des pollutions et des risques
+          - DRE Bretagne
+        hiddenLabels:
+          - DREA Bretagne
+      CVL:
+        prefLabels: {fr: "DREAL Centre-Val de Loire (Direction régionale de l'environnement, de l'aménagement et du logement)"}
+        altLabels:
+          - Direction Régionale de l’Environnement de l’Aménagement et du Logement Centre-Val de Loire (DREAL Centre-Val de Loire)
+          - Direction régionale de l'Environnement, de l'Aménagement et du Logement région Centre - Val de Loire
+          - Direction régional de l’Environnement, de l’Aménagement et du Logement du Centre-Val de Loire
+          - Direction régionale de l'environnement, de l'aménagement et du logement Centre-Val de Loire
+          - DREAL CENTRE-VAL DE LOIRE / SEB
+          - DREAL Centre
+          - DREAL Centre (données risques)
+          - DREAL Centre Val de Loire
+          - DREAL Centre – Service Mobilités Transports
+          - DREAL Centre-Val de Loire
+          - Dreal Centre
+          - Dreal Centre - Val de Loire
+          - DIREN du bassin Loire-Bretagne
+        hiddenLabels:
+          - Direction régionale de l'environnement, de l'aménagement et du logement Centre-Val de Loirede la série de données --
+            - Direction régionale de l'environnement, de l'aménagement et du logement Centre-Val de Loiree de la série de données --
+      COR:
+        prefLabels: {fr: "Direction régionale de l’environnement, de l’aménagement et du logement de Corse"}
+        altLabels:
+          - Dreal Corse
+          - DIREN du bassin Corse
+      GES:
+        prefLabels: {fr: "DREAL Grand Est (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Grand Est)"}
+        altLabels:
+          - Direction Régionale de l'Environnement, de l'Aménagement et du Logement Grand Est
+          - DREAL Grand Est (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Grand-Est)
+          - DREAL Grand Est (Direction régionale de l'Environnement, de l'Aménagement et du Logement)
+          - DREAL Grand Est - Service Connaissance et Développement Durable - Pôle Connaissance Territoriale et Analyse Statistique
+          - DREAL Grand Est - Service Transports - Pôle Mobilité
+          - DREAL Grand Est - Service eau, biodiversité, paysages - Pôle Espèces et expertises naturalistes
+          - DREAL Grand Est [ex-Lorraine] (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Grand Est)
+          - Dreal Lorraine
+          - DIREN du bassin Rhin-Meuse
+          - DREAL Alsace / Milieux et Risques Naturels
+          - DREAL Alsace / Système d'Information Géographique
+      HDF:
+        prefLabels: {fr: "DREAL HdF (Direction Régionale de l'Environnement, de l'Aménagement et du Logement des Hauts-de-France)"}
+        altLabels:
+          - Direction Régionale de l’Environnement, de l’Aménagement et du Logement Hauts-de-France
+          - DREAL Hauts-de-France
+          - DREAL HdF (Direction Régionale de l'Environnement de l'Aménagement et du Logement des Hauts de France)
+          - DREAL HdF (Direction Régionale de l'Environnement de l'Aménagement et du Logement des Hauts-de-France)
+          - DIREN du bassin Artois-Picardie
+          - Dreal Nord Pas-de-Calais
+          - DREAL N-PdC (Direction Régionale de l'Environnement de l'Aménagement et du Logement du Nord - Pas de Calais)
+      IDF:
+        prefLabels:
+          fr: >
+            DRIEAT Île-de-France (Direction régionale et interdépartementale de l’environnement, de l’aménagement
+            et des transports)
+        altLabels:
+          - DRIEA-IF Siège
+          - Direction régionale et interdépartementale de l'équipement et de l'aménagement Île-de-France - Unité départementale de Paris
+          - DRIEA-IF/UTEA92
+          - DRIEA-IF/UTEA94
+          - UD93 (Unité départementale de Seine-Saint-Denis)
+          - UDEA94 (Unité départementale du Val de Marne)
+          - DRIEAT IF (Direction régionale et interdépartementale de l’Environnement, de l’Aménagement et des Transports d’Île-de-France)
+          - DRIEE IF (Direction Régionale et Interdépartementale de l'Environnement et de l'Énergie d'Ile-de-France)
+          - DRIEE Île-de-France - Délégation de bassin Seine-Normandie
+          - DRIEE Île-de-France - Service développement durable des territoires et des entreprises
+          - Driee Ile-de-France
+          - Direction Régionale et Interdépartementale de l'Environnement et de l'Energie_2
+          - Direction Régionale et Interdépartementale de l’Environnement et de l’Energie d’Île-de-France
+          - DIREN du bassin Seine-Normandie
+      NOR:
+        prefLabels: {fr: "DREAL Normandie (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Normandie)"}
+        altLabels:
+          - DREAL Normandie
+          - DREAL de Normandie
+          - DREAL Normandie - Site de Caen
+          - DREAL Basse Normandie
+          - DREAL Basse-Normandie
+          - DREAL H.Normandie (Direction Régionale de l Environnement, de l Aménagement et du Logement Haute-Normandie)
+          - DIREN de Basse-Normandie
+          - DIREN Basse-Normandie
+          - DREAL de Basse-Normandie
+          - DREAL de Haute-Normandie
+        hiddenLabels:
+          - DREAL Normandie-
+      NAQ:
+        prefLabels: {fr: DREAL Nouvelle-Aquitaine}
+        altLabels:
+          - DREAL NA / SRNH / DHPCVCA
+          - DREAL Nouvelle Aquitaine
+          - DREAL Nouvelle-Aquitaine (MICAT)
+          - DREAL Nouvelle-Aquitaine - Mission Connaissance et Analyse des Territoires
+          - DREAL Nouvelle-Aquitaine / MiCAT / PIG
+          - DREAL Nouvelle-Aquitaine/MiCAT
+          - DREAL Aquitaine (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Aquitaine)
+          - DREAL Aquitaine / SPR / SCSOH
+          - DREAL Aquitaine Limousin Poitou-Charentes
+          - DREAL ALPC
+          - DREAL Limousin
+          - DREAL Poitou-Charentes
+          - Direction régionale de l'environnement Poitou-Charentes - DIREN/SNSP
+      OCC:
+        prefLabels: {fr: DREAL Occitanie}
+        altLabels:
+          - DREAL Occitanie (Direction Régionale de l'Enivironnement, de l'Aménagement et du Logement)
+          - DREAL Occitanie (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Occitanie)
+          - DREAL Occitanie (Direction Régionale de l'Environnement, de l'Aménagement et du Logement)
+          - DIREN du bassin Adour-Garonne
+          - DIREN Languedoc Roussillon
+          - DREAL Lang.Rous. (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Languedoc-Roussillon)
+          - DREAL Languedoc Roussillon
+          - Direction Régionale de l'Environnement, de l'Aménagement et du Logement de Languedoc-Roussillon
+          - Direction Régionale de l'Equipement du Languedoc-Roussillon
+          - DREAL Midi-Pyrénées
+          - DREAL Midi-Pyrénées (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Midi-Pyrénées)
+      PDL:
+        prefLabels: {fr: "DREAL Pays de la Loire (Direction régionale de l'environnement, de l'aménagement et du logement Pays de la Loire)"}
+        altLabels:
+          - DREAL PAYS DE LOIRE
+          - DREAL 72 (Direction Régionale de l'Environnement, de l'Aménagement et du Logement de la Sarthe)
+      PAC:
+        prefLabels: {fr: DREAL Provence-Alpes-Côte d'Azur}
+        altLabels:
+          - DREAL PACA
+          - DREAL PACA - SBEP / Unité Données de l'Eau
+  DIRM:
+    children:
+      MED:
+        prefLabels: {fr: DIRM MED (Direction Interrégionale de la Mer Méditerranée)}
+        altLabels:
+          - CROSS Méditerranée La Garde
+      MEMN:
+        prefLabels: {fr: DIRM MEMN (Direction InterRégionale Mer Manche Est - Mer du Nord)}
+        altLabels:
+          - Direction InterRégionale de la Mer Manche Est - Mer du Nord
+          - CROSS Gris-Nez
+      NAMO:
+        prefLabels: {fr: DIRM NAMO (Direction interrégionale de la mer Nord Atlantique - Manche Ouest)}
+        altLabels:
+          - DIRM NAMO
+          - CROSS Corsen
+          - CROSS Jobourg
+      SA:
+        prefLabels: {fr: DIRM Sud Atlantique}
+        altLabels:
+          - CROSS Etel
+  DIR:
+    children:
+      IDF:
+        prefLabels: {fr: Direction des Routes Ile-de-France (DIRIF)}
+      Ouest:
+        prefLabels: {fr: DIR Ouest}
+      CO:
+        prefLabels: {fr: DIRCO}
+        altLabels:
+          - DIRCO/SPT/BPMO
+      MC:
+        prefLabels: {fr: Direction Interdépartementale des Routes du Massif Central (DIRMC)}
+  COVADIS:
+    prefLabels: {fr: COVADIS}
+eof:

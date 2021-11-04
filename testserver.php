@@ -1,7 +1,7 @@
 <?php
 /*PhpDoc:
-name: server.php
-title: server.php - serveur pour tester HttpRetry
+name: testserver.php
+title: testserver.php - serveur pour tester HttpRetry
 doc: |
   Génère aléatoirement soit une erreur soit un retour OK pour tester HttpRetry.
   Permet de rester le cas de redirection en utilisant le paramère redirect.
@@ -15,6 +15,10 @@ if (isset($_GET['redirect'])) {
   header('HTTP/1.1 302 Found');
   header("Location: $location");
   die("302 Found\n");
+}
+
+if (isset($_GET['sleep'])) {
+  sleep($_GET['sleep']);
 }
 
 //echo "<pre>"; print_r($_SERVER);

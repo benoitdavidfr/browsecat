@@ -94,8 +94,20 @@ while ($nextRecord) {
       $dcRecord = $cswServer->getRecordById($mdid, 'dc', 'full');
     }
     else { // dans le cas data ou service, j'utilise ISO19139
-      $isoRecord = $cswServer->getRecordById($mdid);
-      $mdrecord = Mdvars::extract($mdid, $isoRecord);
+      try {
+        $isoRecord = $cswServer->getRecordById($mdid);
+      }
+      catch (Exception $e) {
+        echo "Erreur: dans CswServer::getRecordById($mdid)\n";
+        continue;
+      }
+      try {
+        $mdrecord = Mdvars::extract($mdid, $isoRecord);
+      }
+      catch (Exception $e) {
+        echo "Erreur: dans Mdvars::extract pour $mdid\n";
+        continue;
+      }
       if (!$mdrecord) {
         echo "Erreur: enregistrement ISO non défini pour $mdid\n";
         print_r($briefRecord);

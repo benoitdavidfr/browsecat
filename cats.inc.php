@@ -93,6 +93,10 @@ $cats = [
     'shortName'=> 'sLoir',
     'endpointURL'=> 'http://catalogue.sigloire.fr/geonetwork/srv/fr/csw-sigloire',
   ],
+  'geopal'=> [
+    'shortName'=> 'GPal',
+    'endpointURL'=> 'https://www.geopal.org/geonetwork/srv/eng/csw',
+  ],
   'geo2France'=> [
     'shortName'=> 'G2F',
     'endpointURL'=> 'https://www.geo2france.fr/geonetwork/srv/fre/csw',

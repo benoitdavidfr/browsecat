@@ -15,19 +15,26 @@ use Symfony\Component\Yaml\Yaml;
 //echo "<pre>\n";
 
 class Annexes {
-  private array $labels=[]; // [$label -> 1]
+  private array $children=[]; // 
+  private array $labels=[]; // [{label} -> {prefLabel}]
 
   function __construct(string $filename) {
     $yaml = Yaml::parseFile($filename);
     foreach ($yaml['children'] as $annex) {
-      $this->labels[strtolower($annex['prefLabel']['fr'])] = 1;
-      $this->labels[strtolower($annex['prefLabel']['en'])] = 1;
+      $this->children[] = $annex['prefLabel']['fr'];
+      $this->labels[strtolower($annex['prefLabel']['fr'])] = $annex['prefLabel']['fr'];
+      $this->labels[strtolower($annex['prefLabel']['en'])] = $annex['prefLabel']['fr'];
       foreach ($annex['hiddenLabels'] ?? [] as $label)
-        $this->labels[strtolower($label)] = 1;
+        $this->labels[strtolower($label)] = $annex['prefLabel']['fr'];
     }
   }
   
   function labelIn(string $label): bool { return isset($this->labels[strtolower($label)]); }
+  
+  function prefLabel(string $label): ?string { return $this->labels[strtolower($label)] ?? null; }
+  
+  // Les enfants soit d'un label soit à la racine
+  function children(?string $label=null): array { return $this->children; }
 };
 
 

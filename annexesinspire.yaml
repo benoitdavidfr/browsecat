@@ -20,7 +20,7 @@ $schema:
           type: object
           additionalProperties: false
           properties:
-            prefLabel:
+            prefLabels:
               description: étiquette préférentielle en français et en anglais
               type: object
               additionalProperties: false
@@ -35,103 +35,111 @@ $schema:
               items:
                 description: étiquette
                 type: string
+
+keyIsPrefLabel: false
 children:
   rs:
-    prefLabel:
+    prefLabels:
       fr: Référentiels de coordonnées
       en: Coordinate reference systems
   gg:
-    prefLabel:
+    prefLabels:
       fr: Systèmes de maillage géographique
       en: Geographical grid systems
   gn:
-    prefLabel:
+    prefLabels:
       fr: Dénominations géographiques
       en: Geographical names
   au:
-    prefLabel:
+    prefLabels:
       fr: Unités administratives
       en: Administrative units
   ad:
-    prefLabel:
+    prefLabels:
       fr: Adresses
       en: Addresses
   cp:
-    prefLabel:
+    prefLabels:
       fr: Parcelles cadastrales
       en: Cadastral parcels
   tn:
-    prefLabel:
+    prefLabels:
       fr: Réseaux de transport
       en: Transport networks
   hy:
-    prefLabel:
+    prefLabels:
       fr: Hydrographie
       en: Hydrography
   ps:
-    prefLabel:
+    prefLabels:
       fr: Sites protégés
       en: Protected sites
+    hiddenLabels:
+      - site protégé
   el:
-    prefLabel:
+    prefLabels:
       fr: Altitude
       en: Elevation
   lc:
-    prefLabel:
+    prefLabels:
       fr: Occupation des terres
       en: Land cover
-    hiddenLabels:
+    altLabels:
       - usage des sols
+      - usage du sol
   oi:
-    prefLabel:
+    prefLabels:
       fr: Ortho-imagerie
       en: Orthoimagery
   ge:
-    prefLabel:
+    prefLabels:
       fr: Géologie
       en: Geology
   su:
-    prefLabel:
+    prefLabels:
       fr: Unités statistiques
       en: Statistical units
   bu:
-    prefLabel:
+    prefLabels:
       fr: Bâtiments
       en: Buildings
   so:
-    prefLabel:
+    prefLabels:
       fr: Sols
       en: Soil
   lu:
-    prefLabel:
+    prefLabels:
       fr: Usage des sols
       en: Land use
   hh:
-    prefLabel:
+    prefLabels:
       fr: Santé et sécurité des personnes
       en: Human health and safety
   us:
-    prefLabel:
+    prefLabels:
       fr: Services d'utilité publique et services publics
       en: Utility and governmental services
   ef:
-    prefLabel:
+    prefLabels:
       fr: Installations de suivi environnemental
       en: Environmental monitoring facilities
   pf:
-    prefLabel:
+    prefLabels:
       fr: Lieux de production et sites industriels
       en: Production and industrial facilities
   af:
-    prefLabel:
+    prefLabels:
       fr: Installations agricoles et aquacoles
       en: Agricultural and aquaculture facilities
   pd:
-    prefLabel:
+    prefLabels:
       fr: Répartition de la population — démographie
       en: Population distribution - demography
+    hiddenLabels:
+      - Répartition de la population - démographie
+      - population - démographie
   am:
-    prefLabel:
+    prefLabels:
       fr: Zones de gestion, de restriction ou de réglementation et unités de déclaration
       en: Area management/restriction/regulation zones and reporting units
     hiddenLabels:
@@ -139,46 +147,48 @@ children:
       - zones de gestion, de restriction ou de réglementation et unités de déclaration (thème)
       - Area Management/Restriction/Regulation. Zones and Reporting Units
   nz:
-    prefLabel:
+    prefLabels:
       fr: Zones à risque naturel
       en: Natural risk zones
+    hiddenLabels:
+      - zone de risque naturel
   ac-mf:
-    prefLabel:
+    prefLabels:
       fr: Conditions atmosphériques et caractéristiques géographiques météorologiques
       en: Atmospheric Conditions and meteorological geographical features
   ac:
-    prefLabel:
+    prefLabels:
       fr: Conditions atmosphériques
       en: Atmospheric conditions
   mf:
-    prefLabel:
+    prefLabels:
       fr: Caractéristiques géographiques météorologiques
       en: Meteorological geographical features
   of:
-    prefLabel:
+    prefLabels:
       fr: Caractéristiques géographiques océanographiques
       en: Oceanographic geographical features
   sr:
-    prefLabel:
+    prefLabels:
       fr: Régions maritimes
       en: Sea regions
   br:
-    prefLabel:
+    prefLabels:
       fr: Régions biogéographiques
       en: Bio-geographical regions
   hb:
-    prefLabel:
+    prefLabels:
       fr: Habitats et biotopes
       en: Habitats and biotopes
   sd:
-    prefLabel:
+    prefLabels:
       fr: Répartition des espèces
       en: Species distribution
   er:
-    prefLabel:
+    prefLabels:
       fr: Sources d'énergie
       en: Energy resources
   mr:
-    prefLabel:
+    prefLabels:
       fr: Ressources minérales
       en: Mineral resources

@@ -1,14 +1,16 @@
 title: Arborescence Covadis
 description: |
-  Structure simple de l'arborescence Covadis
+  Structure de l'arborescence Covadis
   Je considère que le prefLabel est le code Covadis, il n'y a donc pas de champ preflabel
   L'objectif est donc principalement:
-  1) de permettre un nombre quelconque de niveaux
-  2) d'attacher à certains noeuds un ou plusieurs hiddenLabels
+   1) de permettre un nombre quelconque de niveaux
+   2) d'attacher à certains noeuds un altLabel et éventuellement des hiddenLabels
   L'arborescence est complétée par les mot-clés trouvés dans les catalogues
 journal: |
+  2-4/11/2021:
+    - modifs à partir de la source
+    - ajout des champs description et altLabels
   28-30/10/2021:
-    - ajout d'un champ note
     - ajout d'entrées issues des jeux de données
   26/10/2021:
     définition d'un schéma récursif
@@ -20,12 +22,18 @@ journal: |
 $schema:
   $id: http://bdavid.alwaysdata.net/browsecat/arbocovadis.yaml#/$schema
   definitions:
+    labels:
+      description: liste d'étiquettes associées au noeud
+      type: array
+      items:
+        description: étiquette
+        type: string
     children:
       description: enfants définis chacun par un id, des propriétés et des enfants
       type: object
       additionalProperties: false
       patternProperties:
-        '^[A-Za-z_]+$':
+        '^[-A-Za-z_]+$':
           description: contenu du noeud
           oneOf:
             - description: noeud vide
@@ -34,17 +42,20 @@ $schema:
               type: object
               additionalProperties: false
               properties:
+                description:
+                  description: explication issue du document source
+                  type: string
+                altLabels:
+                  description: liste de synonymes associées au noeud
+                  $ref: '#/definitions/labels'
                 hiddenLabels:
-                  description: liste d'étiquettes associées au noeud
-                  type: array
-                  items:
-                    description: étiquette
-                    type: string
+                  description: liste d'étiquettes cachées associées au noeud, orthographe, graphie, ...
+                  $ref: '#/definitions/labels'
                 note:
-                  description: commentaire
+                  description: commentaire complémentaire
                   type: string
                 children:
-                  description: sous-arborescence structuré avec un identifiant par noeud de second niveau
+                  description: sous-arborescence structuré avec un identifiant par noeud de niveau supérieur
                   $ref: '#/definitions/children'
       
   type: object
@@ -62,342 +73,571 @@ $schema:
     $schema:
       description: schema JSON du document
       $ref: http://json-schema.org/draft-07/schema#
+    keyIsPrefLabel:
+      description: indique que la clé constitue le prefLabel
+      const: true
     children:
       description: contenu de l'arborescence structuré avec un identifiant par noeud de premier niveau
       $ref: '#/definitions/children'
+    eof:
+      description: marque de fin de fichier
+      const: null
 
+keyIsPrefLabel: true
 children:
   AGRICULTURE:
     children:
       N_AGRI_ENVIRONNEMENT:
-        hiddenLabels:
+        description: CAD, CTE, zones en excédent structurel, îlots et plans d'épandage
+        altLabels:
           - Agriculture/Agri-environnement
+        hiddenLabels:
+          - agriculture / agri-environnement
+          - agro-environnementale
+          - mesures agro-environnementales
       N_AGRO_ALIMENTAIRE:
-        hiddenLabels:
+        description: Industrie de transformation,
+        altLabels:
           - Agriculture/Agro-alimentaire
-      N_EXPLOITATION_ELEVAGE:
         hiddenLabels:
+          - agro-alimentaire
+      N_EXPLOITATION_ELEVAGE:
+        description: Unités pastorales, bâtiments élevage
+        altLabels:
           - Agriculture/Exploitation Élevage
       N_PARCELLAIRE_AGRICOLE:
-        hiddenLabels:
+        description: Ilot RPG, parcelle OGM….
+        altLabels:
           - Agriculture/Parcellaire agricole
       N_SANTE_ANIMALE:
-        hiddenLabels:
+        description: Foyers maladie, zones protection, quarantaine, …
+        altLabels:
           - Agriculture/Santé animale
       N_SANTE_VEGETALE:
+        description: Pépinières, vergers, vignes, VDQS, foyers maladie -
+        altLabels:
+          - Agriculture/Santé végétale
       N_ZONAGES_AGRICOLES:
+        description: |
+          Zones montagne, piémont, défavorisée, petites régions agricoles, régions fourragères,
+          zones de déprise agricole, AOC,…
+        altLabels:
+          - Agriculture/Zonages agricoles
         hiddenLabels:
           - ZONAGES AGRICOLES
-          - Agriculture/Zonages agricoles
+          - zonage agricole
   AIR_CLIMAT:
     children:
-      N_QUALITE_POLLUTION:
-        hiddenLabels:
-          - Air Climat/Qualité Pollution
       N_CHANGEMENT_CLIMATIQUE:
-        hiddenLabels:
+        altLabels:
           - Air Climat/Changement climatique
+      N_METEO:
+        altLabels:
+          - Air Climat/Météo
+      N_QUALITE_POLLUTION:
+        altLabels:
+          - Air Climat/Qualité Pollution
   AMENAGEMENT_URBANISME:
-    hiddenLabels:
+    altLabels:
       - Aménagement Urbanisme
     children:
       N_ASSIETTE_SERVITUDE:
-        hiddenLabels:
+        description: Assiettes des servitudes
+        altLabels:
           - Aménagement Urbanisme/Assiette Servitude
+        hiddenLabels:
           - ASSIETTE SERVITUDE
-      N_POLITIQUE:
+          - amenagement_urbanisme/n_assiette_servitude
+          - n_assiette_servitudes
       N_POLITIQUE_EUROPEENNE:
-        hiddenLabels:
+        description: Interreg, anciens zonages 2, 5b, leader, urban, ...
+        altLabels:
           - Aménagement Urbanisme/Politique européenne
-      N_RENOVATION:
       N_ZONAGES_AMENAGEMENT:
-        hiddenLabels:
+        description: PAYS, PNR, ZRR, OIN, EPF, Massifs de montagne, Contrats d'agglomération, ...
+        altLabels:
           - Aménagement Urbanisme/Zonages Aménagement
+        hiddenLabels:
           - zonages aménagement
       N_ZONAGES_ETUDE:
+        description: Zonages INSEE (aires urbaines - unités urbaines - IRIS) et autres
+        altLabels:
+          - Aménagement Urbanisme/Zonages Étude
         hiddenLabels:
           - Aménagement Urbanisme / Zonages Étude
-          - Aménagement Urbanisme/Zonages Étude
       N_ZONAGES_PLANIFICATION:
+        description: ZONAGES_PLANIFICATION	PLU, SCOT, SERVITUDES,DTA,PDU,PTU, LITTORAL, MONTAGNE, ...
+        altLabels:
+          - Aménagement Urbanisme/Zonages Planification
         hiddenLabels:
           - ZONAGES PLANIFICATION
-          - Aménagement Urbanisme/Zonages Planification
+          - amenagement_urbanisme/n_zonages_planification
+          - zonage planification
+          - urbanisme planification
   CULTURE_SOCIETE_SERVICE:
     children:
       N_ENSEIGNEMENT:
-        hiddenLabels:
+        description: Établissements scolaires et universitaires
+        altLabels:
           - Culture Société Service/Enseignement
+      N_EQUIPEMENT_SPORTIF_OU_CULTUREL:
+        description: Stades, gymnases, musées, cinéma …	
+        altLabels:
+          - Culture Société Service/Équipement sportif ou culturel
       N_ERP_AUTRE:
-        hiddenLabels:
+        description: Autres établissements non repris dans les répertoires précédents
+        altLabels:
           - Culture Société Service/ERP Autre
       N_PATRIMOINE_CULTUREL:
-        hiddenLabels:
+        description: Monuments historiques….
+        altLabels:
           - Culture Société Service/Patrimoine culturel
-      N_TOURISME:
-        hiddenLabels:
-          - Culture Société Service/Tourisme
       N_SANTE_SOCIAL:
-        hiddenLabels:
+        description: Établissements hospitaliers
+        altLabels:
           - Culture Société Service/Santé Social
-      N_EQUIPEMENT_SPORTIF_OU_CULTUREL:
-        hiddenLabels:
-          - Culture Société Service/Équipement sportif ou culturel
+      N_TOURISME:
+        description: Camping, gîtes…
+        altLabels:
+          - Culture Société Service/Tourisme
   DONNEE_GENERIQUE:
     children:
       N_ACTION_PUBLIQUE:
-        hiddenLabels:
+        description: Services administratifs (Etat, collectivités locales), circonscriptions d'intervention
+        altLabels:
           - Donnée générique/Action publique
       N_ADMINISTRATIF:
-        hiddenLabels:
+        description: |
+          Limites administratives issues d'un traitement sur couches natives, dont contours "simplifiés" pour illustration
+          de carte
+        altLabels:
           - Donnée générique/Administratif
-      N_DEMOGRAPHIE:
-        hiddenLabels:
-          - Donnée générique/Démographie
-      N_INTERCOMMUNALITE:
-        hiddenLabels:
-          - Donnée générique/Intercommunalité
       N_DECOUPAGE_ELECTORAL:
-        hiddenLabels:
+        altLabels:
           - Donnée générique/Découpage électoral
+      N_DEMOGRAPHIE:
+        description: Données démographiques, recensement
+        altLabels:
+          - Donnée générique/Démographie
       N_HABILLAGE:
-        hiddenLabels:
+        description: Etiquettes pour habillage de cartes
+        altLabels:
           - Donnée générique/Habillage
+      N_INTERCOMMUNALITE:
+        description: EPCI, syndicats et zonages associés
+        altLabels:
+          - Donnée générique/Intercommunalité
+      N_MILIEU_PHYSIQUE:
+        description: Géologie, pédologie, données climatiques…
   EAU:
     children:
       N_AEP:
-        hiddenLabels:
+        description: Réseaux, station de pompage et de traitement, réservoirs
+        altLabels:
           - Eau/AEP
       N_ASSAINISSEMENT:
-        hiddenLabels:
+        description: STEP et leur point de rejet, réseau assainissement, stations de pompage, …	
+        altLabels:
           - Eau/Assainissement
-      N_MASSE_EAU:
         hiddenLabels:
+          - eau/n_assainissement
+      N_MASSE_EAU:
+        description: Masses d'eau DCE et autres masses d'eau (surface, cours d'eau, plan d'eau, souterraine..)
+        altLabels:
           - Eau/Masse d'eau
+        hiddenLabels:
+          - eau/n_masse_eau
       N_OUVRAGE:
+        description: |
+          plans d'eau, réservoirs, ORSFP, pisciculture, déversoirs d'orage, bassins d'orage, moulins,
+          usines hydroélectriques, bassins d'infiltration, bassins d'évaporation, digues, obstacles à l'écoulement
+        altLabels:
+          - Eau/Ouvrage
         hiddenLabels:
           - Eau / Ouvrage
-          - Eau/Ouvrage
       N_PECHE:
-        hiddenLabels:
+        description: Réserve de pêche, police de la pêche,… (en eaux intérieures)
+        altLabels:
           - Eau/Pêche
+        hiddenLabels:
           - Eau / Pêche
       N_SURVEILLANCE:
-        hiddenLabels:
+        description: points de mesure, effractions constaées...
+        altLabels:
           - Eau/Surveillance
       N_TRAVAUX_ACTION:
+        description: Travaux sur linéaire, curage-dragage, drainages
+        altLabels:
+          - Eau/Travaux Action
       N_UTILISATION_AUTRE:
-        hiddenLabels:
+        description: Irrigation,  prélèvements, rejets, pollution….
+        altLabels:
          - Eau/Utilisation Autre
       N_ZONAGES_EAU:
-        hiddenLabels:
+        description: |
+          Zonage réglementaire : zones sensibles eutrophisation, zones vulnérables nitrates, zones sensibles pollution
+          pesticides, zones PMPOA, imperméabilisation, zones drainées,contrats de rivière, SAGE
+        altLabels:
           - Eau/Zonages Eau
+        hiddenLabels:
+          - eau/n_zonages_eau
+          - zonages eau
   FONCIER_SOL:
     children:
       N_FONCIER_AGRICOLE:
-        hiddenLabels:
+        description: Divisions, regroupements, changement propriétaires
+        altLabels:
           - Foncier Sol/Foncier agricole
+      N_MUTATION_FONCIERE:
+        description: Remembrement, travaux connexes
+        altLabels:
+          - Foncier Sol/Mutation foncière
       N_OCCUPATION_SOL:
-        hiddenLabels:
+        description: Hors Corine Land Cover (classée en référentiels pour l'instant)
+        altLabels:
           - Foncier Sol/Occupation du sol
+          - usage du sol
+        hiddenLabels:
           - OCCUPATION SOL
       N_PROPRIETE_FONCIERE:
-        hiddenLabels:
+        description: Propriétés bâties et non bâties
+        altLabels:
           - Foncier Sol/Propriété foncière
-      N_MUTATION_FONCIERE:
-        hiddenLabels:
-          - Foncier Sol/Mutation foncière
   FORET:
     hiddenLabels:
       - Forêt/Forêt
+      - forêts
+      - forêt
     children:
       N_DESCRIPTION:
-        hiddenLabels:
+        description: Espaces sécifiques, voirie et équipements hors DFCI
+        altLabels:
           - Forêt/Description
       N_DFCI:
-        hiddenLabels:
+        description: Chemins d'accès, zonages, …
+        altLabels:
           - Forêt/DFCI
+          - dfci 
       N_GESTION:
-        hiddenLabels:
+        description: PSG, réglementation des boisements, forêts de protection
+        altLabels:
           - Forêt/Gestion
-      N_REGLEMENT:
         hiddenLabels:
+          - gestion foret
+      N_REGLEMENT:
+        description: |
+          Dossiers et descriptif : massifs boisés, forêts, forêts soumises, exploitations forestières, chemins
+          d'exploitation, parcelles de pépinières, …
+        altLabels:
           - Forêt/Règlement
-      N_TRANSFORMATION :
+      N_TRANSFORMATION:
+        description: Industries associés ou dérivées
+        altLabels:
+          - Forêt/Transformation
   HABITAT_POLITIQUE_DE_LA_VILLE:
-    hiddenLabels:
+    altLabels:
       - Habitat Politique de la ville
     children:
-      N_PARC_LOGEMENTS:
+      N_ACCESSION_PROPRIETE:
+        description: Zonages A, B et C, prêt à taux zéro
+        altLabels:
+          - Habitat Politique de la ville/Accession Propriété
         hiddenLabels:
-          - Habitat Politique de la ville/Parc Logements
-          - Habitat Politique de la ville/Occupation des logements
+          - Habitat Politique de la ville/Accession à la propriété
+      N_BESOINS_EN_LOGMENT:
+        description: Demande de logement social, accueil des gens du voyage
+        altLabels:
           - Habitat Politique de la ville/Besoins en logement
-      N_POLITIQUE:
-        hiddenLabels:
-          - Habitat Politique de la ville/Politique
-          - "logement politique de la ville : politique de la ville"
-      N_PARC_LOCATIF_SOCIAL:
-        hiddenLabels:
-          - Habitat Politique de la ville/Parc locatif social
-      N_HABITAT_INDIGNE:
-        hiddenLabels:
-          - Habitat Politique de la ville/Habitat indigne
       N_CONSTRUCTION:
-        hiddenLabels:
+        description: Zones  d'instruction des PC, nombre de logements, SHON, nombre de logements autorisés
+        altLabels:
           - Habitat Politique de la ville/Construction
-      N_RENOVATION:
+      N_HABITAT_INDIGNE:
+        description: Inventaire de l'habitat susceptible d'être indigne
+        altLabels:
+          - Habitat Politique de la ville/Habitat indigne
+      N_OCCUPATION_LOGEMENTS:
+        description: Aides au logements, taux d'occupation
+        altLabels:
+          - Habitat Politique de la ville/Occupation des logements
+      N_PARC_LOCATIF_SOCIAL:
+        description: Zonage du locatif, hébergement d'urgence, logements en prêt locatif, PALULOS
+        altLabels:
+          - Habitat Politique de la ville/Parc locatif social
+      N_PARC_LOGEMENTS:
+        description: Résidences principales collectives, logements vacants,  résidences secondaires
+        altLabels:
+          - Habitat Politique de la ville/Parc Logements
+      N_POLITIQUE:
+        description: PRU, OPAH, SRU, ZUS, ZRU, ...
+        altLabels:
+          - Habitat Politique de la ville/Politique
         hiddenLabels:
+          - habitat_politique_de_la_ville/n_politique
+          - "logement politique de la ville : politique de la ville"
+      N_RENOVATION:
+        description: Financement ANAH, logements loyer intermédiaire
+        altLabels:
           - Habitat Politique de la ville/Rénovation
   MER_LITTORAL:
     children:
+      N_AUTRES_ACTIVITES:
+        description: Zones de drague, art dormant, Granulats marins, projets off-shore (y compris éoliennes ?)
+        altLabels:
+          - Mer Littoral/Autres activités
+      N_CHASSE_MARITIME:
+        description: Zones de chasse réglementée, concession baux
+        altLabels:
+          - Mer Littoral/Chasse maritime
       N_CULTURE_MARINE:
-        hiddenLabels:
+        description: Cadastre conchylicole, classement saniaire des zonnes de production des coquillages
+        altLabels:
           - Mer Littoral/Culture marine
       N_ECOLOGIE_LITTORAL:
-        hiddenLabels:
+        description: |
+          Évolution du trait de côte, qualité des eaux littorales, sites du conservatoire, Avifaune, habitats naturels, arrêtés de biotope en mer, ZNIEFF en mer, sites inscrits/classés en mer, PNR en mer, RAMSAR, Natura 2000 en mer, réserves naturelles en mer, sites ENS du CG, mammifères marins, Indicateurs de sensibilité
+        altLabels:
           - Mer Littoral/Écologie du littoral
       N_LIM_ADMIN_SPECIALE:
-        hiddenLabels:
+        description: |
+          Zone d'activité des préfectures maritimes, ligne de base, limite des 300m, limites des 1-3-6-12 miles nautiques (ZEE), limites des communes et des départements en mer, , limite du domaine public, limite de salure des eaux, Lignes Transversales de la Mer
+        altLabels:
           - Mer Littoral/Limite administrative spéciale
+      N_LUTTE_ANTI-POLLUTION:
+        description: Plan de pose de barrages, CNPE,plan de gestion de polluants
+        altLabels:
+          - Mer Littoral/Lutte anti-pollution
       N_NAVIGATION_MARITIME:
-        hiddenLabels:
+        description: |
+          Plaisance et mouillage, zones portuaires, nautique, plan de balisage, zones militaires, câbles sous-marins, cantonnements, zones de navigation, balises/épaves
+        altLabels:
           - Mer Littoral/Navigation maritime
       N_PECHE_MARITIME:
-        hiddenLabels:
+        description: Zones de pêche, gisements d'espèce, zones depêches réglementées, autorisation
+        altLabels:
           - Mer Littoral/Pêche maritime
-      N_CHASSE_MARITIME:
-        hiddenLabels:
-          - Mer Littoral/Chasse maritime
-      N_LUTTE_ANTI-POLLUTION:
-        hiddenLabels:
-          - Mer Littoral/Lutte anti-pollution
       N_TOPOGRAPHIE:
-        hiddenLabels:
+        description: |
+          Trait de côte Histolitt, trait de côte EUROSION, typologie du trait de côte, typologie de l'estran, bathymétrie ,sédimentologie, zones de sable, granulométrie, ESI, houle, marées, zones inondables, rejets en mer, prises d'eau, sentier littoral, accès au DPM, aires de stationnement, sites industriels, campings, héliports/aérodromes, amers remarquables,cartes de navigation électroniques
+        altLabels:
           - Mer Littoral/Topographie
-      N_AUTRES_ACTIVITES:
-        hiddenLabels:
-          - Mer Littoral/Autres activités
   NATURE_PAYSAGE_BIODIVERSITE:
     children:
       N_CHASSE:
-        hiddenLabels:
+        description: Plans et réserves de chasse, zones plan de chasse
+        altLabels:
           - Nature Paysage Biodiversité/Chasse
       N_INVENTAIRE_NATURE_BIODIVERSITE:
-        hiddenLabels:
+        description: ZNIEFF, ZICO, faune, flore et habitats
+        altLabels:
           - Nature Paysage Biodiversité/Inventaire Nature Biodiversité
-          - INVENTAIRE NATURE BIODIVERSITE
-          - Nature Paysage Biodiversité / Inventaire Nature Biodiversité
-      N_INVENTAIRE_PAYSAGE:
         hiddenLabels:
+          - Nature Paysage Biodiversité / Inventaire Nature Biodiversité
+          - INVENTAIRE NATURE BIODIVERSITE
+          - inventaire_nature_biodiversite
+      N_INVENTAIRE_PAYSAGE:
+        description: Atlas des paysages ...
+        altLabels:
           - Nature Paysage Biodiversité/Inventaire Paysage
       N_ZONAGES_NATURE:
-        hiddenLabels:
+        description: |
+          Zonage réglementaire et de gestion Nature : parc national, parc naturel régional,  arrêté de protection de biotope, réserve naturelle, zones humides Ramsar, Natura 2000, …
+        altLabels:
           - Nature Paysage Biodiversité/Zonages Nature
-      N_ZONAGES_PAYSAGE:
         hiddenLabels:
+          - nature_paysage_biodiversite/n_zonages_nature
+          - zonages nature
+      N_ZONAGES_PAYSAGE:
+        description: "Zonage réglementaire et de gestion paysage : sites classés, inscrits, ZPPAUP ..."
+        altLabels:
           - Nature Paysage Biodiversité/Zonages Paysage
   NUISANCE:
     children:
       N_BRUIT:
-        hiddenLabels:
+        altLabels:
           - Nuisance/Bruit
+        hiddenLabels:
           - bruit
       N_DECHET:
-        hiddenLabels:
+        description: Ménagers, dangereux, mines, boues STEP, nucléaires… -  traitement
+        altLabels:
           - Nuisance/Déchet
-      N_POLLUTION_DU_SOL:
-        hiddenLabels:
+      N_NUISSANCE_ELECTROMAGNETIQUE:
+        description: Connaissance nuisance électromagnétique
+        altLabels:
+          - Nuisance/Nuisance électromagnétique
+          - perturbations électromagnétiques
+          - perturbation électromagnétique
+      N_POLLUTION_SOL:
+        altLabels:
           - Nuisance/Pollution du sol
   RESEAU_ENERGIE_DIVERS:
     children:
+      N_AMENAGEMENT_NUMERIQUE_DES_TERRITOIRES:
+        description: Desserte, niveau de service
+        altLabels:
+          - Réseau Énergie Divers/Aménagement numérique des territoires
+      N_AUTRE:
+        altLabels:
+          - Réseau Énergie Divers/Autre
       N_ELECTRICITE:
-        hiddenLabels:
+        description: Réseau de transport d'énergie
+        altLabels:
           - Réseau Énergie Divers/Électricité
       N_HYDROCARBURE:
-        hiddenLabels:
+        description: Pipe-line, etc
+        altLabels:
           - Réseau Énergie Divers/Hydrocarbure
-      N_AMENAGEMENT_NUMERIQUE_DES_TERRITOIRES:
-        hiddenLabels:
-          - Réseau Énergie Divers/Aménagement numérique des territoires
       N_TELECOMMUNICATION:
-        hiddenLabels:
+        description: Infra (pylône, fibre optique, )
+        altLabels:
           - Réseau Énergie Divers/Télécommunication
-      N_AUTRE:
-        hiddenLabels:
-          - Réseau Énergie Divers/Autre
   RISQUE:
     children:
+      N_AVALANCHE:
+        description: Prévention, connaissance du risque
+        altLabels:
+          - Risque/Avalanche
+      N_ERUPTION_VOLCANIQUE:
+        description: Prévention, connaissance du risque
+        altLabels:
+          - Risque/Eruption volcanique
+      N_GESTION_RISQUE:
+        description: |
+          Entreprises requisitionnables, plans de secours, limites de compétence des SPC, cours d'eau équipés pour
+          la surveillance des crues,documents communaux de synthèse, ...
+        altLabels:
+          - Risque/Gestion du risque
+          - gestion du risque
       N_INONDATION:
+        description: Prévention, connaissance du risque
+        altLabels:
+          - Risque/Inondation
         hiddenLabels:
           - RISQUE/N_INONDATION
-          - Risque/Inondation
-      N_ZONAGES_RISQUE_NATUREL:
+          - risque inondation
+      N_MOUVEMENT_DE_TERRAIN:
+        description: Prévention, connaissance du risque
+        altLabels:
+          - Risque/Mouvement de terrain
+      N_RADON:
+        description: Prévention, connaissance du risque
+        altLabels:
+          - Risque/Radon
+      N_RISQUE_MINIER:
+        description: Prévention, connaissance du risque
+        altLabels:
+          - Risque/Risque minier
+      N_RISQUE_TECHNOLOGIQUE:
+        description: Connaissance des riques technologiques (industriels, nucléaires, technologiques, rupture de barrages)	
+        altLabels:
+          - Risque/Risque technologique
         hiddenLabels:
+          - risque_technologique
+          - risques technologiques
+      N_SEISME:
+        description: Prévention, connaissance du risque
+        altLabels:
+          - Risque/Séisme
+      N_ZONAGES_RISQUE_NATUREL:
+        description: Zonages réglementaires (PPRI, PPRMT ….)
+        altLabels:
           - Risque/Zonages Risque naturel
+        hiddenLabels:
           - Zonages Risque naturel
+          - zonage risque naturel
           - risque/n_zonages_risque_naturel/id_gaspar
           - risques/n_zonages_risque_naturel/id_gaspar
-      N_RISQUE_MINIER:
-        hiddenLabels:
-          - Risque/Risque minier
-      N_SEISME:
-        hiddenLabels:
-          - Risque/Séisme
       N_ZONAGES_RISQUE_TECHNOLOGIQUE:
-        hiddenLabels:
+        description: Zonages réglementaires (PPRT)
+        altLabels:
           - Risque/Zonages Risque technologique
+        hiddenLabels:
           - Risque/Risque technologique
-      N_RADON:
-        hiddenLabels:
-          - Risque/Radon
-      N_MOUVEMENT_DE_TERRAIN:
-        hiddenLabels:
-          - Risque/Mouvement de terrain
+          - risque/n_zonages_risque_technologique
   SITE_INDUSTRIEL_PRODUCTION:
     children:
-      N_SITE_EOLIEN:
-        hiddenLabels:
-          - Site industriel Production/Site éolien
-      N_SITE_DE_PRODUCTION_DENERGIE:
-        hiddenLabels:
-          - Site industriel Production/Site de production d'énergie
-      N_SITE_INDUSTRIEL:
-        hiddenLabels:
-          - Site industriel Production/Site industriel
       N_MINE_CARRIERE_GRANULATS:
-        hiddenLabels:
+        altLabels:
           - Site industriel Production/Mine Carrière Granulats
+      N_SITE_EOLIEN:
+        altLabels:
+          - Site industriel Production/Site éolien
+      N_SITE_INDUSTRIEL:
+        altLabels:
+          - Site industriel Production/Site industriel
+      N_SITE_DE_PRODUCTION_DENERGIE:
+        description: Y compris nucléaire, non compris éolien
+        altLabels:
+          - Site industriel Production/Site de production d'énergie
+  SOCIO_ECONOMIE:
+    altLabels:
+      - Socio-économie
+    hiddenLabels:
+      - Socio-économie/Socio-économie
   TRANSPORTS_DEPLACEMENT:
     children:
       N_SECURITE_ROUTIERE:
-        hiddenLabels:
+        description: Accidentologie, points noirs, etc
+        altLabels:
           - Transports Déplacements/Sécurité routière
+          - sécurité routière
+        hiddenLabels:
+          - transport_deplacement/n_securite_routiere
       N_TRAFIC:
-        hiddenLabels:
+        description: Trafic routier, schéma directeur d'exploitation de la route
+        altLabels:
           - Transports Déplacements/Trafic
-      N_TRANSPORT_ROUTIER:
-        hiddenLabels:
-          - transport routier
-      N_TRANSPORT_EXCEPTIONNEL:
-        hiddenLabels:
-          - Transports Déplacements/Transport exceptionnel
-      N_TRANSPORT_COLLECTIF:
-        hiddenLabels:
+      N_TR_COLLECTIF:
+        description: Autorités organisatrices, lignes, arrêts, ...
+        altLabels:
           - Transports Déplacements/Transport collectif
-      N_TRANSPORT_DE_MARCHANDISE:
+      N_TR_EXCEPTIONNEL:
+        description: Itinéraires, trafics, volumes
+        altLabels:
+          - Transports Déplacements/Transport exceptionnel
         hiddenLabels:
+          - transports_exceptionnel
+      N_TR_MARCHANDISE:
+        description: Fret routier, ferré, fluvial, maritime
+        altLabels:
           - Transports Déplacements/Transport de marchandise
       N_TRANSPORT_DE_MATIERE_DANGEREUSE:
-        hiddenLabels:
+        description: Itinéraires, trafics, volumes, canalisations, ...
+        altLabels:
           - Transports Déplacements/Transport de matière dangereuse
-  TRANSPORT_INFRASTRUCTURE:
-    children:
-      N_CIRCULATION_DOUCE:
         hiddenLabels:
+          - transport de matière dangereuse
+  TRANSPORT_INFRASTRUCTURE:
+    hiddenLabels:
+      - infrastructures de transport
+    children:
+      N_AERIEN:
+        description: Infrastructure aéroportuaire (aéroport)
+        altLabels:
+          - Transports Infrastructure/Aérien
+      N_CIRCULATION_DOUCE:
+        description: Pistes cyclables, voies vertes, ...
+        altLabels:
           - Transports Infrastructure/Circulation douce
       N_FERROVIAIRE:
-        hiddenLabels:
+        description: Infrastructure ferrée, gares, ouvrage d'art
+        altLabels:
           - Transports Infrastructure/Ferroviaire
+      N_FLUVIAL:
+        description: Réseau navigable, ouvrages de navigation
+        altLabels:
+          - Transports Infrastructure/Fluvial
+      N_MARITIME:
+        description: Infrastructure portuaire
+        altLabels:
+          - Transports Infrastructure/Maritime
+      N_PLATE_FORME_MULTIMODALE:
+        description: Infrastructure des plate-formes multimodales
+        altLabels:
+          - Transports Infrastructure/Plate-forme multimodale
       N_ROUTIER:
-        hiddenLabels:
+        description: Infrastructure routière yc ouvrages d'art
+        altLabels:
           - Transports Infrastructure/Routier
+eof:

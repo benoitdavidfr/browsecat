@@ -30,9 +30,19 @@ doc: |
   en ISO 19115 ; elles sont alors stockées en DublinCore.
   
   Voir dans themes.yaml les résultats sur les thésaurus.
+  
 journal: |
-  25-29/10/2021:
-    - évolutions
+  3/11/2021:
+    - Fin du moissonnage du géocatalogue (numberOfRecordsMatched=152115).
+      - cela prend plus de 24 h de moissonnage
+      - 131.483 MDD+S chargées dans PgSql dont 70.599 dans le périmètre
+      - Beaucoup d'erreurs de moissonnage.
+        - Beaucoup d'erreurs de GetRecords: renvoie une exception 'Resource not found'
+        - Des erreurs de GetRecordById: 'Erreur: enregistrement ISO non défini'
+      - beaucoup de MD des catalogues sont absentes du Géocatalogue
+      - beaucoup plus de MD dans le géocaoalogue que dans l'agrégation des autres
+  25/10-2/11/2021:
+    - évolutions diverses, notamment durcissement du code pour moissonner le Géocatalogue
   18/10/2021:
     - améliorations
   11/10/2021:

@@ -456,6 +456,7 @@ $mdvars = [
 ];
 
 PgSql::open('host=pgsqlserver dbname=gis user=docker');
+//PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public');
 
 class CatInPgSql {
   private string $catid;
@@ -497,7 +498,7 @@ class CatInPgSql {
     }
     catch (Exception $e) {
       echo "Erreur dans storeRecord: ", $e->getMessage(),"<br>\n";
-      print_r($record);
+      echo "title: $title<br>\n";
     }
   }
 };
