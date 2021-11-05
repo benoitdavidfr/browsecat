@@ -1,0 +1,80 @@
+title: Schema d'une arborescence d'organisations
+journal:
+  5/11/2021:
+    - création
+$id: http://bdavid.alwaysdata.net/browsecat/org.schema.yaml
+$schema: http://json-schema.org/draft-07/schema#
+definitions:
+  labels:
+    description: liste d'étiquettes
+    type: array
+    items:
+      description: étiquette
+      type: string
+  subtree:
+    description: enfants définis chacun par une clé, des propriétés et ses propres enfants
+    type: object
+    additionalProperties: false
+    patternProperties:
+      '^[-A-Za-z0-9_]+$':
+        description: contenu du noeud
+        type: object
+        additionalProperties: false
+        properties:
+          description:
+            description: explication destinée à un utilisateur
+            type: string
+          short:
+            description: étiquette courte
+            type: string
+          prefLabels:
+            description: étiquettes préférentielles par langue (ISO 639)
+            type: object
+            additionalProperties: false
+            patternProperties:
+              '^(fr|en)$':
+                type: string
+          altLabels:
+            description: liste de synonymes associées au noeud
+            $ref: '#/definitions/labels'
+          hiddenLabels:
+            description: liste d'étiquettes cachées associées au noeud, orthographe, graphie, ...
+            $ref: '#/definitions/labels'
+          note:
+            description: commentaire complémentaire destinée au gestionnaire
+            type: string
+          children:
+            description: sous-arborescence
+            $ref: '#/definitions/subtree'
+    
+type: object
+additionalProperties: false
+properties:
+  title:
+    description: titre du document
+    type: string
+  description:
+    description: commentaire sur le document
+    type: string
+  journal:
+    description: historique des modifications
+    type: string
+  $schema:
+    description: schema JSON du document
+    oneOf:
+      - description: schéma en ligne
+        $ref: http://json-schema.org/draft-07/schema#
+      - description: nom du fichier contenant le schema
+        type: string
+  keyIsPrefLabel:
+    description: indique que la clé ne constitue pas le prefLabel
+    const: false
+  children:
+    description: contenu de l'arborescence
+    $ref: '#/definitions/subtree'
+  source:
+    description: stockage temporaire pour constitution ou tests
+    type: string
+  eof:
+    description: marque de fin de fichier
+    const: null

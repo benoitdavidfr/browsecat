@@ -1,86 +1,14 @@
-title: arborescence des organisations
+title: arborescence des organisations du périmètre ministériel
 description: |
-  Répertoire des organisations du périmètre Ministériel (AC+SD+DDT) sous la forme d'une arborescence.
+  Arborescence des organisations du périmètre Ministériel (AC+SD+DDT).
   Associe à chaque organisation les différents libellés utilisés dans les catalogues.
   A chaque organisation un libellé court et significatif est affecté soit par le champ short soit par la clé utilisée.
-  Les noeuds de l'arborescence pour lesquels un prefLabel n'est pas défini ne sont pas des organisations
-  mais des regroupements.
+  Le premier niveau de l'arborescence correspond à des regroupements d'organisations pour lesquels le prefLabel n'est pas
+  défini.
+  Les anciennes organisations sont définies comme synonymes des organisations actuelles.
+  Un schéma permet de controller la structure du fichier et documente les différents champs.
 
-$schema:
-  $id: http://bdavid.alwaysdata.net/browsecat/arbocovadis.yaml#/$schema
-  definitions:
-    labels:
-      description: liste d'étiquettes associées au noeud
-      type: array
-      items:
-        description: étiquette
-        type: string
-    children:
-      description: enfants définis chacun par un id, des propriétés et des enfants
-      type: object
-      additionalProperties: false
-      patternProperties:
-        '^[-A-Za-z0-9_]+$':
-          description: contenu du noeud
-          oneOf:
-            - description: noeud vide
-              type: 'null'
-            - description: noeud avec propriétés ou enfants
-              type: object
-              additionalProperties: false
-              properties:
-                description:
-                  description: explication destinée à un utilisateur
-                  type: string
-                short:
-                  description: étiquette courte
-                  type: string
-                prefLabels:
-                  description: étiquettes préférentielles par langue (ISO 639)
-                  type: object
-                  additionalProperties: false
-                  patternProperties:
-                    '^(fr|en)$':
-                      type: string
-                altLabels:
-                  description: liste de synonymes associées au noeud
-                  $ref: '#/definitions/labels'
-                hiddenLabels:
-                  description: liste d'étiquettes cachées associées au noeud, orthographe, graphie, ...
-                  $ref: '#/definitions/labels'
-                note:
-                  description: commentaire complémentaire destinée au gestionnaire
-                  type: string
-                children:
-                  description: sous-arborescence structuré avec un identifiant par noeud de niveau supérieur
-                  $ref: '#/definitions/children'
-      
-  type: object
-  additionalProperties: false
-  properties:
-    title:
-      description: titre du document
-      type: string
-    description:
-      description: commentaire sur le document
-      type: string
-    journal:
-      description: historique des modifications
-      type: string
-    $schema:
-      description: schema JSON du document
-      $ref: http://json-schema.org/draft-07/schema#
-    keyIsPrefLabel:
-      description: indique que la clé constitue le prefLabel
-      const: false
-    children:
-      description: contenu de l'arborescence structuré avec un identifiant par noeud de premier niveau
-      $ref: '#/definitions/children'
-    source:
-      type: string
-    eof:
-      description: marque de fin de fichier
-      const: null
+$schema: org
 
 keyIsPrefLabel: false
 children:
@@ -114,6 +42,7 @@ children:
       CGDD:
         prefLabels: {fr: Commissariat général au développement Durable}
         altLabels:
+          - MTES/CGDD/SDES
           - Ministère de l'Environnement, de l'Energie et de la Mer - Service de l'observation et des statistiques (SOeS)
           - Ministère de la Transition Ecologique et Solidaire - CGDD/SOeS/SDES
           - MEDDE-CGDD-SOes
@@ -126,6 +55,8 @@ children:
           - SOeS – SSP, Enquêtes "Eau et assainissement"
           - Service de l'observation et des statistiques (SOeS)
           - Service de la donnée et des études statistiques (SDES)
+      CGET:
+        prefLabels: {fr: Commissariat général à l'égalité des territoires}
       DGAC:
         prefLabels: {fr: Direction Générale de l'Aviation Civile (DGAC)}
         altLabels:
@@ -134,6 +65,8 @@ children:
           - Direction de la Sécurité de l'Aviation Civile
           - Direction des Services de la navigation aérienne (DSNA)
           - DSAC Sud (Direction de la Sécurité de l'Aviation civile Interrégionale Sud)
+        hiddenLabels:
+          - Direction Générale de l'Avaition Civile (DGAC)
       DGALN:
         prefLabels: {fr: "DGALN (Direction Générale de l'Aménagement, du Logement et de la Nature)"}
         altLabels:
@@ -320,6 +253,8 @@ children:
           - DDTM17/PLDS/SCTE/unité connaissances
           - DDTM17/RSL/GL
           - DDTM17/Service Littoral
+          - DDTM17 / EBDD
+          - DDTM17 / UARDD
           - DDE 17
       DDT18:
         short: DDT 18 Cher
@@ -384,6 +319,7 @@ children:
           - DDT26/SDSR/PDEU
           - Direction Départementale des Territoires de la Drôme - Service Aménagement Territoires et Risques - Pôle Risques
           - Direction Départementale des Territoires de la Drôme -Service Eaux Forêts et Espaces Naturels - Pôle Forêt
+          - DDT 26 (Direction Départementale des Territoires de la Drôme) - SATR
       DDT27:
         short: DDTM 27 (Eure)
         prefLabels: {fr: DDTM 27 (Direction Départementale des Territoires et de la Mer de l'Eure)}
@@ -467,6 +403,8 @@ children:
           - DDT38
           - DDT de l'Isère
           - DDT 38 (Direction Départementale des Territoires de l'Isère) Service Environement
+        hiddenLabels:
+          - Direction Départementale des Territoires de l'Isère)
       DDT39:
         short: DDT 39 (Jura)
         prefLabels: {fr: DDT 39 (Direction Départementale des Territoires du Jura)}
@@ -560,28 +498,28 @@ children:
         short: DDT 51 (Marne)
         prefLabels: {fr: DDT 51 (Direction Départementale des Territoires de la Marne)}
       DDT52:
-        short: DDT 52 (Marne)
+        short: DDT 52 (Haute-Marne)
         prefLabels: {fr: DDT 52 (Direction Départementale des Territoires de la Haute-Marne)}
       DDT53:
-        short: DDT 53 (Marne)
+        short: DDT 53 (Mayenne)
         prefLabels: {fr: DDT 53 (Direction Départementale des Territoires de la Mayenne)}
         altLabels:
           - DDT de la Mayenne
           - DDT 53
           - DDT53
       DDT54:
-        short: DDT 54 (Marne)
+        short: DDT 54 (Meurthe-et-Moselle)
         prefLabels: {fr: DDT 54 (Direction Départementale des Territoires de Meurthe-et-Moselle)}
         altLabels:
           - DDT54
       DDT55:
-        short: DDT 55 (Marne)
+        short: DDT 55 (Meuse)
         prefLabels: {fr: DDT 55 (Direction départementale des Territoires de la Meuse)}
         altLabels:
           - DDT 55 / SE
           - DDT 55 / SUH
       DDT56:
-        short: DDTM 56 (Marne)
+        short: DDTM 56 (Morbihan)
         prefLabels: {fr: DDTM 56 (Direction Départementale des Territoires et de la Mer du Morbihan)}
         altLabels:
           - DDTM du Morbihan
@@ -595,13 +533,13 @@ children:
           - DDEA du Morbihan
           - Direction départementale  des affaires maritimes du Morbihan
       DDT57:
-        short: DDT 57 (Marne)
+        short: DDT 57 (Moselle)
         prefLabels: {fr: DDTM 57 (Direction Départementale des Territoires de la Moselle)}
         altLabels:
           - Direction départementale des territoires de la Moselle
           - DDT de la Moselle
       DDT58:
-        short: DDT 58 (Marne)
+        short: DDT 58 (Nièvre)
         prefLabels: {fr: DDT 58 (Direction Départementale des Territoires de la Nièvre)}
         altLabels:
           - Direction Départementale des Territoires de la Nièvre
@@ -609,9 +547,10 @@ children:
           - DDT 58 (Service Economie Agricole)
           - DDT 58 (Service Loire Sécurité Risques)
       DDT59:
-        short: DDT 59 (Marne)
+        short: DDT 59 (Nord)
         prefLabels: {fr: DDT 59 (Direction Départementale des Territoires du Nord)}
         altLabels:
+          - Direction départementale des territoires et de la mer du Nord
           - Direction Départementale du Territoire et de la Mer du Nord
           - DDTM du Nord
           - DDTM59
@@ -640,6 +579,8 @@ children:
         prefLabels: {fr: DDT 63 (Direction Départementale des Territoires du Puy-de-Dôme)}
         altLabels:
           - DDT du Puy de Dôme
+        hiddenLabels:
+          - pgartementale des Territoires du Puy-de-dôme)
       DDT64:
         short: DDTM 64 (Pyrénées-Atlantiques)
         prefLabels: {fr: DDTM 64 (Direction Départementale des Territoires et de la Mer des Pyrénées-Atlantiques)}
@@ -805,6 +746,8 @@ children:
           - DDT 86
           - DDT86
           - DDT de la Vienne
+        hiddenLabels:
+          - DDT 86 (Direction Départementale des Territoires de la Vienne
       DDT87:
         short: DDT 87 (Haute-Vienne)
         prefLabels: {fr: DDT 87 (Direction Départementale des Territoires de la Haute-Vienne)}
@@ -907,18 +850,19 @@ children:
         altLabels:
           - Direction des Territoires de l'Alimentation et de la Mer (DTAM) Saint Pierre et Miquelon
   DREAL:
-    prefLabels: {fr: DREAL}
-    altLabels:
-      - DIREN
-      - DREAL
-      - DREAL des régions
-      - DREAL et DEAL
-      - DREALs
-      - DREAL -mMinistere-environnement
-      - DIREN, BRGM, DRIRE
-      - Direction régional de l'Environnement, de l'Aménagement et du logement
-      - Direction régionale de l'environnement, de l'aménagement et du logement
     children:
+      DREAL:
+        prefLabels: {fr: DREAL}
+        altLabels:
+          - DIREN
+          - DREAL
+          - DREAL des régions
+          - DREAL et DEAL
+          - DREALs
+          - DREAL -mMinistere-environnement
+          - DIREN, BRGM, DRIRE
+          - Direction régional de l'Environnement, de l'Aménagement et du logement
+          - Direction régionale de l'environnement, de l'aménagement et du logement
       ARA:
         short: DREAL ARA
         prefLabels: {fr: "DREAL Auvergne (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Auvergne)"}
@@ -1093,36 +1037,45 @@ children:
   DIRM:
     children:
       MED:
+        short: DIRM MED
         prefLabels: {fr: DIRM MED (Direction Interrégionale de la Mer Méditerranée)}
         altLabels:
           - CROSS Méditerranée La Garde
       MEMN:
+        short: DIRM MEMN
         prefLabels: {fr: DIRM MEMN (Direction InterRégionale Mer Manche Est - Mer du Nord)}
         altLabels:
           - Direction InterRégionale de la Mer Manche Est - Mer du Nord
           - CROSS Gris-Nez
       NAMO:
+        short: DIRM NAMO
         prefLabels: {fr: DIRM NAMO (Direction interrégionale de la mer Nord Atlantique - Manche Ouest)}
         altLabels:
           - DIRM NAMO
           - CROSS Corsen
           - CROSS Jobourg
       SA:
+        short: DIRM SA
         prefLabels: {fr: DIRM Sud Atlantique}
         altLabels:
           - CROSS Etel
   DIR:
     children:
       IDF:
+        short: DIR IDF
         prefLabels: {fr: Direction des Routes Ile-de-France (DIRIF)}
       Ouest:
+        short: DIR Ouest
         prefLabels: {fr: DIR Ouest}
       CO:
+        short: DIR CO
         prefLabels: {fr: DIRCO}
         altLabels:
           - DIRCO/SPT/BPMO
       MC:
+        short: DIR MC
         prefLabels: {fr: Direction Interdépartementale des Routes du Massif Central (DIRMC)}
   COVADIS:
     prefLabels: {fr: COVADIS}
+source: |
 eof:

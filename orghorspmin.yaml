@@ -1,0 +1,103 @@
+title: arborescence des organisations hors périmètre ministériel mais apparaissant comme MdContact de MDD du périmètre
+description: |
+  Arborescence des organisations hors périmètre Ministériel (AC+SD+DDT) mais apparaissant comme MdContact de MDD
+  du périmètre.
+  Associe à chaque organisation les différents libellés utilisés dans les catalogues.
+  A chaque organisation un libellé court et significatif est affecté soit par le champ short soit par la clé utilisée.
+  Le premier niveau de l'arborescence correspond à des regroupements d'organisations pour lesquels le prefLabel n'est pas
+  défini.
+  Les anciennes organisations sont définies comme synonymes des organisations actuelles.
+  Un schéma permet de controller la structure du fichier et documente les différents champs.
+
+$schema: org
+
+keyIsPrefLabel: false
+children:
+  horsPMinOp:
+    note: opérateurs hors périmètre Min apparaissant comme MdContact de MDD du périmètre
+    children:
+      AFB:
+        prefLabels: {fr: AFB}
+        altLabels:
+          - Office National de l'Eau et des Milieux Aquatiques
+      BRGM:
+        prefLabels: {fr: BRGM}
+        altLabels:
+          - BRGM (Bureau de recherches Géologiques et Minières) Bretagne
+      CEREMA:
+        prefLabels: {fr: CEREMA}
+        altLabels:
+          - CEREMA/DT OUEST/DLRCA
+      IGN:
+        prefLabels: {fr: IGN-F}
+        altLabels:
+          - Institut Géographique National (IGN-F)
+  horsPMinSD:
+    note: services déconcentrés hors périmètre Min apparaissant comme MdContact de MDD du périmètre
+    children:
+      SDIS:
+        prefLabels: {fr: Service Départemental d'Incendie et de Secours (SDIS)}
+      PrefARA:
+        prefLabels: {fr: Préfecture de la région Auvergne-Rhône-Alpes Auvergne-Rhône-Alpes}
+      DraafARA:
+        prefLabels: {fr: DRAAF Auvergne-Rhône-Alpes}
+        hiddenLabels:
+          - Direction Régionale de l'Alimentation de l'Agriculture et de la Forêt d'Auvergne-Rhône-Alpes (Direction Régionale de l'Alimentation de l'Agriculture et de la Forêt d'Auvergne-Rhône-Alpes (DRAAF Auvergne-Rhône-Alpes))
+      Pref38:
+        prefLabels: {fr: Préfecture de l'Isère}
+  horsPMinCT:
+    note: CT hors périmètre Min apparaissant comme MdContact de MDD du périmètre
+    children:
+      RNAQ:
+        prefLabels: {fr: Région Nouvelle-Aquitaine}
+        altLabels:
+          - Région Limousin
+      CD15:
+        prefLabels: {fr: Conseil Départemental du Cantal (CD 15)}
+      CD66:
+        prefLabels: {fr: Conseil Général des Pyrénnées Orientales}
+  horsPMinAutresFr:
+    note: Autres organisations françaises hors périmètre Min apparaissant comme MdContact de MDD du périmètre
+    children:
+      Craig:
+        prefLabels: {fr: Centre Régional Auvergne-Rhône-Alpes de l'Information Géographique (CRAIG)}
+      IAV:
+        prefLabels: {fr: Institution d'Aménagement de La Vilaine}
+      OEBretagne:
+        prefLabels: {fr: Observatoire de l'environnement en Bretagne}
+      PNRNM:
+        prefLabels: {fr: Parc naturel régional Normandie-Maine}
+      RNMReunion:
+        prefLabels: {fr: Réserve Naturelle Marine de la Réunion}
+      Sandre:
+        prefLabels: {fr: SANDRE}
+      Sextant:
+        prefLabels: {fr: Sextant}
+      SIBCDolDeBretagne:
+        prefLabels: {fr: Syndicat intercommunal des Bassins Côtiers de la région de Dol-de-Bretagne}
+      SMBSelune:
+        prefLabels: {fr: Syndicat Mixte du Bassin de la Sélune}
+      SMSCouesnon:
+        prefLabels: {fr: Syndicat Mixte du SAGE Couesnon}
+  horsPMinPersonnesPhysiques:
+    children:
+      PersonnePhysique:
+        prefLabels: {fr: Personne physique}
+        altLabels:
+          - Laurent Dufour
+  horsPMinNonFr:
+    note: Autres organisations non françaises hors périmètre Min apparaissant comme MdContact de MDD du périmètre
+    children:
+      Cefas:
+        prefLabels:
+          en: Centre for Environment, Fisheries, and Aquaculture Science (CEFAS)
+          fr: Centre des sciences de l'environnement, des pêches et de l'aquaculture (Royaume-Uni)
+        description: |
+          We are Cefas, the Centre for Environment, Fisheries, and Aquaculture Science. We are an agency of Defra
+          (the Government’s Department of Environment, Food and Rural Affairs) and world leading experts in marine
+          and freshwater science. We help keep our seas, oceans and rivers healthy and productive and our seafood safe
+          and sustainable, by providing data and advice to Government and our overseas partners.
+        altLabels:
+          - Cefas
+source: |
+eof:
