@@ -38,7 +38,7 @@ class Concept extends Node {
   private array $altLabels; // liste des synonymes
   private array $hiddenLabels; // liste des synonymes cachés
   
-  function __construct(array $path, array $labels, array $children) {
+  function __construct(array $path, array $labels, array $children=[]) {
     //echo "Concept::__construct(prefLabels: ",json_encode($prefLabels),")<br>\n";
     $this->path = $path;
     $this->short = $labels['short'] ?? null;;

@@ -265,6 +265,7 @@ children:
         short: E7
         description: Géologie, pédologie, données climatiques…
   EAU:
+    short: F
     children:
       N_AEP:
         short: F1

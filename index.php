@@ -691,11 +691,13 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
     echo "<td><b>NC</b></td></tr>\n";
   }
   
+  $nonClasse = new Concept(['NC'],['prefLabels'=>['fr'=>'NON CLASSE']]);
   $arboOrgsPMin = new Arbo('orgpmin.yaml');
   $nbMdParOrgTheme = []; // nb de MD par org. et par theme -> [{orgName} => [{theme} => nb]]
   $nbMdParOrg = []; // nb de MD par org -> [{orgName} => nb]
   $nbMdParTheme = []; // nb de MD par thème -> [{theme} => nb]
   $nbMdd = 0;
+  
   // Dénombrement
   $sql = "select id, title, record from catalog$_GET[cat]
           where type in ('dataset','series') and perimetre='Min'";
@@ -733,98 +735,87 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
   
   //echo "<tr>"; for($i=1;$i<=200;$i++) echo "<td>$i</td>"; echo "<tr>\n"; // numérotation des colonnes
   
+  $orgNonDefinie = new Concept(['ND'],['short'=>'ORG NON DEF', 'prefLabels'=>['fr'=>'ORG NON DEF']]);
+  
   // affichage du contenu de la table org X theme
-  foreach($arboOrgsPMin->nodes() as $idorg => $org) {
+  foreach(array_merge($arboOrgsPMin->nodes(), [$orgNonDefinie]) as $idorg => $org) {
     $short = $org->short();
     if (!isset($nbMdParOrg[$short])) continue;
     printf("<tr><td>%s</td><td align='right'>%d</td>", $short, $nbMdParOrg[$short]);
-    foreach ($arbos[$_GET['arbo']]->nodes() as $theme) {
-      $plabel = $theme->prefLabel();
+    foreach (array_merge($arbos[$_GET['arbo']]->nodes(), [$nonClasse]) as $theme) {
+      $plabel = (string)$theme;
       if (!isset($nbMdParTheme[$plabel])) continue;
       $nb = isset($nbMdParOrgTheme[$short][$plabel]) ? $nbMdParOrgTheme[$short][$plabel] : 0;
+      $url = "?cat=$_GET[cat]&amp;action=mddOrgTheme"
+        ."&amp;type=$_GET[type]&amp;org=".urlencode((string)$org)
+        ."&amp;arbo=$_GET[arbo]&amp;theme=".urlencode((string)$theme);
       if ($nb)
-        printf("<td align='right'><a href='url' title='title'>%d</a></td>", $nb);
+        printf("<td align='right'><a href='%s' title='title'>%d</a></td>", $url, $nb);
       else
         echo "<td></td>";
     }
-    
-    // colonne supplémentaire avec le thème NON CLASSE
-    $theme = 'NON CLASSE';
-    $nb = isset($nbMdParOrgTheme[$short][$theme]) ? $nbMdParOrgTheme[$short][$theme] : 0;
-    if ($nb)
-      printf("<td align='right'>%d</td>", $nb);
-    else
-      echo "<td></td>";
-    echo "<td>$short</td></tr>\n";
-  }
-  
-  // ligne supplémentaire éventuelle pour l'org non définie
-  if (isset($nbMdParOrg['ORG NON DEF'])) {
-    $short = 'ORG NON DEF';
-    printf("<tr><td>%s</td><td align='right'>%d</td>", $short, $nbMdParOrg[$short]);
-    foreach ($arbos[$_GET['arbo']]->children('') as $thniv1) {
-      $theme = $thniv1->__toString();
-      if (isset($nbMdParTheme[$theme])) {
-        if ($nb = isset($nbMdParOrgTheme[$short][$theme]) ? $nbMdParOrgTheme[$short][$theme] : 0) {
-          $url = "?cat=$_GET[cat]&amp;action=nbMdOrgTheme&amp;org=".urlencode($orgniv2->pathAsString());
-          $description = $thniv1->__toString();
-          printf("<td align='right'><a href='%s' title='%s'>%d</a></td>", $url, $description, $nb);
-        }
-        else
-          echo "<td></td>";
-      }
-      
-      foreach($thniv1->children() as $thid2 => $thniv2) {
-        $theme = $thniv2->__toString();
-        if (!isset($nbMdParTheme[$theme]))
-          continue;
-        $nb = isset($nbMdParOrgTheme[$short][$theme]) ? $nbMdParOrgTheme[$short][$theme] : 0;
-        if ($nb)
-          printf("<td align='right'>%d</a></td>", $nb);
-        else
-          echo "<td></td>";
-      }
-    }
-    // colonne supplémentaire avec le thème NON CLASSE
-    $theme = 'NON CLASSE';
-    $nb = isset($nbMdParOrgTheme[$short][$theme]) ? $nbMdParOrgTheme[$short][$theme] : 0;
-    if ($nb)
-      printf("<td align='right'>%d</td>", $nb);
-    else
-      echo "<td></td>";
+    // colonne supplémentaire avec le nom court du thème
     echo "<td>$short</td></tr>\n";
   }
   
   // 2ème affichage des thèmes en ligne de bas de tableau
   ligneThemes($arbos[$_GET['arbo']], $nbMdParTheme);
   
-  // Affichage d'une ligne finale des sommes par colonne
+  // Affichage d'une ligne finale des sommes par colonne en caractères plus petits
   echo "<tr><td align='center'><b>Somme</b></td><td align='center'><small>$nbMdd</small></td>\n";
-  foreach ($arbos[$_GET['arbo']]->children('') as $thniv1) {
-    //xxx
-    foreach($thniv1->children() as $thid2 => $thniv2) {
-      $theme = $thniv2->__toString();
-      if (!isset($nbMdParTheme[$theme]))
-        continue;
-      printf("<td align='right'><small>%d</small></td>", $nbMdParTheme[$theme]);
-    }
+  foreach (array_merge($arbos[$_GET['arbo']]->nodes(), ['NON CLASSE']) as $theme) {
+    $plabel = is_string($theme) ? $theme : $theme->prefLabel();
+    if (!isset($nbMdParTheme[$plabel])) continue;
+    printf("<td align='right'><small>%d</small></td>", $nbMdParTheme[$plabel]);
   }
   printf("<td align='right'><small>%d</small></td>", $nbMdParTheme['NON CLASSE']);
   echo "</tr>\n";
   echo "</table>\n";
   
+  // Enfin affichage de la liste des thèmes avec le nom court
   echo "<h2>Nomenclature des thèmes</h2>\n";
   echo "<table border=1><th>code</th><th>étiquette</th>\n";
-  foreach ($arbos[$_GET['arbo']]->children('') as $thniv1) {
-    $theme = $thniv1->__toString();
-    if (isset($nbMdParTheme[$theme]))
-      echo "<tr><td>",$thniv1->short(),"</td><td>$theme</td></tr>\n";
-    foreach($thniv1->children() as $thid2 => $thniv2) {
-      $theme = $thniv2->__toString();
-      if (isset($nbMdParTheme[$theme]))
-        echo "<tr><td>",$thniv2->short(),"</td><td>$theme</td></tr>\n";
-    }
+  foreach (array_merge($arbos[$_GET['arbo']]->nodes(), [$nonClasse]) as $theme) {
+    if (isset($nbMdParTheme[(string)$theme]))
+      echo "<tr><td>",$theme->short(),"</td><td>$theme</td></tr>\n";
   }
   echo "</table>\n";
   die();
+}
+
+if ($_GET['action']=='mddOrgTheme') { // liste les MDD avec org et theme
+  echo "<h2>MDD de $_GET[type]=\"$_GET[org]\" et $_GET[arbo]=\"$_GET[theme]\"</h2><ul>\n";
+  $arboOrgsPMin = new Arbo('orgpmin.yaml');
+  $sql = "select id, title, record from catalog$_GET[cat]
+          where type in ('dataset','series') and perimetre='Min'";
+  //echo "<pre>";
+  foreach (PgSql::query($sql) as $tuple) {
+    $record = json_decode($tuple['record'], true);
+    // Teste l'org
+    $isOrg = false;
+    foreach ($record[$_GET['type']] as $org) {
+      //print_r($org);
+      if (!isset($org['organisationName']))
+        $plabel = 'ORG NON DEF';
+      else
+        $plabel = $arboOrgsPMin->prefLabel($org['organisationName']);
+      if ($plabel == $_GET['org']) {
+        $isOrg = true;
+        break;
+      }
+    }
+    if (!$isOrg) continue;
+    
+    $prefLabels = prefLabels($record['keyword'] ?? [], ['a'=>$arbos[$_GET['arbo']]]);
+    $isTheme = false;
+    foreach ($prefLabels['a'] ?? ['NON CLASSE'] as $plabel) {
+      if ($plabel == $_GET['theme']) {
+        $isTheme = true;
+        break;
+      }
+    }
+    if (!$isTheme) continue;
+
+    echo "<li><a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</li>\n";
+  }
 }
