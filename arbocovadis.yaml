@@ -495,6 +495,7 @@ children:
         altLabels:
           - Mer Littoral/Topographie
   NATURE_PAYSAGE_BIODIVERSITE:
+    short: K
     children:
       N_CHASSE:
         short: K1
@@ -580,6 +581,7 @@ children:
         altLabels:
           - Réseau Énergie Divers/Télécommunication
   RISQUE:
+    short: N
     children:
       N_AVALANCHE:
         short: N1

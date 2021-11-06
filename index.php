@@ -48,8 +48,8 @@ function prefLabels(array $keywords, array $arbos): array {
     //echo "<pre>"; print_r($keyword); echo "</pre>\n";
     if ($kwValue = $keyword['value'] ?? null) {
       foreach ($arbos as $arboid => $arbo) {
-        if ($arbo->labelIn($kwValue)) {
-          $prefLabels[$arboid][$arbo->prefLabel($kwValue)] = 1;
+        if ($prefLabel = $arbo->prefLabel($kwValue)) {
+          $prefLabels[$arboid][$prefLabel] = 1;
         }
       }
     }
@@ -58,6 +58,7 @@ function prefLabels(array $keywords, array $arbos): array {
   foreach ($prefLabels as $arboid => $labels) {
     $prefLabels[$arboid] = array_keys($labels);
   }
+  //echo "<pre>prefLabels(",Yaml::dump($keywords),") -> ",Yaml::dump($prefLabels),"</pre>";
   return $prefLabels;
 }
 
@@ -682,15 +683,10 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
   function ligneThemes(Arbo $arbo, array $nbMdParTheme) { // ligne des themes en haut et en bas de l'affichage
     echo "<tr><td><center><b>org</b></center></td><td><center><b>S</b></center></td>\n";
     // Affichage des themes en en-têtes de colonnes
-    foreach ($arbo->children('') as $thniv1) {
-      $theme = $thniv1->__toString();
-      if (isset($nbMdParTheme[$theme]))
-        echo "<td><b>",$thniv1->short(),"</b></td>";
-      foreach($thniv1->children() as $thid2 => $thniv2) {
-        $theme = $thniv2->__toString();
-        if (isset($nbMdParTheme[$theme]))
-          echo "<td><b>",$thniv2->short(),"</b></td>";
-      }
+    foreach ($arbo->nodes() as $theme) {
+      $plabel = $theme->prefLabel();
+      if (isset($nbMdParTheme[$plabel]))
+        echo "<td><center><b>",$theme->short(),"</b></center></td>";
     }
     echo "<td><b>NC</b></td></tr>\n";
   }
@@ -709,7 +705,7 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
     //echo "record = "; print_r($record);
     $nbOrgs = count($record[$_GET['type']]);
     $prefLabels = prefLabels($record['keyword'] ?? [], ['a'=>$arbos[$_GET['arbo']]]);
-    //print_r($prefLabels);
+    //echo "prefLabels()="; print_r($prefLabels); echo "<br>\n";
     $nbThemes = count($prefLabels['a'] ?? ['xx']);
     foreach ($record[$_GET['type']] as $org) {
       //print_r($org);
@@ -719,7 +715,7 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
         $orgShortName = $arboOrgsPMin->short($org['organisationName']);
       $nbMdParOrg[$orgShortName] = 1/$nbOrgs + ($nbMdParOrg[$orgShortName] ?? 0);
       foreach ($prefLabels['a'] ?? ['NON CLASSE'] as $plabel) {
-        //echo "$orgShortName X $plabel -> ",1/$nbOrgs/$nbThemes,"\n";
+        //echo "$orgShortName X $plabel -> ",1/$nbOrgs/$nbThemes,"<br>\n";
         $nbMdParTheme[$plabel] = 1/$nbOrgs/$nbThemes + ($nbMdParTheme[$plabel] ?? 0);
         if (!isset($nbMdParOrgTheme[$orgShortName][$plabel]))
           $nbMdParOrgTheme[$orgShortName][$plabel] = 1/$nbOrgs/$nbThemes;
@@ -738,43 +734,28 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
   //echo "<tr>"; for($i=1;$i<=200;$i++) echo "<td>$i</td>"; echo "<tr>\n"; // numérotation des colonnes
   
   // affichage du contenu de la table org X theme
-  foreach($arboOrgsPMin->children('') as $id1 => $orgniv1) {
-    foreach($orgniv1->children('') as $id2 => $orgniv2) {
-      $short = $orgniv2->short();
-      if (!isset($nbMdParOrg[$short])) continue;
-      printf("<tr><td>%s</td><td align='right'>%d</td>", $short, $nbMdParOrg[$short]);
-      foreach ($arbos[$_GET['arbo']]->children('') as $thniv1) {
-        $theme = $thniv1->__toString();
-        if (isset($nbMdParTheme[$theme])) {
-          if ($nb = isset($nbMdParOrgTheme[$short][$theme]) ? $nbMdParOrgTheme[$short][$theme] : 0) {
-            $url = "?cat=$_GET[cat]&amp;action=nbMdOrgTheme&amp;org=".urlencode($orgniv2->pathAsString());
-            $description = $thniv1->__toString();
-            printf("<td align='right'><a href='%s' title='%s'>%d</a></td>", $url, $description, $nb);
-          }
-          else
-            echo "<td></td>";
-        }
-        foreach($thniv1->children() as $thid2 => $thniv2) {
-          $theme = $thniv2->__toString();
-          if (!isset($nbMdParTheme[$theme]))
-            continue;
-          $nb = isset($nbMdParOrgTheme[$short][$theme]) ? $nbMdParOrgTheme[$short][$theme] : 0;
-          if ($nb)
-            printf("<td align='right'>%d</td>", $nb);
-          else
-            echo "<td></td>";
-        }
-      }
-      
-      // colonne supplémentaire avec le thème NON CLASSE
-      $theme = 'NON CLASSE';
-      $nb = isset($nbMdParOrgTheme[$short][$theme]) ? $nbMdParOrgTheme[$short][$theme] : 0;
+  foreach($arboOrgsPMin->nodes() as $idorg => $org) {
+    $short = $org->short();
+    if (!isset($nbMdParOrg[$short])) continue;
+    printf("<tr><td>%s</td><td align='right'>%d</td>", $short, $nbMdParOrg[$short]);
+    foreach ($arbos[$_GET['arbo']]->nodes() as $theme) {
+      $plabel = $theme->prefLabel();
+      if (!isset($nbMdParTheme[$plabel])) continue;
+      $nb = isset($nbMdParOrgTheme[$short][$plabel]) ? $nbMdParOrgTheme[$short][$plabel] : 0;
       if ($nb)
-        printf("<td align='right'>%d</td>", $nb);
+        printf("<td align='right'><a href='url' title='title'>%d</a></td>", $nb);
       else
         echo "<td></td>";
-      echo "<td>$short</td></tr>\n";
     }
+    
+    // colonne supplémentaire avec le thème NON CLASSE
+    $theme = 'NON CLASSE';
+    $nb = isset($nbMdParOrgTheme[$short][$theme]) ? $nbMdParOrgTheme[$short][$theme] : 0;
+    if ($nb)
+      printf("<td align='right'>%d</td>", $nb);
+    else
+      echo "<td></td>";
+    echo "<td>$short</td></tr>\n";
   }
   
   // ligne supplémentaire éventuelle pour l'org non définie
@@ -820,7 +801,7 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
   // Affichage d'une ligne finale des sommes par colonne
   echo "<tr><td align='center'><b>Somme</b></td><td align='center'><small>$nbMdd</small></td>\n";
   foreach ($arbos[$_GET['arbo']]->children('') as $thniv1) {
-    xxx
+    //xxx
     foreach($thniv1->children() as $thid2 => $thniv2) {
       $theme = $thniv2->__toString();
       if (!isset($nbMdParTheme[$theme]))

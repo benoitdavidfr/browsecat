@@ -11,7 +11,7 @@ definitions:
     items:
       description: étiquette
       type: string
-  subtree:
+  tree:
     description: enfants définis chacun par une clé, des propriétés et ses propres enfants
     type: object
     additionalProperties: false
@@ -25,7 +25,7 @@ definitions:
             description: explication destinée à un utilisateur
             type: string
           short:
-            description: étiquette courte
+            description: étiquette courte pour l'affichage, n'est pas une clé
             type: string
           prefLabels:
             description: étiquettes préférentielles par langue (ISO 639)
@@ -45,7 +45,7 @@ definitions:
             type: string
           children:
             description: sous-arborescence
-            $ref: '#/definitions/subtree'
+            $ref: '#/definitions/tree'
     
 type: object
 additionalProperties: false
@@ -71,7 +71,7 @@ properties:
     const: false
   children:
     description: contenu de l'arborescence
-    $ref: '#/definitions/subtree'
+    $ref: '#/definitions/tree'
   source:
     description: stockage temporaire pour constitution ou tests
     type: string
