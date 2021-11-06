@@ -39,24 +39,33 @@ children:
         prefLabels: {fr: Ministère de la Cohésion des territoires et des Relations avec les Collectivités Territoriales (MCTRCT)}
         altLabels:
           - Ministère de la Cohésion des territoires
+      ANCT:
+        prefLabels: {fr: Agence Nationale de la Cohésion des Territoires (ANCT)}
+        note: Exceptionellement je considère l'ANCT comme dans le périmètre ministériel, notamment car le CGET l'était
+        altLabels:
+          - Commissariat général à l'égalité des territoires
       CGDD:
         prefLabels: {fr: Commissariat général au développement Durable}
         altLabels:
-          - MTES/CGDD/SDES
-          - Ministère de l'Environnement, de l'Energie et de la Mer - Service de l'observation et des statistiques (SOeS)
-          - Ministère de la Transition Ecologique et Solidaire - CGDD/SOeS/SDES
-          - MEDDE-CGDD-SOes
           - MEDDE/CGDD/DRI/MIG
-          - MEDDE/CGDD/SOeS
-          - MEDDTL/CGDD/SOeS
-          - MEEDDE/CGDD/SOeS
-          - SDES
-          - CGDD - SOeS
-          - SOeS – SSP, Enquêtes "Eau et assainissement"
-          - Service de l'observation et des statistiques (SOeS)
-          - Service de la donnée et des études statistiques (SDES)
-      CGET:
-        prefLabels: {fr: Commissariat général à l'égalité des territoires}
+        children:
+          COVADIS:
+            prefLabels: {fr: COVADIS}
+          SDES:
+            prefLabels: {'fr': SDES}
+            altLabels:
+              - MTES/CGDD/SDES
+              - Ministère de l'Environnement, de l'Energie et de la Mer - Service de l'observation et des statistiques (SOeS)
+              - Ministère de la Transition Ecologique et Solidaire - CGDD/SOeS/SDES
+              - MEDDE-CGDD-SOes
+              - MEDDE/CGDD/SOeS
+              - MEDDTL/CGDD/SOeS
+              - MEEDDE/CGDD/SOeS
+              - SDES
+              - CGDD - SOeS
+              - SOeS – SSP, Enquêtes "Eau et assainissement"
+              - Service de l'observation et des statistiques (SOeS)
+              - Service de la donnée et des études statistiques (SDES)
       DGAC:
         prefLabels: {fr: Direction Générale de l'Aviation Civile (DGAC)}
         altLabels:
@@ -405,6 +414,7 @@ children:
           - DDT 38 (Direction Départementale des Territoires de l'Isère) Service Environement
         hiddenLabels:
           - Direction Départementale des Territoires de l'Isère)
+          - tion Départementale des Territoires de l'Isère)
       DDT39:
         short: DDT 39 (Jura)
         prefLabels: {fr: DDT 39 (Direction Départementale des Territoires du Jura)}
@@ -739,6 +749,7 @@ children:
           - DDTM 85 (Direction Départementale des Territoires et de la Mer de Vendée)- SERN
           - DDTM 85 (Direction Départementale des Territoires et de la Mer de Vendée)-SUA
           - Direction Départemental de l'Equipement Vendée
+          - DDTM85
       DDT86:
         short: DDT 86 (Vienne)
         prefLabels: {fr: DDT 86 (Direction Départementale des Territoires de la Vienne)}
@@ -854,15 +865,18 @@ children:
       DREAL:
         prefLabels: {fr: DREAL}
         altLabels:
-          - DIREN
           - DREAL
           - DREAL des régions
           - DREAL et DEAL
           - DREALs
           - DREAL -mMinistere-environnement
-          - DIREN, BRGM, DRIRE
           - Direction régional de l'Environnement, de l'Aménagement et du logement
           - Direction régionale de l'environnement, de l'aménagement et du logement
+          - Direction régionale environnement aménagement logement
+          - Direction régional environnement, aénagement, logement
+          - DIREN
+          - DIREN/DDT
+          - DIREN, BRGM, DRIRE
       ARA:
         short: DREAL ARA
         prefLabels: {fr: "DREAL Auvergne (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Auvergne)"}
@@ -1075,7 +1089,5 @@ children:
       MC:
         short: DIR MC
         prefLabels: {fr: Direction Interdépartementale des Routes du Massif Central (DIRMC)}
-  COVADIS:
-    prefLabels: {fr: COVADIS}
 source: |
 eof:

@@ -32,7 +32,7 @@ class Node extends RootOrNode { // Noud intermédiaire
     elseif (!$path)
       return $this->children[$first];
     else
-      return $this->children[$first]->getChild($path);
+      return $this->children[$first]->node($path);
   }
 
   function nodes(): array { // retourne le concept + ses descendants sous la forme [{pathAsString} => Concept]

@@ -7,7 +7,7 @@ description: |
    2) d'attacher à certains noeuds un altLabel et éventuellement des hiddenLabels
   L'arborescence est complétée par les mot-clés trouvés dans les catalogues
 journal: |
-  2-5/11/2021:
+  2-6/11/2021:
     - modifs à partir de la source
     - ajout des champs description et altLabels
     - ajout champ short
@@ -197,6 +197,7 @@ children:
           - zonage planification
           - urbanisme planification
   CULTURE_SOCIETE_SERVICE:
+    short: D
     children:
       N_ENSEIGNEMENT:
         short: D1
@@ -229,6 +230,7 @@ children:
         altLabels:
           - Culture Société Service/Tourisme
   DONNEE_GENERIQUE:
+    short: E
     children:
       N_ACTION_PUBLIQUE:
         short: E1
@@ -328,6 +330,7 @@ children:
           - eau/n_zonages_eau
           - zonages eau
   FONCIER_SOL:
+    short: G
     children:
       N_FONCIER_AGRICOLE:
         short: G1
@@ -445,6 +448,7 @@ children:
         altLabels:
           - Habitat Politique de la ville/Rénovation
   MER_LITTORAL:
+    short: J
     children:
       N_AUTRES_ACTIVITES:
         short: J1
@@ -532,6 +536,7 @@ children:
         altLabels:
           - Nature Paysage Biodiversité/Zonages Paysage
   NUISANCE:
+    short: L
     children:
       N_BRUIT:
         short: L1
@@ -556,6 +561,7 @@ children:
         altLabels:
           - Nuisance/Pollution du sol
   RESEAU_ENERGIE_DIVERS:
+    short: M
     children:
       N_AMENAGEMENT_NUMERIQUE_DES_TERRITOIRES:
         short: M1
@@ -657,6 +663,7 @@ children:
           - Risque/Risque technologique
           - risque/n_zonages_risque_technologique
   SITE_INDUSTRIEL_PRODUCTION:
+    short: O
     children:
       N_MINE_CARRIERE_GRANULATS:
         short: O1
@@ -682,6 +689,7 @@ children:
     hiddenLabels:
       - Socio-économie/Socio-économie
   TRANSPORTS_DEPLACEMENT:
+    short: Q
     children:
       N_SECURITE_ROUTIERE:
         short: Q1

@@ -129,7 +129,6 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
     echo "<li><a href='?action=listkws'>Synthèse des taux d'appartenance des mots-clés aux arborescences</a></li>\n";
     echo "<li><a href='?action=croise'>Calcul du nbre de MD communes entre catalogues</a></li>\n";
     echo "<li><a href='?action=diffgeocat'>Affichage des MDD du Géocatalogue du périmètre n'appartenant pas à agg</a></li>\n";
-    echo "<li><a href='?action=testorganisation'>Test de l'arbo. de organisations</a></li>\n";
     echo "</ul>\n";
   }
   elseif ($_GET['action']=='createAggTable') { // Créer une table agrégée
@@ -245,15 +244,6 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
     echo "</ul>\n";
     $offset = $limit + ($_GET['offset'] ?? 0);
     echo "<a href='?action=diffgeocat&amp;offset=$offset'>next</a>\n";
-  }
-  elseif ($_GET['action']=='testorganisation') { // Tests sur l'arbo. des organisations 
-    $arboOrgs = new Arbo('organisation.yaml');
-    foreach ([
-        "DDT de l'Ain Unité SIG",
-        "DDT de l’Ain unité SIG",
-      ] as $orgname) {
-        echo "$orgname -> ",$arboOrgs->labelIn($orgname) ? 'In' : 'NotIn',"<br>\n";
-    }
   }
   die();
 }
@@ -391,10 +381,12 @@ if ($_GET['action']=='orgsHorsSel') { // liste les organisations hors sélection
 }
 
 if ($_GET['action']=='orgsHorsArbo') { // liste les organisations $_GET[type] hors de l'arbo des organisations 
-  if (!is_file("organisation.yaml"))
+  if (!is_file("orgpmin.yaml")) {
+    echo "Arbo non trouvée<br>\n";
     $arboOrgs = null;
+  }
   else
-    $arboOrgs = new Arbo('organisation.yaml');
+    $arboOrgs = new Arbo('orgpmin.yaml');
   $orgNames = []; // liste des organisations hors Arbo sous la forme [{lower}=> {name}]
   $sql = "select record from catalog$_GET[cat] where type in('data','series')"
     .(($_GET['type']=='mdContact') ? " and perimetre='Min'" : '');
@@ -680,6 +672,8 @@ if ($_GET['action']=='nbMdParOrg') { // Dénombrement des MDD par organisation d
 }
 
 if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du type $_GET[type] et par theme $_GET[arbo]
+  // Seules les MDD du périmètre sont prises en compte
+  echo "<h2>Dénombrement des MDD du périmètre par $_GET[type] et par thème de $_GET[arbo]</h2>\n";
   function ligneThemes(Arbo $arbo, array $nbMdParTheme) { // ligne des themes en haut et en bas de l'affichage
     echo "<tr><td><center><b>org</b></center></td><td><center><b>S</b></center></td>\n";
     // Affichage des themes en en-têtes de colonnes
@@ -691,7 +685,29 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
     echo "<td><b>NC</b></td></tr>\n";
   }
   
+  function htmlFormSelect(string $name, array $values, string $default) {
+    echo "<select name='$name' id='$name'>\n";
+    foreach ($values as $value)
+      echo "  <option value='$value'",($value==$default) ? ' selected' : '',">$value</option>\n";
+    echo "</select>\n";
+  }
+  
+  { // Menu pour changer de catalogue ou d'aborescence 
+    echo "<form>\n";
+    htmlFormSelect('cat', array_merge(array_keys($cats), ['agg']), $_GET['cat']);
+    echo "<input type=hidden name='action' value='nbMdParOrgTheme'>\n";
+    echo "<input type=hidden name='type' value='responsibleParty'>\n";
+    htmlFormSelect('arbo', array_keys($arbos), $_GET['arbo']);
+    echo "<input type=submit value='go'>\n";
+    echo "</form>\n";
+  }
+
   $nonClasse = new Concept(['NC'],['prefLabels'=>['fr'=>'NON CLASSE']]);
+  $orgNonDefinies = [
+    //new Concept(['ND'],['short'=>'ORG NON DEF', 'prefLabels'=>['fr'=>'ORG NON DEF']]),
+    new Concept(['NOORG'],['short'=>'NO ORG', 'prefLabels'=>['fr'=>'NO ORG']]),
+  ];
+
   $arboOrgsPMin = new Arbo('orgpmin.yaml');
   $nbMdParOrgTheme = []; // nb de MD par org. et par theme -> [{orgName} => [{theme} => nb]]
   $nbMdParOrg = []; // nb de MD par org -> [{orgName} => nb]
@@ -705,16 +721,22 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
   foreach (PgSql::query($sql) as $tuple) {
     $record = json_decode($tuple['record'], true);
     //echo "record = "; print_r($record);
-    $nbOrgs = count($record[$_GET['type']]);
+    $orgShortNames = []; // liste des noms courts du périm. ou ['HORS MIN'=> 1]
+    foreach ($record[$_GET['type']] as $org) {
+      //print_r($org);
+      
+      if (!isset($org['organisationName'])) continue;
+      if (!($orgShortName = $arboOrgsPMin->short($org['organisationName']))) continue;
+      $orgShortNames[$orgShortName] = 1;
+    }
+    if (!$orgShortNames)
+      $orgShortNames = ['NO ORG'=> 1];
+    $nbOrgs = count($orgShortNames);
+
     $prefLabels = prefLabels($record['keyword'] ?? [], ['a'=>$arbos[$_GET['arbo']]]);
     //echo "prefLabels()="; print_r($prefLabels); echo "<br>\n";
     $nbThemes = count($prefLabels['a'] ?? ['xx']);
-    foreach ($record[$_GET['type']] as $org) {
-      //print_r($org);
-      if (!isset($org['organisationName']))
-        $orgShortName = 'ORG NON DEF';
-      else
-        $orgShortName = $arboOrgsPMin->short($org['organisationName']);
+    foreach (array_keys($orgShortNames) as $orgShortName) {
       $nbMdParOrg[$orgShortName] = 1/$nbOrgs + ($nbMdParOrg[$orgShortName] ?? 0);
       foreach ($prefLabels['a'] ?? ['NON CLASSE'] as $plabel) {
         //echo "$orgShortName X $plabel -> ",1/$nbOrgs/$nbThemes,"<br>\n";
@@ -735,13 +757,11 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
   
   //echo "<tr>"; for($i=1;$i<=200;$i++) echo "<td>$i</td>"; echo "<tr>\n"; // numérotation des colonnes
   
-  $orgNonDefinie = new Concept(['ND'],['short'=>'ORG NON DEF', 'prefLabels'=>['fr'=>'ORG NON DEF']]);
-  
   // affichage du contenu de la table org X theme
-  foreach(array_merge($arboOrgsPMin->nodes(), [$orgNonDefinie]) as $idorg => $org) {
+  foreach(array_merge($arboOrgsPMin->nodes(), $orgNonDefinies) as $idorg => $org) {
     $short = $org->short();
     if (!isset($nbMdParOrg[$short])) continue;
-    printf("<tr><td>%s</td><td align='right'>%d</td>", $short, $nbMdParOrg[$short]);
+    printf("<tr><td>%s</td><td align='right'>%d</td>", $short, ceil($nbMdParOrg[$short]));
     foreach (array_merge($arbos[$_GET['arbo']]->nodes(), [$nonClasse]) as $theme) {
       $plabel = (string)$theme;
       if (!isset($nbMdParTheme[$plabel])) continue;
@@ -749,8 +769,9 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
       $url = "?cat=$_GET[cat]&amp;action=mddOrgTheme"
         ."&amp;type=$_GET[type]&amp;org=".urlencode((string)$org)
         ."&amp;arbo=$_GET[arbo]&amp;theme=".urlencode((string)$theme);
+      $title = (string)$theme;
       if ($nb)
-        printf("<td align='right'><a href='%s' title='title'>%d</a></td>", $url, $nb);
+        printf("<td align='right'><a href='%s' title='%s'>%d</a></td>", $url, $theme, ceil($nb));
       else
         echo "<td></td>";
     }
@@ -763,12 +784,11 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
   
   // Affichage d'une ligne finale des sommes par colonne en caractères plus petits
   echo "<tr><td align='center'><b>Somme</b></td><td align='center'><small>$nbMdd</small></td>\n";
-  foreach (array_merge($arbos[$_GET['arbo']]->nodes(), ['NON CLASSE']) as $theme) {
-    $plabel = is_string($theme) ? $theme : $theme->prefLabel();
+  foreach (array_merge($arbos[$_GET['arbo']]->nodes(), [$nonClasse]) as $theme) {
+    $plabel = $theme->prefLabel();
     if (!isset($nbMdParTheme[$plabel])) continue;
     printf("<td align='right'><small>%d</small></td>", $nbMdParTheme[$plabel]);
   }
-  printf("<td align='right'><small>%d</small></td>", $nbMdParTheme['NON CLASSE']);
   echo "</tr>\n";
   echo "</table>\n";
   
@@ -792,19 +812,29 @@ if ($_GET['action']=='mddOrgTheme') { // liste les MDD avec org et theme
   foreach (PgSql::query($sql) as $tuple) {
     $record = json_decode($tuple['record'], true);
     // Teste l'org
-    $isOrg = false;
-    foreach ($record[$_GET['type']] as $org) {
-      //print_r($org);
-      if (!isset($org['organisationName']))
-        $plabel = 'ORG NON DEF';
-      else
+    if ($_GET['org'] <> 'NO ORG') {
+      $isOrg = false;
+      foreach ($record[$_GET['type']] as $org) {
+        //print_r($org);
+        if (!isset($org['organisationName'])) continue;
         $plabel = $arboOrgsPMin->prefLabel($org['organisationName']);
-      if ($plabel == $_GET['org']) {
-        $isOrg = true;
-        break;
+        if ($plabel == $_GET['org']) {
+          $isOrg = true;
+          break;
+        }
+      }
+      // $isOrg <=> au moins une des organisations est celle demandée
+      if (!$isOrg) continue;
+    }
+    else { // ($_GET['org'] == 'NO ORG') // cas où aucune organisation n'a d'organisationName
+      foreach ($record[$_GET['type']] as $org) {
+        if (isset($org['organisationName']))
+          echo $arboOrgsPMin->prefLabel($org['organisationName']),"<br>\n";
+        else
+          echo "organisationName non défini<br>\n";
+        if (isset($org['organisationName']) && $arboOrgsPMin->prefLabel($org['organisationName'])) continue 2;
       }
     }
-    if (!$isOrg) continue;
     
     $prefLabels = prefLabels($record['keyword'] ?? [], ['a'=>$arbos[$_GET['arbo']]]);
     $isTheme = false;
@@ -816,6 +846,6 @@ if ($_GET['action']=='mddOrgTheme') { // liste les MDD avec org et theme
     }
     if (!$isTheme) continue;
 
-    echo "<li><a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</li>\n";
+    echo "<li><a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</a></li>\n";
   }
 }
