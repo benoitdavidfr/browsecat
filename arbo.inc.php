@@ -17,6 +17,8 @@ doc: |
     - des altLabels et des hiddenLabels
   Le prefLabel fr peut être défini par le chemin des clés.
 journal: |
+  7/11/2021:
+    - ajout regexps
   6/11/2021:
     - passage en V2
     - décomposition en 2 avec la créaation de tree.inc.php
@@ -37,6 +39,7 @@ class Concept extends Node {
   private array $prefLabels; // [{lang}=> {label}], éventuellement non utilisé
   private array $altLabels; // liste des synonymes
   private array $hiddenLabels; // liste des synonymes cachés
+  private array $regexps; // liste d'expression régulières utilisées pour classer une fiche à partir de ses champs textuels
   
   function __construct(array $path, array $labels, array $children=[]) {
     //echo "Concept::__construct(prefLabels: ",json_encode($prefLabels),")<br>\n";
@@ -45,6 +48,7 @@ class Concept extends Node {
     $this->prefLabels = $labels['prefLabels'] ?? [];
     $this->altLabels = $labels['altLabels'] ?? [];
     $this->hiddenLabels = $labels['hiddenLabels'] ?? [];
+    $this->regexps = $labels['regexps'] ?? [];
     $this->children = $children;
   }
 
@@ -52,6 +56,7 @@ class Concept extends Node {
   function short(): string { return $this->short ? $this->short : $this->path[count($this->path)-1]; }
   function __toString(): string { return $this->prefLabels['fr'] ?? ''; }
   function prefLabel(string $lang='fr'): ?string { return $this->prefLabels[$lang] ?? null; }
+  function regexps() : array { return $this->regexps; }
 
   function asArray(): array {
     $children = [];
@@ -101,6 +106,8 @@ class Arbo extends Tree { // Arborescence de thèmes, chacun défini comme un Co
         $this->labels[self::simplif($label)] = $path;
       }
     }
+    foreach($yaml['regexps'] ?? [] as $id => $regexp)
+      $yaml['regexps'][$id] = self::std($regexp);
     $children = [];
     foreach ($yaml['children'] ?? [] as $id => $child) {
       $childPath = array_merge($path, [$id]);

@@ -38,7 +38,7 @@ $arbos = [
 
 // Choisir le serveur
 PgSql::open('host=pgsqlserver dbname=gis user=docker');
-//PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public');
+//PgSql::open('pgsql://browsecat:Browsecat9@db207552-001.dbaas.ovh.net:35250/catalog/public');
 
 
 // Renvoie la liste prefLabels structurée par arbo, [ {arboid} => [ {prefLabel} ]]

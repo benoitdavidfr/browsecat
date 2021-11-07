@@ -29,9 +29,18 @@ doc: |
   Les MD de Sextant peuvent être notamment de type 'publication' ou 'carte' ; ces MD ne peuvent pas être traduites
   en ISO 19115 ; elles sont alors stockées en DublinCore.
   
+  Bases:
+    host=pgsqlserver dbname=gis user=docker
+    pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public pour écrire
+    pgsql://browsecat:Browsecat9@db207552-001.dbaas.ovh.net:35250/catalog/public pour lire
+    
+  Regarder les droits à donner à browsecat
+  
   Voir dans themes.yaml les résultats sur les thésaurus.
   
 journal: |
+  4-6/11/2021:
+    - élaboration d'un tableau de dénombrement par organisation et par thème
   3/11/2021:
     - Fin du moissonnage du géocatalogue (numberOfRecordsMatched=152115).
       - cela prend plus de 24 h de moissonnage

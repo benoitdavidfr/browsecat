@@ -7,6 +7,8 @@ description: |
    2) d'attacher à certains noeuds un altLabel et éventuellement des hiddenLabels
   L'arborescence est complétée par les mot-clés trouvés dans les catalogues
 journal: |
+  7/1/2021:
+    - ajout de regexps
   2-6/11/2021:
     - modifs à partir de la source
     - ajout des champs description et altLabels
@@ -29,7 +31,7 @@ $schema:
       items:
         description: étiquette
         type: string
-    children:
+    tree:
       description: enfants définis chacun par un id, des propriétés et des enfants
       type: object
       additionalProperties: false
@@ -49,18 +51,22 @@ $schema:
                 description:
                   description: explication issue du document source
                   type: string
+                note:
+                  description: commentaire complémentaire
+                  type: string
                 altLabels:
                   description: liste de synonymes associées au noeud
                   $ref: '#/definitions/labels'
                 hiddenLabels:
                   description: liste d'étiquettes cachées associées au noeud, orthographe, graphie, ...
                   $ref: '#/definitions/labels'
-                note:
-                  description: commentaire complémentaire
-                  type: string
+                regexps:
+                  description: |
+                    liste d'expressions régulières utilisées pour classer une fiche à partir de ses champs textuels
+                  $ref: '#/definitions/labels'
                 children:
                   description: sous-arborescence structuré avec un identifiant par noeud de niveau supérieur
-                  $ref: '#/definitions/children'
+                  $ref: '#/definitions/tree'
       
   type: object
   additionalProperties: false
@@ -82,7 +88,10 @@ $schema:
       const: true
     children:
       description: contenu de l'arborescence structuré avec un identifiant par noeud de premier niveau
-      $ref: '#/definitions/children'
+      $ref: '#/definitions/tree'
+    source:
+      description: texte temporaire
+      type: string
     eof:
       description: marque de fin de fichier
       const: null
@@ -113,6 +122,9 @@ children:
         description: Unités pastorales, bâtiments élevage
         altLabels:
           - Agriculture/Exploitation Élevage
+        regexps:
+          - protection des troupeaux contre la prédation
+          - exploitations agricoles
       N_PARCELLAIRE_AGRICOLE:
         short: A4
         description: Ilot RPG, parcelle OGM….
@@ -138,6 +150,12 @@ children:
         hiddenLabels:
           - ZONAGES AGRICOLES
           - zonage agricole
+        regexps:
+          - petites? régions? agricoles?
+          - zones? de déprise agricole
+          - AOC
+          - Zones? agricoles? protégées?
+          - Zones? agricoles? défavorisées?
   AIR_CLIMAT:
     short: B
     children:
@@ -145,6 +163,13 @@ children:
         short: B1
         altLabels:
           - Air Climat/Changement climatique
+        regexps:
+          - Plans? Climat-Energie
+          - Plan Climat Air Energie territorr?ial
+          - PCAET
+          - Plans de Protection de l'Atmosphère
+          - SRCAE
+          - territoires? à énergie positive
       N_METEO:
         short: B2
         altLabels:
@@ -167,6 +192,9 @@ children:
           - ASSIETTE SERVITUDE
           - amenagement_urbanisme/n_assiette_servitude
           - n_assiette_servitudes
+        regexps:
+          - Assiettes? de servitude
+          - AC2
       N_POLITIQUE_EUROPEENNE:
         short: C2
         description: Interreg, anciens zonages 2, 5b, leader, urban, ...
@@ -179,6 +207,11 @@ children:
           - Aménagement Urbanisme/Zonages Aménagement
         hiddenLabels:
           - zonages aménagement
+        regexps:
+          - Parcs? naturels? regiona(l|ux)
+          - PNR
+          - Zones? de revitalisation rurale
+          - ZRR
       N_ZONAGES_ETUDE:
         short: C4
         description: Zonages INSEE (aires urbaines - unités urbaines - IRIS) et autres
@@ -186,9 +219,15 @@ children:
           - Aménagement Urbanisme/Zonages Étude
         hiddenLabels:
           - Aménagement Urbanisme / Zonages Étude
+        regexps:
+          - Unités? urbaines?
+          - Taches? urbaines?
+          - Aires? urbaines?
+          - IRIS
+          - Zone d'emploi
       N_ZONAGES_PLANIFICATION:
         short: C5
-        description: ZONAGES_PLANIFICATION	PLU, SCOT, SERVITUDES,DTA,PDU,PTU, LITTORAL, MONTAGNE, ...
+        description: PLU, SCOT, SERVITUDES, DTA, PDU, PTU, LITTORAL, MONTAGNE, ...
         altLabels:
           - Aménagement Urbanisme/Zonages Planification
         hiddenLabels:
@@ -196,6 +235,20 @@ children:
           - amenagement_urbanisme/n_zonages_planification
           - zonage planification
           - urbanisme planification
+        regexps:
+          - Directives? Territoriales? d'Aménagement
+          - DTA
+          - DTADD
+          - Document d’urbanisme
+          - cartes? communales?
+          - P\.L\.U\.
+          - PLU
+          - Schémas? de Cohérence Territoriale
+          - SCOT
+          - Règlement National d'Urbanisme
+          - PDU
+          - Plan de déplacement urbain
+          - loi littoral
   CULTURE_SOCIETE_SERVICE:
     short: D
     children:
@@ -204,6 +257,8 @@ children:
         description: Établissements scolaires et universitaires
         altLabels:
           - Culture Société Service/Enseignement
+        regexps:
+          - enseignement
       N_EQUIPEMENT_SPORTIF_OU_CULTUREL:
         short: D2
         description: Stades, gymnases, musées, cinéma …	
@@ -212,38 +267,63 @@ children:
       N_ERP_AUTRE:
         short: D3
         description: Autres établissements non repris dans les répertoires précédents
+        note: plus cimetières
         altLabels:
           - Culture Société Service/ERP Autre
+        regexps:
+          - Stations? de distribution de carburants?
+          - cimetière
+          - Etablissements Recevant du Public
       N_PATRIMOINE_CULTUREL:
         short: D4
         description: Monuments historiques….
         altLabels:
           - Culture Société Service/Patrimoine culturel
+        regexps:
+          - Monuments? Historiques?
       N_SANTE_SOCIAL:
         short: D5
         description: Établissements hospitaliers
         altLabels:
           - Culture Société Service/Santé Social
+        regexps:
+          - E\.P\.A\.D\.
+          - EPAD
       N_TOURISME:
         short: D6
         description: Camping, gîtes…
         altLabels:
           - Culture Société Service/Tourisme
+        regexps:
+          - Campings
+          - Etablissements Recevant du Public de type restaurant
   DONNEE_GENERIQUE:
     short: E
+    note: signifie non métier
     children:
       N_ACTION_PUBLIQUE:
         short: E1
         description: Services administratifs (Etat, collectivités locales), circonscriptions d'intervention
         altLabels:
           - Donnée générique/Action publique
+        regexps:
+          - Unités territoriales de la DDT
+          - Antennes techniques du Conseil Général
+          - Agences du Conseil Général
+          - zone d'intervention du peloton
+          - Secteur d'intervention des agents
+          - Répartition des cellules d'affichage des risques
       N_ADMINISTRATIF:
         short: E2
         description: |
           Limites administratives issues d'un traitement sur couches natives, dont contours "simplifiés" pour illustration
           de carte
+        note: y compris limites non issues d'un traitement
         altLabels:
           - Donnée générique/Administratif
+        regexps:
+          - Contours départementaux
+          - Contours communaux
       N_DECOUPAGE_ELECTORAL:
         short: E3
         altLabels:
@@ -253,6 +333,8 @@ children:
         description: Données démographiques, recensement
         altLabels:
           - Donnée générique/Démographie
+        regexps:
+          - population
       N_HABILLAGE:
         short: E5
         description: Etiquettes pour habillage de cartes
@@ -263,9 +345,36 @@ children:
         description: EPCI, syndicats et zonages associés
         altLabels:
           - Donnée générique/Intercommunalité
+        regexps:
+          - EPCI
+          - "[ÉE]tablissements? publics? de coopération intercommunale"
+          - Intercommunalités?
       N_MILIEU_PHYSIQUE:
         short: E7
         description: Géologie, pédologie, données climatiques…
+        regexps:
+          - Gisements bruts de type minéraux industriels
+          - Ressources matériaux en roches massives
+          - Ressources en minéraux
+          - granulats?
+          - Ressources matériaux
+      N_TOPOGRAPHIE:
+        short: E8
+        note: |
+          ajout le 7/11/2021 pour classer les référentiels topographiques (IGN, MNT, ortho-photos, ...) hors MER_LITTORAL
+        altLabels:
+          - Topographie terrestre
+        regexps:
+          - Modèle Numérique de Terrain
+          - MNT
+          - LIDAR
+          - pente
+          - Courbes de niveau
+          - Altitude
+          - Hypsométrie
+          - BD TOPO
+          - BDTopo
+          - BDCarto
   EAU:
     short: F
     children:
@@ -274,6 +383,12 @@ children:
         description: Réseaux, station de pompage et de traitement, réservoirs
         altLabels:
           - Eau/AEP
+        regexps:
+          - AEP
+          - eau potable
+          - Périmètres? de protection immédiats?
+          - Périmètres? de protection rapprochés?
+          - Aires? d'alimentation de captages?
       N_ASSAINISSEMENT:
         short: F2
         description: STEP et leur point de rejet, réseau assainissement, stations de pompage, …	
@@ -281,6 +396,11 @@ children:
           - Eau/Assainissement
         hiddenLabels:
           - eau/n_assainissement
+        regexps:
+          - STEP
+          - Stations? d'épurations?
+          - Stations? de traitement des eaux usées
+          - assainissement
       N_MASSE_EAU:
         short: F3
         description: Masses d'eau DCE et autres masses d'eau (surface, cours d'eau, plan d'eau, souterraine..)
@@ -288,6 +408,11 @@ children:
           - Eau/Masse d'eau
         hiddenLabels:
           - eau/n_masse_eau
+        regexps:
+          - Tronçons hydrographiques
+          - Cours d'eau
+          - Plans? d'eau
+          - Etang
       N_OUVRAGE:
         short: F4
         description: |
@@ -297,6 +422,8 @@ children:
           - Eau/Ouvrage
         hiddenLabels:
           - Eau / Ouvrage
+        regexps:
+          - ouvrages? hydrauliques?
       N_PECHE:
         short: F5
         description: Réserve de pêche, police de la pêche,… (en eaux intérieures)
@@ -323,12 +450,23 @@ children:
         short: F9
         description: |
           Zonage réglementaire : zones sensibles eutrophisation, zones vulnérables nitrates, zones sensibles pollution
-          pesticides, zones PMPOA, imperméabilisation, zones drainées,contrats de rivière, SAGE
+          pesticides, zones PMPOA, imperméabilisation, zones drainées, contrats de rivière, SAGE
         altLabels:
           - Eau/Zonages Eau
         hiddenLabels:
           - eau/n_zonages_eau
           - zonages eau
+        regexps:
+          - Schémas? d'Aménagement et de Gestion des Eaux
+          - SAGE
+          - Zones? sensibles?
+          - Zones? Vulnérables?
+          - Zones? d'Actions? Renforcées? Nitrate
+          - Cours d'eau Classement
+          - Classement piscicole des cours d'eau
+          - Zones? de répartition des eaux
+          - ZRE
+          - frayères
   FONCIER_SOL:
     short: G
     children:
@@ -345,16 +483,26 @@ children:
       N_OCCUPATION_SOL:
         short: G3
         description: Hors Corine Land Cover (classée en référentiels pour l'instant)
+        note: réintégration Corine Land Cover
         altLabels:
           - Foncier Sol/Occupation du sol
           - usage du sol
         hiddenLabels:
           - OCCUPATION SOL
+        regexps:
+          - Occupation des sols
+          - Occupation du sol
+          - Corine Land Cover
+          - Espaces bâtis
       N_PROPRIETE_FONCIERE:
         short: G4
         description: Propriétés bâties et non bâties
+        note: y compris cadastre, domaine public
         altLabels:
           - Foncier Sol/Propriété foncière
+        regexps:
+          - Domaine Public
+          - parcellaire
   FORET:
     short: H
     hiddenLabels:
@@ -367,12 +515,18 @@ children:
         description: Espaces sécifiques, voirie et équipements hors DFCI
         altLabels:
           - Forêt/Description
+        regexps:
+          - Formations forestières
       N_DFCI:
         short: H2
         description: Chemins d'accès, zonages, …
         altLabels:
           - Forêt/DFCI
-          - dfci 
+          - DFCI
+        regexps:
+          - DFCI
+          - défrichement
+          - incendie de forêt
       N_GESTION:
         short: H3
         description: PSG, réglementation des boisements, forêts de protection
@@ -387,6 +541,8 @@ children:
           d'exploitation, parcelles de pépinières, …
         altLabels:
           - Forêt/Règlement
+        regexps:
+          - Forêts publiques
       N_TRANSFORMATION:
         short: H5
         description: Industries associés ou dérivées
@@ -407,8 +563,12 @@ children:
       N_BESOINS_EN_LOGMENT:
         short: I2
         description: Demande de logement social, accueil des gens du voyage
+        note: plus hébergement d'urgence
         altLabels:
           - Habitat Politique de la ville/Besoins en logement
+        regexps:
+          - gens du voyage
+          - hébergement d'urgence 
       N_CONSTRUCTION:
         short: I3
         description: Zones  d'instruction des PC, nombre de logements, SHON, nombre de logements autorisés
@@ -424,6 +584,9 @@ children:
         description: Aides au logements, taux d'occupation
         altLabels:
           - Habitat Politique de la ville/Occupation des logements
+        regexps:
+          - Bâtiment majoritairement d'activités vacant
+          - Local d'activités vacant
       N_PARC_LOCATIF_SOCIAL:
         short: I6
         description: Zonage du locatif, hébergement d'urgence, logements en prêt locatif, PALULOS
@@ -437,16 +600,33 @@ children:
       N_POLITIQUE:
         short: I8
         description: PRU, OPAH, SRU, ZUS, ZRU, ...
+        note: y compris quartier prioritaire, Programme local de l'habitat (PLH)
         altLabels:
           - Habitat Politique de la ville/Politique
         hiddenLabels:
           - habitat_politique_de_la_ville/n_politique
           - "logement politique de la ville : politique de la ville"
+        regexps:
+          - Quartier prioritaire
+          - ZUS
+          - SRU
+          - ZRU
+          - PRU
+          - Programmes? loca(l|ux) de l'habitat
+          - PLH
+          - Opération programmée d'amélioration de l'habitat
+          - Opération Programmée pour l'Amélioration de l'Habitat
+          - OPAH
+          - Programme d'intérêt général \(PIG\) habitat
       N_RENOVATION:
         short: I9
         description: Financement ANAH, logements loyer intermédiaire
         altLabels:
           - Habitat Politique de la ville/Rénovation
+        regexps:
+          - ANAH
+          - rénovation urbaine
+          - ANRU
   MER_LITTORAL:
     short: J
     children:
@@ -507,6 +687,8 @@ children:
         description: Plans et réserves de chasse, zones plan de chasse
         altLabels:
           - Nature Paysage Biodiversité/Chasse
+        regexps:
+          - chasse
       N_INVENTAIRE_NATURE_BIODIVERSITE:
         short: K2
         description: ZNIEFF, ZICO, faune, flore et habitats
@@ -516,25 +698,60 @@ children:
           - Nature Paysage Biodiversité / Inventaire Nature Biodiversité
           - INVENTAIRE NATURE BIODIVERSITE
           - inventaire_nature_biodiversite
+        regexps:
+          - Habitats? naturels?
+          - ZNIEFF
+          - Intérêt Ecologique Faunistique et Floristique
+          - Régions? biogéographiques?
+          - patrimoine géologique
+          - Zones? humides?
+          - continuité écologique
+          - Sonneur à ventre jaune
+          - Aigle de Bonelli
+          - bryophyte
+          - Moule perlière
       N_INVENTAIRE_PAYSAGE:
         short: K3
         description: Atlas des paysages ...
         altLabels:
           - Nature Paysage Biodiversité/Inventaire Paysage
+        regexps:
+          - Parcs et jardins
+          - paysages?
+          - paysagères?
       N_ZONAGES_NATURE:
         short: K4
         description: |
-          Zonage réglementaire et de gestion Nature : parc national, parc naturel régional,  arrêté de protection de biotope, réserve naturelle, zones humides Ramsar, Natura 2000, …
+          Zonage réglementaire et de gestion Nature : parc national, parc naturel régional, arrêté de protection
+          de biotope, réserve naturelle, zones humides Ramsar, Natura 2000, …
+        note: |
+          - y compris SRCE
+          - sauf PNR -> /AMENAGEMENT_URBANISME/N_ZONAGES_AMENAGEMENT
         altLabels:
           - Nature Paysage Biodiversité/Zonages Nature
         hiddenLabels:
           - nature_paysage_biodiversite/n_zonages_nature
           - zonages nature
+        regexps:
+          - parc national
+          - Arrêté préfectoral de protection des? biotopes?
+          - réserve naturelle
+          - Ramsar
+          - natura 2000
+          - Espaces? Naturels? Sensibles?
+          - Schéma régional de cohérence écologique
       N_ZONAGES_PAYSAGE:
         short: K5
         description: "Zonage réglementaire et de gestion paysage : sites classés, inscrits, ZPPAUP ..."
         altLabels:
           - Nature Paysage Biodiversité/Zonages Paysage
+        regexps:
+          - Zones de protection loi 1930
+          - sites classés
+          - sites inscrits
+          - ZPPAUP
+          - Patrimoine mondial UNESCO
+          - Label grand site de France
   NUISANCE:
     short: L
     children:
@@ -544,11 +761,17 @@ children:
           - Nuisance/Bruit
         hiddenLabels:
           - bruit
+        regexps:
+          - Classement sonore
+          - Cartes? de bruit strat(é|e)gique
       N_DECHET:
         short: L2
         description: Ménagers, dangereux, mines, boues STEP, nucléaires… -  traitement
         altLabels:
           - Nuisance/Déchet
+        regexps:
+          - déchet
+          - Incinérateur
       N_NUISSANCE_ELECTROMAGNETIQUE:
         short: L3
         description: Connaissance nuisance électromagnétique
@@ -560,6 +783,21 @@ children:
         short: L4
         altLabels:
           - Nuisance/Pollution du sol
+        regexps:
+          - Sites? pollués?
+          - BASOL
+      N_ICPE:
+        note: ajouté le 6/11/2021
+        short: L5
+        description: ICPE
+        altLabels:
+          - ICPE
+          - Installation classé pour la protection de l'environnement
+          - Installations classés pour la protection de l'environnement
+        regexps:
+          - ICPE
+          - Installations? classées? pour la protection de l'environnement
+          - SEVESO
   RESEAU_ENERGIE_DIVERS:
     short: M
     children:
@@ -577,11 +815,23 @@ children:
         description: Réseau de transport d'énergie
         altLabels:
           - Réseau Énergie Divers/Électricité
+        regexps:
+          - Transport d'électricité
+          - haute tension
+          - haute-tension
+          - THT
+          - Pylones? d'électricité
+          - Barrages? hydroélectriques?
       N_HYDROCARBURE:
         short: M4
         description: Pipe-line, etc
         altLabels:
           - Réseau Énergie Divers/Hydrocarbure
+        regexps:
+          - dépôts? pétroliers?
+          - stockage GPL
+          - raffineries?
+          - stockages? de gaz naturels?
       N_TELECOMMUNICATION:
         short: M5
         description: Infra (pylône, fibre optique, )
@@ -589,12 +839,16 @@ children:
           - Réseau Énergie Divers/Télécommunication
   RISQUE:
     short: N
+    regexps:
+      - Aléas naturels connus
     children:
       N_AVALANCHE:
         short: N1
         description: Prévention, connaissance du risque
         altLabels:
           - Risque/Avalanche
+        regexps:
+          - avalanche
       N_ERUPTION_VOLCANIQUE:
         short: N2
         description: Prévention, connaissance du risque
@@ -604,10 +858,21 @@ children:
         short: N3
         description: |
           Entreprises requisitionnables, plans de secours, limites de compétence des SPC, cours d'eau équipés pour
-          la surveillance des crues,documents communaux de synthèse, ...
+          la surveillance des crues, documents communaux de synthèse, ...
+        note: y compris information et sensibilisation de la population
         altLabels:
           - Risque/Gestion du risque
           - gestion du risque
+        regexps:
+          - Centres? de secours
+          - Plans? de secours
+          - surveillance des crues
+          - documents communaux de synthèse
+          - SPC
+          - PPI # Plan particulier d'intervention
+          - SDIS
+          - Plan Communal de Sauvegarde
+          - Document d'information communal sur les risques majeurs
       N_INONDATION:
         short: N4
         description: Prévention, connaissance du risque
@@ -616,21 +881,39 @@ children:
         hiddenLabels:
           - RISQUE/N_INONDATION
           - risque inondation
+        regexps:
+          - territoires? à risque d’inondation
+          - ' TRI '
+          - Atlas des Zones Inondables
+          - Zones inondables connues
+          - repères de crue
+          - Crue
+          - Enveloppes? Approchées? d'Inondations? Potentielles?
+          - EAIP
       N_MOUVEMENT_DE_TERRAIN:
         short: N5
         description: Prévention, connaissance du risque
         altLabels:
           - Risque/Mouvement de terrain
+        regexps:
+          - mouvements de terrain
+          - glissements de terrain
+          - retrait/gonflement
       N_RADON:
         short: N6
         description: Prévention, connaissance du risque
         altLabels:
           - Risque/Radon
+        regexps:
+          - radon
       N_RISQUE_MINIER:
         short: N7
         description: Prévention, connaissance du risque
         altLabels:
           - Risque/Risque minier
+        regexps:
+          - Aléas? miniers?
+          - surveillance minière
       N_RISQUE_TECHNOLOGIQUE:
         short: N8
         description: Connaissance des riques technologiques (industriels, nucléaires, technologiques, rupture de barrages)	
@@ -638,15 +921,19 @@ children:
           - Risque/Risque technologique
         hiddenLabels:
           - risque_technologique
-          - risques technologiques
+          - risques? technologiques?
+          - rupture de barrage
       N_SEISME:
         short: N9
         description: Prévention, connaissance du risque
         altLabels:
           - Risque/Séisme
+        regexps:
+          - Aléa sismicité
       N_ZONAGES_RISQUE_NATUREL:
         short: N10
         description: Zonages réglementaires (PPRI, PPRMT ….)
+        note: y compris Arrêtés de catastrophe naturelle (CatNat)
         altLabels:
           - Risque/Zonages Risque naturel
         hiddenLabels:
@@ -654,6 +941,13 @@ children:
           - zonage risque naturel
           - risque/n_zonages_risque_naturel/id_gaspar
           - risques/n_zonages_risque_naturel/id_gaspar
+        regexps:
+          - plans? de prévention des risques naturels
+          - Plans? de Prévention des Risques d'Inondation
+          - Plan des surfaces submersibles
+          - PSS
+          - Arrêtés de catastrophe naturelle
+          - CatNat
       N_ZONAGES_RISQUE_TECHNOLOGIQUE:
         short: N11
         description: Zonages réglementaires (PPRT)
@@ -662,6 +956,11 @@ children:
         hiddenLabels:
           - Risque/Risque technologique
           - risque/n_zonages_risque_technologique
+        regexps:
+          - Plan de Prévention des Risques Miniers
+          - PPRM
+          - Plan de Prévention des Risques Technologiques
+          - PPRT
   SITE_INDUSTRIEL_PRODUCTION:
     short: O
     children:
@@ -673,6 +972,10 @@ children:
         short: O2
         altLabels:
           - Site industriel Production/Site éolien
+        regexps:
+          - "[ÉEé]oliennes?"
+          - Zone favorable à l'éolien
+          - Parcs? éoliens?
       N_SITE_INDUSTRIEL:
         short: O3
         altLabels:
@@ -684,10 +987,20 @@ children:
           - Site industriel Production/Site de production d'énergie
   SOCIO_ECONOMIE:
     short: P
+    note: |
+      y compris zonage économique, évaluation environnementale, avis d'AE
+      Pbs sur "Zone d'Activités? [ÉE]conomiques?" -> 0 !!!
     altLabels:
       - Socio-économie
     hiddenLabels:
       - Socio-économie/Socio-économie
+    regexps:
+      - Autorité Environnementale
+      - mesures compensatoires
+      - "Zone d'Activités? [ÉE]conomiques?"
+      - Zone d'Activités Économiques
+      - activité Économique
+      - ZAE
   TRANSPORTS_DEPLACEMENT:
     short: Q
     children:
@@ -704,9 +1017,13 @@ children:
         description: Trafic routier, schéma directeur d'exploitation de la route
         altLabels:
           - Transports Déplacements/Trafic
+        regexps:
+          - Limitations? de circulation
+          - PIRAA # Plan intempéries Rhône-Alpes Auvergne
       N_TR_COLLECTIF:
         short: Q3
         description: Autorités organisatrices, lignes, arrêts, ...
+        note: y compris politique de déplacements sauf PDU -> /AMENAGEMENT_URBANISME/N_ZONAGES_PLANIFICATION
         altLabels:
           - Transports Déplacements/Transport collectif
       N_TR_EXCEPTIONNEL:
@@ -716,6 +1033,8 @@ children:
           - Transports Déplacements/Transport exceptionnel
         hiddenLabels:
           - transports_exceptionnel
+        regexps:
+          - arrêtés? de circulation
       N_TR_MARCHANDISE:
         short: Q5
         description: Fret routier, ferré, fluvial, maritime
@@ -728,9 +1047,11 @@ children:
           - Transports Déplacements/Transport de matière dangereuse
         hiddenLabels:
           - transport de matière dangereuse
+        regexps:
+          - TMD
   TRANSPORT_INFRASTRUCTURE:
     short: R
-    hiddenLabels:
+    altLabels:
       - infrastructures de transport
     children:
       N_AERIEN:
@@ -743,11 +1064,24 @@ children:
         description: Pistes cyclables, voies vertes, ...
         altLabels:
           - Transports Infrastructure/Circulation douce
+        regexps:
+          - cyclables?
+          - véloroutes?
+          - voies? vertes?
       N_FERROVIAIRE:
         short: R3
         description: Infrastructure ferrée, gares, ouvrage d'art
+        note: y compris métro et remontées mécaniques
         altLabels:
           - Transports Infrastructure/Ferroviaire
+        regexps:
+          - Voies? ferrées?
+          - ferroviaire
+          - Repère kilométrique SNCF
+          - gares?
+          - Lignes de métro
+          - Stations de métro
+          - Remontées? mécaniques?
       N_FLUVIAL:
         short: R4
         description: Réseau navigable, ouvrages de navigation
@@ -758,6 +1092,8 @@ children:
         description: Infrastructure portuaire
         altLabels:
           - Transports Infrastructure/Maritime
+        regexps:
+          - Ports?
       N_PLATE_FORME_MULTIMODALE:
         short: R6
         description: Infrastructure des plate-formes multimodales
@@ -768,4 +1104,16 @@ children:
         description: Infrastructure routière yc ouvrages d'art
         altLabels:
           - Transports Infrastructure/Routier
+        regexps:
+          - Points? de repères? routiers?
+          - Aire de stockage des poids lourds
+          - Echangeur
+          - Routes?
+          - Sites? DIR
+          - Centres? routiers?
+          - Aires? de chaînage
+          - PR sur la RN
+          - Carrefours situés sur la RN
+          - déviations
+          - Points délicats sur la RN
 eof:
