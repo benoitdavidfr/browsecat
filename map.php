@@ -6,8 +6,25 @@ doc: |
 journal: |
   29/10/2021:
     - création
-includes: [ lib/accesscntrl.inc.php ]
+includes:
 */
+require_once __DIR__.'/cats.inc.php';
+
+if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
+  echo "Catalogues:<ul>\n";
+  foreach ($cats as $catid => $cat) {
+    echo "<li><a href='?cat=$catid'>$catid</a></li>\n";
+  }
+  echo "</ul>\n";
+  die();
+}
+
+$params = "cat=$_GET[cat]"
+  .(isset($_GET['otype']) ?  "&otype=$_GET[otype]" :  '')
+  .(isset($_GET['org']) ?   "&org=".urlencode($_GET['org']) :   '')
+  .(isset($_GET['arbo']) ?  "&arbo=$_GET[arbo]" :  '')
+  .(isset($_GET['theme']) ? "&theme=$_GET[theme]" : '');
+//echo "params=$params<br>\n";
 $browsecaturl = "http://localhost/browsecat";
 $center = (isset($_GET['center']) ? explode(',',$_GET['center']) : [46.5, 3]);
 $center[0] = $center[0]+0;
@@ -38,6 +55,7 @@ $zoom = (isset($_GET['zoom']) ? $_GET['zoom'] : 6);
   <div id="map" style="height: 100%; width: 100%"></div>
   <script>
 var browsecaturl = <?php echo "'$browsecaturl';\n"; ?>
+var params = <?php echo "'$params';\n"; ?>
 
 // affichage des caractéristiques de chaque MD
 var onEachFeature = function (feature, layer) {
@@ -80,13 +98,13 @@ var baseLayers = {
 map.addLayer(baseLayers["IGN"]);
 
 var overlays = {
-  "BBox" : new L.GeoJSON.AJAX(browsecaturl+'/geojson.php?type=Polygon', {
+  "BBox" : new L.GeoJSON.AJAX(browsecaturl+'/geojson.php?gtype=Polygon&'+params, {
     style: { color: 'blue', fillOpacity: 0}, minZoom: 0, maxZoom: 18, onEachFeature: onEachFeature
   }),
-  "Line" : new L.GeoJSON.AJAX(browsecaturl+'/geojson.php?type=LineString', {
+  "Line" : new L.GeoJSON.AJAX(browsecaturl+'/geojson.php?gtype=LineString&'+params, {
     style: { color: 'blue', fillOpacity: 0}, minZoom: 0, maxZoom: 18, onEachFeature: onEachFeature
   }),
-  "Point" : new L.GeoJSON.AJAX(browsecaturl+'/geojson.php?type=Point', {
+  "Point" : new L.GeoJSON.AJAX(browsecaturl+'/geojson.php?gtype=Point&'+params, {
     style: { color: 'blue', fillOpacity: 0}, minZoom: 0, maxZoom: 18, onEachFeature: onEachFeature
   }),
 };

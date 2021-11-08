@@ -501,4 +501,12 @@ class CatInPgSql {
       echo "title: $title<br>\n";
     }
   }
+  
+  function updateRecord(string $id, array $record) {
+    $catid = $this->catid;
+    $recjson = str_replace("'", "''", json_encode($record, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+    $sql = "update catalog$catid set record='$recjson' where id='$id'";
+    echo "$sql\n";
+    PgSql::query($sql);
+  }
 };

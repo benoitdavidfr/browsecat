@@ -1,7 +1,7 @@
 <?php
 /*PhpDoc:
-title: index.php - visualise et exploite le contenu des catalogues moissonnés et stockés dans PgSql
-name: index.php
+title: manage.php - visualise et exploite le contenu des catalogues moissonnés et stockés dans PgSql
+name: manage.php
 doc: |
   Je m'intéresse principalement aux MDD du périmètre ministériel, cad les MDD dont un au moins des responsibleParty
   est une DG du pôle ministériel (MTE/MCTRCT/MM) ou un service déconcentré du pôle ou une DTT(M).
@@ -10,6 +10,8 @@ doc: |
   A FAIRE:
     remplacer l'utilisation des *Sel.yaml par celle de organisation.yaml
 journal: |
+  8/11/2021:
+    - renommage index.php -> manage.php pour utiliser index.php comme accès plus gd public
   27/10-4/11/2021:
     - réécriture nlle version utilisant PgSql
   18/10/2021:
@@ -139,13 +141,14 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
       record json, -- enregistrement de la fiche en JSON
       title text, -- 1.1. Intitulé de la ressource
       type varchar(256), -- 1.3. Type de la ressource
-      perimetre varchar(256) -- 'Min','Op','Autres' ; null si non défini
+      perimetre varchar(256), -- 'Min','Op','Autres' ; null si non défini
+      area real -- surface des bbox en degrés carrés
     )");
 
     foreach ($cats as $catid => $cat) {
       if ($cat['dontAgg'] ?? false) continue;
-      $sql = "insert into catalogagg(cat, id, record, title, type, perimetre)\n"
-            ."  select '$catid', id, record, title, type, perimetre\n"
+      $sql = "insert into catalogagg(cat, id, record, title, type, perimetre, area)\n"
+            ."  select '$catid', id, record, title, type, perimetre, area\n"
             ."  from catalog$catid\n"
             ."  where id not in (select id from catalogagg)";
       echo "<pre>$sql</pre>\n";
@@ -805,7 +808,9 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
 }
 
 if ($_GET['action']=='mddOrgTheme') { // liste les MDD avec org et theme
-  echo "<h2>MDD de $_GET[type]=\"$_GET[org]\" et $_GET[arbo]=\"$_GET[theme]\"</h2><ul>\n";
+  $mapurl = "map.php?cat=$_GET[cat]&amp;otype=$_GET[type]&amp;org=".urlencode($_GET['org'])
+    ."&amp;arbo=$_GET[arbo]&amp;theme=$_GET[theme]";
+  echo "<h2>MDD de $_GET[type]=\"$_GET[org]\" et $_GET[arbo]=\"$_GET[theme]\" (<a href='$mapurl'>map</a>)</h2><ul>\n";
   $arboOrgsPMin = new Arbo('orgpmin.yaml');
   $sql = "select id, title, record from catalog$_GET[cat]
           where type in ('dataset','series') and perimetre='Min'";

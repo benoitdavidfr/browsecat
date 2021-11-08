@@ -17,7 +17,7 @@ function orgInSel(string $catid, array $record, string $partyType='responsiblePa
     if (!is_file("${catid}Sel.yaml"))
       $orgNamesSels[$catid] = [];
     else
-      $orgNamesSels[$catid] = Yaml::parseFile("${catid}Sel.yaml")['orgNames']; // les noms des organismes sélectionnés
+      $orgNamesSels[$catid] = Yaml::parseFile("catalogs/${catid}Sel.yaml")['orgNames']; // les noms des orgs. sélectionnés
   }
   foreach ($record[$partyType] ?? [] as $party) {
     if (isset($party['organisationName']) && in_array($party['organisationName'], $orgNamesSels[$catid])) {

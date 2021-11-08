@@ -100,6 +100,17 @@ foreach (PgSql::query($sql) as $tuple) {
   }
   if ($keywords) {
     //echo "   + ",implode(', ', array_keys($keywords)),"\n";
+    foreach (array_keys($keywords) as $kw)
+      $record['keyword'][] = [
+        'value'=> $kw,
+        'thesaurusTitle'=>"ajouttheme.php/arbocovadis",
+        'thesaurusDate'=> date('Y-m-d'),
+        'thesaurusDateType'=> 'publication',
+        'thesaurusId'=> 'http://localhost/browsecat/ajouttheme.php/arbocovadis',
+      ];
+    //print_r($record);
+    $cat = new CatInPgSql($catid);
+    $cat->updateRecord($tuple['id'], $record);
     $nbAjouts++;
   }
   else {

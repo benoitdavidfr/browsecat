@@ -5,11 +5,13 @@ name: harvest.php
 doc: |
   Propose de choisir un des catalogues proposés.
   Moissonne le catalogue choisi.
-  Crée un répertoire ayant pour nom l'id du catalogue pour bufferiser les métadonnées.
+  Crée un répertoire ayant pour nom l'id du catalogue dans le répertoire catalogs pour bufferiser les métadonnées.
   Enregistre la MD ISO pour les data et service et sinon la MD DublinCore full
   N'enregistre rien pour les FeatureCatalog.
   Stocke les MD de données et de service converties en JSON dans une base PgSql
 journal: |
+  8/11/2021:
+    - déplacement des caches des catalogues dans le répertoire catalogs
   28-29/10/2021:
     - améliorations du moissonnage de Géo-IDE
   27/10/2021:
@@ -52,11 +54,11 @@ PgSql::open('host=pgsqlserver dbname=gis user=docker');
 //PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public');
 
 $catid = $argv[1];
-if (!file_exists($catid))
-  mkdir($catid);
+if (!file_exists("catalogs/$catid"))
+  mkdir("catalogs/$catid");
 $mdType = $argv[2] ?? null;
 
-$cswServer = new CswServer($cats[$catid]['endpointURL'], $catid);
+$cswServer = new CswServer($cats[$catid]['endpointURL'], "catalogs/$catid");
 $cswServer->getCapabilities();
 
 echo "Moissonnage de $catid et chargement dans PostgreSql\n";
