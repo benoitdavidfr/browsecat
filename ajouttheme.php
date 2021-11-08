@@ -2,9 +2,13 @@
 /*PhpDoc:
 title: ajouttheme.php - ajout de thèmes
 doc: |
-  Test de l'ajout de thèmes Covadis par analyse du titre
+  Test de l'ajout de thèmes Covadis par analyse du titre.
+  J'associe dans l'arbo Covadis à chaque thème une liste d'expressions régulières que je teste sur les titres des fiches
+  de MDD qui n'ont pas de thème Covadis.
+  En première passe (7/11), j'ai ajouté au moins un thème Covadis sur 832 fiches de DtAra sur 1005 soit 83%.
+  Sans modifs spécifiques, cela rajoute au moins un thème Covadis sur 228 fiches de DtAra sur  540 soit 42%.
 journal: |
-  6/11/2021:
+  6-7/11/2021:
     - création
 */
 require_once __DIR__.'/vendor/autoload.php';
@@ -72,7 +76,7 @@ $arboCovadis = new Arbo('arbocovadis.yaml');
 
 foreach($arboCovadis->nodes() as $theme) {
   foreach ($theme->regexps() as $regexp)
-    $matches[$regexp] = ['theme'=> (string)$theme, 'nbre'=> 0];
+    $matches[Arbo::simplif($regexp)] = ['theme'=> (string)$theme, 'nbre'=> 0];
 }
 
 // Choisir le serveur
@@ -89,7 +93,7 @@ foreach (PgSql::query($sql) as $tuple) {
   //echo " - $tuple[title]\n";
   $keywords = [];
   foreach ($matches as $label => $match) {
-    if (preg_match("!$label!i", Arbo::std($tuple['title']))) {
+    if (preg_match("!$label!i", Arbo::simplif($tuple['title']))) {
       $keywords[$match['theme']] = 1;
       $matches[$label]['nbre']++;
     }

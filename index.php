@@ -433,7 +433,8 @@ if ($_GET['action']=='orgs') { // liste des organisations sélectionnés avec li
 
 if ($_GET['action']=='listdataperimetre') { // Liste les MDD du périmètre 
   echo "<ul>\n";
-  foreach (PgSql::query("select id,title from catalog$_GET[cat] where perimetre='Min'") as $tuple) {
+  $sql = "select id,title from catalog$_GET[cat] where type in ('dataset','series') and perimetre='Min'";
+  foreach (PgSql::query($sql) as $tuple) {
     echo "<li><a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</a></li>\n";
   }
   echo "</ul>\n";
@@ -461,9 +462,9 @@ if ($_GET['action']=='mddOfOrg') { // liste les MDD d'une organisation comme $_G
 
 if ($_GET['action']=='setPerimetre') { // met à jour le périmetre dans la table
   PgSql::query("update catalog$_GET[cat] set perimetre=null");
-  foreach (PgSql::query("select id,record from catalog$_GET[cat]") as $record) {
-    $id = $record['id'];
-    $record = json_decode($record['record'], true);
+  foreach (PgSql::query("select id,record from catalog$_GET[cat] where type in ('dataset','series')") as $tuple) {
+    $id = $tuple['id'];
+    $record = json_decode($tuple['record'], true);
     if (orgInSel($_GET['cat'], $record)) {
       PgSql::query("update catalog$_GET[cat] set perimetre='Min' where id='$id'");
     }
