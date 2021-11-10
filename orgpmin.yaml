@@ -879,15 +879,15 @@ children:
           - DIREN, BRGM, DRIRE
       ARA:
         short: DREAL ARA
-        prefLabels: {fr: "DREAL Auvergne (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Auvergne)"}
+        prefLabels: {fr: "Direction Régionale de l'Aménagement, de l'Environnement et du Logement Auvergne-Rhône-Alpes (DREAL ARA)"}
         altLabels:
-          - Direction Régionale de l'Aménagement, de l'Environnement et du Logement Auvergne-Rhône-Alpes (DREAL ARA)
           - Direction Régionale de l'Environnement de l'Aménagement et du Logement d'Auvergne-Rhône-Alpes (DREAL Auvergne-Rhône-Alpes)
           - Direction régionale de l'environnement, de l'aménagement et du logement Auvergne-Rhône Alpes
           - DREAL Auvergne Rhône Alpes
           - DREAL Auvergne-Rhône-Alpes
           - DREAL ARA
           - DREAL AUVERGNE-RHONE-ALPES
+          - DREAL Auvergne (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Auvergne)
           - DREAL de Bassin Rhône-Méditerranée
           - Direction régionale de l'environnement, de l'aménagement et du logement Rhône Alpes
           - DIREN du bassin Rhône-Méditerranée

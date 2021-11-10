@@ -14,7 +14,7 @@ use Symfony\Component\Yaml\Yaml;
 function orgInSel(string $catid, array $record, string $partyType='responsibleParty'): bool {
   static $orgNamesSels = []; // liste des organismes sélectionnés par catalogue
   if (!isset($orgNamesSels[$catid])) {
-    if (!is_file("${catid}Sel.yaml"))
+    if (!is_file("catalogs/${catid}Sel.yaml"))
       $orgNamesSels[$catid] = [];
     else
       $orgNamesSels[$catid] = Yaml::parseFile("catalogs/${catid}Sel.yaml")['orgNames']; // les noms des orgs. sélectionnés

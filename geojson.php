@@ -4,6 +4,8 @@ title: geojson.php - sortie GéoJSON du catalogue
 name: geojson.php
 doc: |
 journal: |
+  10/11/2021:
+    - adaptation du code EN COURS pour utiliser les tables auxiliaires créées par crauxtabl
   7-8/11/2021
     - création
     - ajout d'un champ area dans la base pour ne pas avoir à charger tous les éléments pour les trier
@@ -92,12 +94,18 @@ function isTheme(string $arbo, string $theme, array $record): bool {
 }
 
 header('Content-type: application/json');
-echo '{"type": "FeatureCollection","features": [',"\n";
+echo '{"type": "FeatureCollection",',"\n";
 
 $i = 0;
-$sql = "select id, title, record from catalog$_GET[cat]
-        where type in ('dataset','series') and perimetre='Min' and area <> 0
+$sql = "select cat.id, title, record
+        from catalog$_GET[cat] cat, catorg$_GET[cat] org, cattheme$_GET[cat] theme
+        where
+          type in ('dataset','series') and perimetre='Min' and area <> 0
+          and cat.id=org.id and org.org='".str_replace("'","''", $_GET['org'])."'
+          and cat.id=theme.id and theme.theme='".str_replace("'","''", $_GET['theme'])."'
         order by area desc";
+//echo "\"query\": \"",str_replace("\n",' ',$sql),"\",\n";
+echo '"features": [',"\n";
 foreach (PgSql::query($sql) as $tuple) {
   $record = json_decode($tuple['record'], true);
   

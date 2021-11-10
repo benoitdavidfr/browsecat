@@ -39,8 +39,11 @@ $arbos = [
 ];
 
 // Choisir le serveur
-PgSql::open('host=pgsqlserver dbname=gis user=docker');
+if ($_SERVER['HTTP_HOST']=='localhost')
+  PgSql::open('host=pgsqlserver dbname=gis user=docker');
 //PgSql::open('pgsql://browsecat:Browsecat9@db207552-001.dbaas.ovh.net:35250/catalog/public');
+else
+  PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public');
 
 
 // Renvoie la liste prefLabels structurée par arbo, [ {arboid} => [ {prefLabel} ]]
@@ -159,15 +162,15 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
     $orgNames = [];
     foreach ($cats as $catid => $cat) {
       if ($cat['dontAgg'] ?? false) continue;
-      if (is_file("${catid}Sel.yaml")) {
-        foreach (Yaml::parseFile("${catid}Sel.yaml")['orgNames'] as $orgName) {
+      if (is_file("catalogs/${catid}Sel.yaml")) {
+        foreach (Yaml::parseFile("catalogs/${catid}Sel.yaml")['orgNames'] as $orgName) {
           if (!in_array($orgName, $orgNames))
             $orgNames[] = $orgName;
         }
       }
     }
     asort($orgNames);
-    file_put_contents('aggSel.yaml',
+    file_put_contents('catalogs/aggSel.yaml',
       Yaml::dump([
         'title'=> "liste des noms d'organisations du périmètre ministériel pour Agg (sélection)",
         'orgNames'=> array_values($orgNames),
@@ -362,10 +365,10 @@ if ($_GET['action']=='extract') { // réalise la transformation ISO->JSON sur la
 }
 
 if ($_GET['action']=='orgsHorsSel') { // liste les organisations hors sélection, utilise les fichiers *Sel.yaml 
-  if (!is_file("$_GET[cat]Sel.yaml"))
+  if (!is_file("catalogs/$_GET[cat]Sel.yaml"))
     $orgNamesSel = [];
   else
-    $orgNamesSel = Yaml::parseFile("$_GET[cat]Sel.yaml")['orgNames']; // les noms des organismes sélectionnés
+    $orgNamesSel = Yaml::parseFile("catalogs/$_GET[cat]Sel.yaml")['orgNames']; // les noms des organismes sélectionnés
   $orgNames = [];
   foreach (PgSql::query("select record from catalog$_GET[cat]") as $record) {
     $record = json_decode($record['record'], true);
@@ -422,9 +425,9 @@ if ($_GET['action']=='orgsHorsArbo') { // liste les organisations $_GET[type] ho
 }
 
 if ($_GET['action']=='orgs') { // liste des organisations sélectionnés avec lien vers leurs MDD
-  if (!is_file("$_GET[cat]Sel.yaml"))
+  if (!is_file("catalogs/$_GET[cat]Sel.yaml"))
     die("Pas de sélection");
-  $orgNames = Yaml::parseFile("$_GET[cat]Sel.yaml")['orgNames']; // les noms des organismes sélectionnés
+  $orgNames = Yaml::parseFile("catalogs/$_GET[cat]Sel.yaml")['orgNames']; // les noms des organismes sélectionnés
   sort($orgNames);
   echo "<ul>\n";
   foreach ($orgNames as $orgName) {

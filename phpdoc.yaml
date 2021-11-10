@@ -38,6 +38,7 @@ doc: |
   
   Voir dans themes.yaml les résultats sur les thésaurus.
   
+  synchro par http://localhost/synchro.php?remote=http://bdavid.alwaysdata.net/&dir=browsecat
 journal: |
   4-6/11/2021:
     - élaboration d'un tableau de dénombrement par organisation et par thème

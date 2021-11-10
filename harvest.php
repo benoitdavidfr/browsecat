@@ -50,8 +50,8 @@ if ($argv[1] == 'all') { // génère les cmdes pour remoissonner tous les catalo
 }
 
 // Choisir le serveur
-PgSql::open('host=pgsqlserver dbname=gis user=docker');
-//PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public');
+//PgSql::open('host=pgsqlserver dbname=gis user=docker');
+PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public');
 
 $catid = $argv[1];
 if (!file_exists("catalogs/$catid"))

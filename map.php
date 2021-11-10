@@ -25,7 +25,8 @@ $params = "cat=$_GET[cat]"
   .(isset($_GET['arbo']) ?  "&arbo=$_GET[arbo]" :  '')
   .(isset($_GET['theme']) ? "&theme=$_GET[theme]" : '');
 //echo "params=$params<br>\n";
-$browsecaturl = "http://localhost/browsecat";
+$browsecaturl = ($_SERVER['HTTP_HOST']=='localhost') ?
+  'http://localhost/browsecat' : 'https://bdavid.alwaysdata.net/browsecat';
 $center = (isset($_GET['center']) ? explode(',',$_GET['center']) : [46.5, 3]);
 $center[0] = $center[0]+0;
 $center[1] = $center[1]+0;
@@ -108,6 +109,7 @@ var overlays = {
     style: { color: 'blue', fillOpacity: 0}, minZoom: 0, maxZoom: 18, onEachFeature: onEachFeature
   }),
 };
+map.addLayer(overlays["BBox"]);
 
 L.control.layers(baseLayers, overlays).addTo(map);
     </script>
