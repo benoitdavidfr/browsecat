@@ -1,7 +1,7 @@
 <?php
 /*PhpDoc:
-title: manage.php - visualise et exploite le contenu des catalogues moissonnés et stockés dans PgSql
-name: manage.php
+title: gere.php - visualise et exploite le contenu des catalogues moissonnés et stockés dans PgSql
+name: gere.php
 doc: |
   Je m'intéresse principalement aux MDD du périmètre ministériel, cad les MDD dont un au moins des responsibleParty
   est une DG du pôle ministériel (MTE/MCTRCT/MM) ou un service déconcentré du pôle ou une DTT(M).

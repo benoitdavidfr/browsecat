@@ -8,7 +8,7 @@ doc: |
   
   - harvest.php moissonne en CLI un catalogue, bufferise le résultat dans un répertoire et stocke les MD de D+S
     dans une table catalog${catid} dans PostgreSql.
-  - manage.php exploite (en http) les moissons.
+  - gere.php exploite (en http) les moissons.
   - index.php sera une page publique de présentation.
   - ajouttheme.php exploite les regexps de arbocovadis.yaml pour ajouter des thèmes Covadis aux MDD
   - addarea.php ajoute un champ area aux tables catalog${catid}
