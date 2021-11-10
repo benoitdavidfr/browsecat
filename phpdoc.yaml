@@ -6,10 +6,10 @@ doc: |
     2) estimer l'intérêt d'un classement comme l'aborescence Covadis et/ou la liste des annexes Inspire
     3) prototyper un mécanisme de requête sur les métadonnées fondé sur l'utilisation de ces classements
   
-  - harvest.php moissonne en CLI un catalogue, bufferise le résultat dans un répertoire et stocke les MD de D+S
-    dans une table catalog${catid} dans PostgreSql.
-  - gere.php exploite (en http) les moissons.
-  - index.php sera une page publique de présentation.
+  - harvest.php moissonne en CLI un catalogue, bufferise le résultat dans un répertoire et stocke les MD en JSON
+    dans une table catalog${catid} dans PostgreSql (sauf les FeatureCatalogue qui sont ignorés).
+  - gere.php gère (en http) les moissons.
+  - index.php sera une page publique de présentation et d'utilisation.
   - ajouttheme.php exploite les regexps de arbocovadis.yaml pour ajouter des thèmes Covadis aux MDD
   - addarea.php ajoute un champ area aux tables catalog${catid}
   - crauxtabl.php crée 2 tables auxiliaires catorg${catid} et cattheme${catid} par catalogue indispensable
@@ -22,21 +22,6 @@ doc: |
   Réutilisation de la bibiothèque d'utilisation de PgSql'
   Réutilisation de la classe Yaml de Symfony.
   
-  Le résultat de cette analyse est le suivant:
-    - GéoRisques contient peu de MD principalement de la DGPR
-    - GpU contient des MD de SUP des DDT et DEAL mais aussi des docs d'urbanisme
-    - Sextant contient quelques MD intéressantes du ministère, ex. Classement sanitaire des zones conchylicoles de Seine-Maritime
-  
-    - Geolittoral
-    - CeremaData
-    - EauFrance
-    - Shom
-    
-  A priori ces MD ne proviennent pas de Géo-IDE.
-
-  Les MD de Sextant peuvent être notamment de type 'publication' ou 'carte' ; ces MD ne peuvent pas être traduites
-  en ISO 19115 ; elles sont alors stockées en DublinCore.
-  
   Bases:
     host=pgsqlserver dbname=gis user=docker
     pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public pour écrire
@@ -48,9 +33,40 @@ doc: |
     
   Regarder les droits à donner à browsecat
   
+  Pour mettre en oeuvre:
+    1) réaliser une moisson des catalogues avec harvest.php, cela génère des tables catalog${catid} dans la base
+       PostgreSql définie en paramètres
+    2) vérifier sur chaque catalogue que les fichiers ${catid}Sel.yaml et organisation.yaml sont complets
+       en affichant les organismes hors périmètre, en les analysant visuellement et en modifiant les fichiers
+       ${catid}Sel.yaml et organisation.yaml
+    3) actualiser le périmètre sur chaque catalogue avec gere.php, cela met à jour le champ perimetre de la table du
+       catalogue (obligatoire)
+    4) ajouter les thèmes avec ajouttheme.php (facultatif)
+    5) ajouter le champ area et le peupler avec addarea.php (obligatoire)
+    6) créer les 2 tables auxiliaires par catalogue par crauxtabl.php
+    7) afficher les MD par thème et organisme et afficher les cartes
+    
+  Le résultat de cette analyse est le suivant:
+    - GéoRisques contient peu de MD principalement de la DGPR
+    - GpU contient des MD de SUP des DDT et DEAL mais aussi des docs d'urbanisme
+    - Sextant contient quelques MD intéressantes du ministère,
+      ex. Classement sanitaire des zones conchylicoles de Seine-Maritime
+    - Geolittoral
+    - CeremaData
+    - EauFrance
+    - Shom
+    
+  A priori ces MD ne proviennent pas de Géo-IDE.
+
+  Les MD de Sextant peuvent être notamment de type 'publication' ou 'carte' ; ces MD ne peuvent pas être traduites
+  en ISO 19115 ; elles sont alors stockées en DublinCore.
+  
   Voir dans themes.yaml les résultats sur les thésaurus.
   
   synchro par http://localhost/synchro.php?remote=http://bdavid.alwaysdata.net/&dir=browsecat
+
+  Exemples intéressants:
+    - N10 X 
 journal: |
   7-10/11/2021:
     - mise en oeuvre d'une carte sur la sélection org + theme
@@ -73,7 +89,7 @@ journal: |
     - création
 phpScripts:
   - /browsecat/harvest.php
-  - /browsecat/manage.php
+  - /browsecat/gere.php
   - /browsecat/ajouttheme.php
   - /browsecat/addarea.php
   - /browsecat/crauxtabl.php

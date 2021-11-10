@@ -34,7 +34,7 @@ require_once __DIR__.'/orginsel.inc.php';
 
 use Symfony\Component\Yaml\Yaml;
 
-// Liste des arborescences auxquels les mots-clés peuvent appartenir
+// Liste des arborescences auxquelles les mots-clés peuvent appartenir
 $arbos = [
   'arboCovadis'=> new Arbo('arbocovadis.yaml'),
   'annexesInspire'=> new Arbo('annexesinspire.yaml'),

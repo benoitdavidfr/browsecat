@@ -116,14 +116,14 @@ foreach (PgSql::query($sql) as $tuple) {
   if (isset($_GET['theme']) && !isTheme($_GET['arbo'], $_GET['theme'], $record))
     continue;*/
   
-  //echo "<li><a href='index.php?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</a></li>\n";
+  //echo "<li><a href='gere.php?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</a></li>\n";
   
   if (!($bbox = $record['dcat:bbox'][0] ?? null)) continue;
   
   $feature = [
     'type'=> 'Feature',
     'area'=> ($bbox['eastLon']-$bbox['westLon']) * ($bbox['northLat']-$bbox['southLat']),
-    'link'=> "http://localhost/browsecat/index.php?cat=$_GET[cat]&action=showPg&id=$tuple[id]",
+    'link'=> "http://localhost/browsecat/gere.php?cat=$_GET[cat]&action=showPg&id=$tuple[id]",
     'properties'=> [
       'title'=> $tuple['title'],
       'lon'=> sprintf('%.4f -> %.4f', $bbox['westLon'], $bbox['eastLon']),
