@@ -1,7 +1,7 @@
 <?php
 /*PhpDoc:
 title: orginsel.inc.php - teste si un des responsibleParty de la fiche appartient à la sélection d'organismes
-name: catinpgsql.inc.php
+name: orginsel.inc.php
 doc: |
 journal: |
   29/10/2021:

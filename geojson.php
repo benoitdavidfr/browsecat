@@ -12,8 +12,7 @@ journal: |
     - encore trop long, la requête sur les PPRN de agg excède 3'
     - faire des tables index sur les organisations et les thèmes ?
 */
-
-ini_set('max_execution_time', 3*60);
+//ini_set('max_execution_time', 60);
 
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
@@ -109,26 +108,17 @@ echo '"features": [',"\n";
 foreach (PgSql::query($sql) as $tuple) {
   $record = json_decode($tuple['record'], true);
   
-  // Teste si $_GET['org'] fait partie des $_GET['type'] dans $record
+  /*// Teste si $_GET['org'] fait partie des $_GET['type'] dans $record
   if (isset($_GET['org']) && !isOrg($_GET['otype'], $_GET['org'], $record))
     continue;
   
   // Teste si $_GET['theme'] fait partie des mots-clés de $record
   if (isset($_GET['theme']) && !isTheme($_GET['arbo'], $_GET['theme'], $record))
-    continue;
+    continue;*/
   
   //echo "<li><a href='index.php?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</a></li>\n";
   
-  $bbox = $record['dcat:bbox'][0] ?? null;
-  if (!$bbox) continue;
-  if ($bbox['westLon'] > $bbox['eastLon']) {
-    $westLon = $bbox['westLon'];
-    $bbox['westLon'] = $bbox['eastLon'];
-    $bbox['eastLon'] = $westLon;
-  }
-  if ($bbox['southLat'] > $bbox['northLat']) {
-    continue;
-  }
+  if (!($bbox = $record['dcat:bbox'][0] ?? null)) continue;
   
   $feature = [
     'type'=> 'Feature',
@@ -142,6 +132,17 @@ foreach (PgSql::query($sql) as $tuple) {
       'id'=> $tuple['id'],
     ]
   ];
+  if ($bbox['westLon'] > $bbox['eastLon']) { // si erreur alors échange westLon <-> eastLon
+    $westLon = $bbox['westLon'];
+    $bbox['westLon'] = $bbox['eastLon'];
+    $bbox['eastLon'] = $westLon;
+  }
+  if ($bbox['southLat'] > $bbox['northLat']) { // si erreur alors échange southLat <-> northLat
+    $southLat = $bbox['southLat'];
+    $bbox['southLat'] = $bbox['northLat'];
+    $bbox['northLat'] = $southLat;
+    continue;
+  }
   switch ($_GET['gtype']) {
     case 'Polygon': {
       $feature['geometry'] = [

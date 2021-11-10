@@ -1,6 +1,7 @@
 <?php
 /*PhpDoc:
 title: ajouttheme.php - ajout de thèmes
+name: ajouttheme.php
 doc: |
   Test de l'ajout de thèmes Covadis par analyse du titre.
   J'associe dans l'arbo Covadis à chaque thème une liste d'expressions régulières que je teste sur les titres des fiches

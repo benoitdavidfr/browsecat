@@ -3,16 +3,24 @@ path: /browsecat
 doc: |
   Les objectifs sont:
     1) parcourir des catalogues pour notamment trouver et consulter les MD relevant du ministère (AC + SD),
-    2) mesurer l'intérêt d'un thésaurus comme l'aborescence Covadis et/ou la liste des annexes Inspire
+    2) estimer l'intérêt d'un classement comme l'aborescence Covadis et/ou la liste des annexes Inspire
+    3) prototyper un mécanisme de requête sur les métadonnées fondé sur l'utilisation de ces classements
   
-  harvest.php moissonne en CLI le catalogue en bufferisant le résultat dans un répertoire et stocke les MD de D+S
-  dans PostgreSql.
-
-  index.php exploite (en http) les moissons.
+  - harvest.php moissonne en CLI un catalogue, bufferise le résultat dans un répertoire et stocke les MD de D+S
+    dans une table catalog${catid} dans PostgreSql.
+  - manage.php exploite (en http) les moissons.
+  - index.php sera une page publique de présentation.
+  - ajouttheme.php exploite les regexps de arbocovadis.yaml pour ajouter des thèmes Covadis aux MDD
+  - addarea.php ajoute un champ area aux tables catalog${catid}
+  - crauxtabl.php crée 2 tables auxiliaires catorg${catid} et cattheme${catid} par catalogue indispensable
+    pour générer une carte
+  - map.php affiche une carte des MDD pour un thème Covadis et une organisation, il appelle geojson.php
+  - geojson.php génère un flux GeoJSON pour un thème Covadis et une organisation pour la carte
+    - utilise le champ area dans catalog${catid} et les tables auxiliaires catorg${catid} et cattheme${catid}
   
-  Utilisation des codes cswserver.inc.php, httpcache.inc.php et mdvars2.inc.php de geocat4
-  Utilisation de la bibiothèque d'utilisation de PgSql'
-  Utilisation de la classe Yaml de Symfony.
+  Réutilisation des codes cswserver.inc.php, httpcache.inc.php et mdvars2.inc.php de geocat4
+  Réutilisation de la bibiothèque d'utilisation de PgSql'
+  Réutilisation de la classe Yaml de Symfony.
   
   Le résultat de cette analyse est le suivant:
     - GéoRisques contient peu de MD principalement de la DGPR
@@ -34,12 +42,18 @@ doc: |
     pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public pour écrire
     pgsql://browsecat:Browsecat9@db207552-001.dbaas.ovh.net:35250/catalog/public pour lire
     
+  Schéma:
+    - une table catalog${catid} qui stocke les MDD+S du catalogue ${catid} 
+    - 2 tables auxiliaires catorg${catid} et cattheme${catid} qui accélèrent la sélection des MDD pour un org et un thème
+    
   Regarder les droits à donner à browsecat
   
   Voir dans themes.yaml les résultats sur les thésaurus.
   
   synchro par http://localhost/synchro.php?remote=http://bdavid.alwaysdata.net/&dir=browsecat
 journal: |
+  7-10/11/2021:
+    - mise en oeuvre d'une carte sur la sélection org + theme
   4-6/11/2021:
     - élaboration d'un tableau de dénombrement par organisation et par thème
   3/11/2021:
@@ -59,15 +73,24 @@ journal: |
     - création
 phpScripts:
   - /browsecat/harvest.php
+  - /browsecat/manage.php
+  - /browsecat/ajouttheme.php
+  - /browsecat/addarea.php
+  - /browsecat/crauxtabl.php
+  - /browsecat/manage.php
+  - /browsecat/map.php
+  - /browsecat/geojson.php
   - /browsecat/index.php
 phpIncludes:
   - /browsecat/cats.inc.php
   - /browsecat/catinpgsql.inc.php
   - /browsecat/orginsel.inc.php
-  - /browsecat/annexes.inc.php
+  #- /browsecat/annexes.inc.php
   - /browsecat/arbo.inc.php
+  - /browsecat/tree.inc.php
   - /browsecat/mdvars2.inc.php
   - /browsecat/cswserver.inc.php
+  - /browsecat/httpretry.inc.php
   - /browsecat/httpcache.inc.php
 htmlFiles:
   - /browsecat/annexesinspire.yaml
