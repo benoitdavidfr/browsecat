@@ -10,6 +10,8 @@ doc: |
   A FAIRE:
     remplacer l'utilisation des *Sel.yaml par celle de organisation.yaml
 journal: |
+  10/11/2021:
+    - renommage manage.php -> gere.php
   8/11/2021:
     - renommage index.php -> manage.php pour utiliser index.php comme accès plus gd public
   27/10-4/11/2021:
