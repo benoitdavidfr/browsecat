@@ -21,7 +21,7 @@ if (php_sapi_name()=='cli') {
     echo " où {cmde} vaut:\n";
     echo "  - sperim pour actualiser le périmètre sur chaque catalogue à partir du fichier \${catid}Sel.yaml\n";
     echo "  - ajoutheme pour ajouter des thèmes\n";
-    echo "  - addarea pour ajouter un champ area et le peupler\n";
+    echo "  - addarea pour ajouter les champs area, ... et les peupler\n";
     echo "  - crauxtabl pour créer les 2 tables auxilaires par catalogue\n";
     echo "  - cragg pour créer les 3 tables du catalogue agrégé (ne nécessite pas de paramètre {cat})\n";
     echo " où local|distant vaut local pour la base locale et distant pour la base distante\n";
@@ -52,6 +52,7 @@ if (php_sapi_name()=='cli') {
 
     if ($catid == 'all') { // génère les cmdes pour traiter tous les catalogues
       foreach (array_keys($cats) as $catid) {
+        echo "echo php $argv[0] $argv[1] $argv[2] $catid\n";
         echo "php $argv[0] $argv[1] $argv[2] $catid\n";
       }
       die();
@@ -128,26 +129,40 @@ if ($cmde == 'ajoutheme') {
   die();
 }
 
-if ($cmde == 'addarea') { // ajouter un champ area et le peupler
+if ($cmde == 'addarea') { // ajouter les champs area, ... et les peupler
   function area(array $bbox): ?float {
-    if (!isset($bbox['eastLon']) || !is_numeric($bbox['eastLon'])) return null;
-    if (!isset($bbox['westLon']) || !is_numeric($bbox['westLon'])) return null;
-    if (!isset($bbox['northLat']) || !is_numeric($bbox['northLat'])) return null;
-    if (!isset($bbox['southLat']) || !is_numeric($bbox['southLat'])) return null;
+    if (!isset($bbox['eastLon']) || !is_numeric($bbox['eastLon']) || ($bbox['eastLon'] < -180) || ($bbox['eastLon'] > 180))
+      return null;
+    if (!isset($bbox['westLon']) || !is_numeric($bbox['westLon']) || ($bbox['westLon'] < -180) || ($bbox['westLon'] > 180))
+      return null;
+    if (!isset($bbox['northLat']) || !is_numeric($bbox['northLat']) || ($bbox['northLat'] < -90) || ($bbox['northLat'] > 90))
+      return null;
+    if (!isset($bbox['southLat']) || !is_numeric($bbox['southLat']) || ($bbox['southLat'] < -90) || ($bbox['southLat'] > 90))
+      return null;
     return abs(($bbox['eastLon'] - $bbox['westLon']) * ($bbox['northLat'] - $bbox['southLat']));
   }
-
+  
+  // résolution métrique des coordonnées => 5 chiffres après la virgule -> numeric(8,5)
+  // résolution décamétrique des surfaces => 4*2 chiffres après la virgule, max = 360 * 180 = 64800 -> numeric(13,8)
   foreach ([
-      "alter table catalog$catid drop column if exists area",
-      "alter table catalog$catid add area real",
-      "drop index if exists area",
-      "create index area ON catalog$catid (area)",
+      "alter table catalog$catid
+        drop column if exists area, drop column if exists westLon, drop column if exists southLat,
+        drop column if exists eastLon, drop column if exists northLat",
+      "alter table catalog$catid
+        add area numeric(13,8),
+        add westLon numeric(8,5),
+        add southLat numeric(8,5),
+        add eastLon numeric(8,5),
+        add northLat numeric(8,5)",
+      "drop index if exists catalog${catid}_area_idx",
+      "create index catalog${catid}_area_idx ON catalog$catid (area,westLon,southLat,eastLon)",
     ] as $sql) {
       try {
         PgSql::query($sql);
       }
       catch (Exception $e) {
         echo '<b>',$e->getMessage()," sur $sql</b>\n\n";
+        die();
       }
   }
 
@@ -156,16 +171,23 @@ if ($cmde == 'addarea') { // ajouter un champ area et le peupler
     //echo "$tuple[title]\n";
     $record = json_decode($tuple['record'], true);
     //print_r($record['dcat:bbox']);
-    $area = null;
-    foreach ($record['dcat:bbox'] ?? [] as $bbox) {
-      if ($a = area($bbox))
-        $area += $a;
+    if (isset($record['dcat:bbox'][0]) && ($area = area($record['dcat:bbox'][0]))) {
+      $bbox = $record['dcat:bbox'][0];
+      $westLon = min($bbox['westLon'], $bbox['eastLon']);
+      $southLat = min($bbox['southLat'], $bbox['northLat']);
+      $eastLon = max($bbox['westLon'], $bbox['eastLon']);
+      $northLat = max($bbox['southLat'], $bbox['northLat']);
+      $sql = "update catalog$catid
+              set area=$area, westLon=$westLon, southLat=$southLat, eastLon=$eastLon, northLat=$northLat
+              where id='$tuple[id]'";
+      try {
+        PgSql::query($sql);
+      }
+      catch (Exception $e) {
+        echo '<b>',$e->getMessage()," sur $sql</b>\n\n";
+        die();
+      }
     }
-    //printf("area=%f\n", $area);
-    if (!$area)
-      PgSql::query("update catalog$catid set area=null where id='$tuple[id]'");
-    else
-      PgSql::query("update catalog$catid set area=$area where id='$tuple[id]'");
   }
   die("Ok $catid\n");
 }
@@ -259,7 +281,11 @@ if ($cmde == 'cragg') { // créer les 3 tables du catalogue agrégé
     title text, -- 1.1. Intitulé de la ressource
     type varchar(256), -- 1.3. Type de la ressource
     perimetre varchar(256), -- 'Min','Op','Autres' ; null ssi non défini
-    area real -- surface des bbox en degrés carrés, null ssi non défini ou 0
+    area numeric(13,8), -- surface des bbox en degrés carrés, résolution dam2, null ssi non défini ou 0
+    westLon numeric(8,5), -- coordonnées, résolution métrique
+    southLat numeric(8,5),
+    eastLon numeric(8,5),
+    northLat numeric(8,5)
   )");
 
   foreach(['org','theme'] as $typtab) {
@@ -272,8 +298,8 @@ if ($cmde == 'cragg') { // créer les 3 tables du catalogue agrégé
 
   foreach ($cats as $catid => $cat) {
     if ($cat['dontAgg'] ?? false) continue;
-    $sql = "insert into catalogagg(cat, id, record, title, type, perimetre, area)\n"
-          ."  select '$catid', id, record, title, type, perimetre, area\n"
+    $sql = "insert into catalogagg(cat, id, record, title, type, perimetre, area, westLon, southLat, eastLon, northLat)\n"
+          ."  select '$catid', id, record, title, type, perimetre, area, westLon, southLat, eastLon, northLat\n"
           ."  from catalog$catid\n"
           ."  where id not in (select id from catalogagg)";
     echo "$sql\n";
@@ -287,6 +313,7 @@ if ($cmde == 'cragg') { // créer les 3 tables du catalogue agrégé
     }
   }
 
+  PgSql::query("create index on catalogagg(area,westLon,southLat,eastLon)");
   PgSql::query("create index on catorgagg(id)");
   PgSql::query("create index on catorgagg(org)");
   PgSql::query("create index on catthemeagg(id)");

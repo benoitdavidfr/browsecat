@@ -10,7 +10,7 @@ includes:
 */
 require_once __DIR__.'/cats.inc.php';
 
-if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
+if (!isset($_GET['cat'])) { // choix du catalogue
   echo "Catalogues:<ul>\n";
   foreach ($cats as $catid => $cat) {
     echo "<li><a href='?cat=$catid'>$catid</a></li>\n";
@@ -66,7 +66,7 @@ var onEachFeature = function (feature, layer) {
     + '</pre>' + "\n"
     + "<a href='" + feature.link + "' target='blank'>lien</a>"
   );
-  layer.bindTooltip(feature.properties.title);
+  layer.bindTooltip(JSON.stringify(feature.properties.title,null,' '));
 }
 
 var map = L.map('map').setView(<?php echo json_encode($center),",$zoom";?>);  // view pour la zone
@@ -100,7 +100,7 @@ map.addLayer(baseLayers["IGN"]);
 
 var overlays = {
   "BBox" : new L.GeoJSON.AJAX(browsecaturl+'/geojson.php?gtype=Polygon&'+params, {
-    style: { color: 'blue', fillOpacity: 0}, minZoom: 0, maxZoom: 18, onEachFeature: onEachFeature
+    style: function (feature) { return feature.style; }, minZoom: 0, maxZoom: 18, onEachFeature: onEachFeature
   }),
   "Line" : new L.GeoJSON.AJAX(browsecaturl+'/geojson.php?gtype=LineString&'+params, {
     style: { color: 'blue', fillOpacity: 0}, minZoom: 0, maxZoom: 18, onEachFeature: onEachFeature

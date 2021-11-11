@@ -43,9 +43,9 @@ $arbos = [
 // Choisir le serveur
 if ($_SERVER['HTTP_HOST']=='localhost')
   PgSql::open('host=pgsqlserver dbname=gis user=docker');
-//PgSql::open('pgsql://browsecat:Browsecat9@db207552-001.dbaas.ovh.net:35250/catalog/public');
 else
   PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public');
+//PgSql::open('pgsql://browsecat:Browsecat9@db207552-001.dbaas.ovh.net:35250/catalog/public');
 
 
 // Renvoie la liste prefLabels structurée par arbo, [ {arboid} => [ {prefLabel} ]]
@@ -332,6 +332,22 @@ if ($_GET['action']=='showPg') { // affiche une fiche depuis PgSql
   //echo "<pre>",json_encode($record, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
   echo '<pre>',Yaml::dump($record, 2, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
   die();
+}
+
+if ($_GET['action']=='showUsingIds') {
+  $ids = explode(',', $_GET['ids']);
+  foreach ($ids as $k => $id) {
+    $ids[$k] = "'$id'";
+  }
+  $sql = "select id,title from catalog$_GET[cat]
+          where type in ('dataset','series')
+            and id in (".implode(',', $ids).")";
+  //echo $sql;
+  echo "<ul>\n";
+  foreach (PgSql::query($sql) as $record) {
+    echo "<li><a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$record[id]'>$record[title]</a></li>\n";
+  }
+  die("</ul>\n");
 }
 
 if ($_GET['action']=='showIsoXml') { // affiche une fiche ISO en XML depuis CSW

@@ -4,6 +4,8 @@ title: geojson.php - sortie GéoJSON du catalogue
 name: geojson.php
 doc: |
 journal: |
+  11/11/2021:
+    - regroupement des bbox identiques en un seul
   10/11/2021:
     - adaptation du code EN COURS pour utiliser les tables auxiliaires créées par crauxtabl
   7-8/11/2021
@@ -15,7 +17,6 @@ journal: |
 //ini_set('max_execution_time', 60);
 
 header('Access-Control-Allow-Origin: *');
-header('Content-type: application/json');
 
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
@@ -98,98 +99,174 @@ function isTheme(string $arbo, string $theme, array $record): bool {
   return false;
 }
 
+class Feature {
+  private array $feature;
+  
+  function __construct(string $gtype, array $tuple, array $bbox) {
+    $this->feature = [
+      'type'=> 'Feature',
+      'area'=> ($bbox['eastLon']-$bbox['westLon']) * ($bbox['northLat']-$bbox['southLat']),
+      'link'=> "http://$_SERVER[HTTP_HOST]/browsecat/gere.php?cat=$_GET[cat]&action=showPg&id=$tuple[id]",
+      'style'=> ['color'=> 'blue', 'fillOpacity'=> 0],
+      'properties'=> [
+        'title'=> $tuple['title'],
+        'lon'=> sprintf('%.4f -> %.4f', $bbox['westLon'], $bbox['eastLon']),
+        'lat'=> sprintf('%.4f -> %.4f', $bbox['southLat'], $bbox['northLat']),
+        'area'=> ($bbox['eastLon']-$bbox['westLon']) * ($bbox['northLat']-$bbox['southLat']),
+        'id'=> $tuple['id'],
+      ]
+    ];
+    if ($bbox['westLon'] > $bbox['eastLon']) { // si erreur alors échange westLon <-> eastLon
+      $westLon = $bbox['westLon'];
+      $bbox['westLon'] = $bbox['eastLon'];
+      $bbox['eastLon'] = $westLon;
+    }
+    if ($bbox['southLat'] > $bbox['northLat']) { // si erreur alors échange southLat <-> northLat
+      $southLat = $bbox['southLat'];
+      $bbox['southLat'] = $bbox['northLat'];
+      $bbox['northLat'] = $southLat;
+    }
+    switch ($gtype) {
+      case 'xPolygon': {
+        $this->feature['geometry'] = [
+          'type'=> 'Polygon',
+          'coordinates'=> [ // le bbox
+            [
+              [round($bbox['westLon'],6), round($bbox['southLat'],6)],
+              [round($bbox['westLon'],6), round($bbox['northLat'],6)],
+              [round($bbox['eastLon'],6), round($bbox['northLat'],6)],
+              [round($bbox['eastLon'],6), round($bbox['southLat'],6)],
+              [round($bbox['westLon'],6), round($bbox['southLat'],6)],
+            ]
+          ],
+        ];
+        break;
+      }
+      
+      case 'Polygon': {
+        $e = $bbox['eastLon'];
+        $w = $bbox['westLon'];
+        $dlon = $e - $w;
+        $s = $bbox['southLat'];
+        $n = $bbox['northLat'];
+        $dlat = $n - $s;
+        $this->feature['geometry'] = [
+          'type'=> 'Polygon',
+          'coordinates'=> [ // coins cassés
+            [
+              [round($w,6), round($s+$dlat/10,6)],
+              [round($w,6), round($n-$dlat/10,6)],
+              [round($w+$dlon/10,6), round($n,6)],
+              [round($e-$dlon/10,6), round($n,6)],
+              [round($e,6), round($n-$dlat/10,6)],
+              [round($e,6), round($s+$dlat/10,6)],
+              [round($e-$dlon/10,6), round($s,6)],
+              [round($w+$dlon/10,6), round($s,6)],
+              [round($w,6), round($s+$dlat/10,6)],
+            ]
+          ],
+        ];
+        break;
+      }
+
+      case 'LineString': {
+        $this->feature['geometry'] = [
+          'type'=> 'LineString',
+          'coordinates'=> [
+              [$bbox['westLon'], $bbox['southLat']],
+              [$bbox['eastLon'], $bbox['northLat']],
+          ],
+        ];
+        break;
+      }
+    
+      case 'Point': {
+        $this->feature['geometry'] = [
+          'type'=> 'Point',
+          'coordinates'=> [
+            ($bbox['westLon']+$bbox['eastLon'])/2,
+            ($bbox['southLat']+$bbox['northLat'])/2,
+          ],
+        ];
+        break;
+      }
+    }
+  }
+  
+  function aggFeatures(array $tuple, array $bbox): void {
+    $westLon = min($bbox['westLon'], $bbox['eastLon']);
+    $southLat = min($bbox['southLat'], $bbox['northLat']);
+    $eastLon = max($bbox['westLon'], $bbox['eastLon']);
+    $northLat = max($bbox['southLat'], $bbox['northLat']);
+    if (isset($this->feature['properties']['id'])) {
+      if ($tuple['id'] == $this->feature['properties']['id'])
+        return;
+      $this->feature['ids'] = [$this->feature['properties']['id'], $tuple['id']];
+      unset($this->feature['properties']['id']);
+      $this->feature['properties']['title'] = [ $this->feature['properties']['title'], $tuple['title'] ];
+    }
+    else {
+      if (in_array($tuple['id'], $this->feature['ids']))
+        return;
+      $this->feature['ids'][] = $tuple['id'];
+      $this->feature['properties']['title'][] = $tuple['title'];
+    }
+    $this->feature['link'] = "http://$_SERVER[HTTP_HOST]/browsecat/gere.php?cat=$_GET[cat]&action=showUsingIds"
+      ."&ids=".implode(',',$this->feature['ids']);
+  }
+  
+  function __toString(): string {
+    return json_encode($this->feature,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+  }
+}
+
+function sep(): string {
+  static $i=0;
+  return $i++ ? ",\n" : ''; // séparateur entre features sauf au début et à la fin
+}
+
+//header('Content-type: application/json');
+header('Content-type: text/plain');
 echo '{"type": "FeatureCollection",',"\n";
 
-$i = 0;
-$sql = "select cat.id, title, record
-        from catalog$_GET[cat] cat, catorg$_GET[cat] org, cattheme$_GET[cat] theme
+$sql = "select cat.id, title, area, record
+        from catalog$_GET[cat] cat"
+       .(isset($_GET['org']) ? ", catorg$_GET[cat] org" : '')
+       .(isset($_GET['theme']) ? ", cattheme$_GET[cat] theme" : '')."
         where
-          type in ('dataset','series') and perimetre='Min' and area <> 0
-          and cat.id=org.id and org.org='".str_replace("'","''", $_GET['org'])."'
-          and cat.id=theme.id and theme.theme='".str_replace("'","''", $_GET['theme'])."'
-        order by area desc";
+          type in ('dataset','series') and perimetre='Min' and area is not null\n";
+if (isset($_GET['org']))
+  $sql .= "and cat.id=org.id and org.org='".str_replace("'","''", $_GET['org'])."'\n";
+if (isset($_GET['theme']))
+  $sql .= "and cat.id=theme.id and theme.theme='".str_replace("'","''", $_GET['theme'])."'\n";
+$sql .= "order by area desc,westLon,southLat,eastLon";
 //echo "\"query\": \"",str_replace("\n",' ',$sql),"\",\n";
+//echo "\"query\": \"",str_replace("\n",' ',$sql),"\"\n"; die("\n]}\n");
 echo '"features": [',"\n";
+$i = 0;
+$feature = null;
+$prevTuple = [];
 foreach (PgSql::query($sql) as $tuple) {
   $record = json_decode($tuple['record'], true);
-  
-  /*// Teste si $_GET['org'] fait partie des $_GET['type'] dans $record
-  if (isset($_GET['org']) && !isOrg($_GET['otype'], $_GET['org'], $record))
-    continue;
-  
-  // Teste si $_GET['theme'] fait partie des mots-clés de $record
-  if (isset($_GET['theme']) && !isTheme($_GET['arbo'], $_GET['theme'], $record))
-    continue;*/
   
   //echo "<li><a href='gere.php?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</a></li>\n";
   
   if (!($bbox = $record['dcat:bbox'][0] ?? null)) continue;
   
-  $feature = [
-    'type'=> 'Feature',
-    'area'=> ($bbox['eastLon']-$bbox['westLon']) * ($bbox['northLat']-$bbox['southLat']),
-    'link'=> "http://localhost/browsecat/gere.php?cat=$_GET[cat]&action=showPg&id=$tuple[id]",
-    'properties'=> [
-      'title'=> $tuple['title'],
-      'lon'=> sprintf('%.4f -> %.4f', $bbox['westLon'], $bbox['eastLon']),
-      'lat'=> sprintf('%.4f -> %.4f', $bbox['southLat'], $bbox['northLat']),
-      'area'=> ($bbox['eastLon']-$bbox['westLon']) * ($bbox['northLat']-$bbox['southLat']),
-      'id'=> $tuple['id'],
-    ]
-  ];
-  if ($bbox['westLon'] > $bbox['eastLon']) { // si erreur alors échange westLon <-> eastLon
-    $westLon = $bbox['westLon'];
-    $bbox['westLon'] = $bbox['eastLon'];
-    $bbox['eastLon'] = $westLon;
+  //print_r($tuple);
+  if ($prevTuple && ($tuple['area'] == $prevTuple['area'])) {
+    //echo sep(),"\"$tuple[id] a même area que $prevTuple[id] -> $tuple[area]\"";
+    $feature->aggFeatures($tuple, $bbox);
   }
-  if ($bbox['southLat'] > $bbox['northLat']) { // si erreur alors échange southLat <-> northLat
-    $southLat = $bbox['southLat'];
-    $bbox['southLat'] = $bbox['northLat'];
-    $bbox['northLat'] = $southLat;
-    continue;
+  else {
+    if ($feature)
+      echo sep(),$feature;
+    $feature = new Feature($_GET['gtype'], $tuple, $bbox);
   }
-  switch ($_GET['gtype']) {
-    case 'Polygon': {
-      $feature['geometry'] = [
-        'type'=> 'Polygon',
-        'coordinates'=> [
-          [
-            [$bbox['westLon'], $bbox['southLat']],
-            [$bbox['westLon'], $bbox['northLat']],
-            [$bbox['eastLon'], $bbox['northLat']],
-            [$bbox['eastLon'], $bbox['southLat']],
-            [$bbox['westLon'], $bbox['southLat']],
-          ]
-        ],
-      ];
-      break;
-    }
-
-    case 'LineString': {
-      $feature['geometry'] = [
-        'type'=> 'LineString',
-        'coordinates'=> [
-            [$bbox['westLon'], $bbox['southLat']],
-            [$bbox['eastLon'], $bbox['northLat']],
-        ],
-      ];
-      break;
-    }
-    
-    case 'Point': {
-      $feature['geometry'] = [
-        'type'=> 'Point',
-        'coordinates'=> [
-          ($bbox['westLon']+$bbox['eastLon'])/2,
-          ($bbox['southLat']+$bbox['northLat'])/2,
-        ],
-      ];
-      break;
-    }
-  }
-  if ($i) echo ",\n"; // séparateur entre features sauf au début et à la fin
-  $i++;
-  echo json_encode($feature,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+  $prevTuple = $tuple;
+}
+if ($feature) {
+  echo sep(),$feature;
 }
 
 die("\n]}\n");
