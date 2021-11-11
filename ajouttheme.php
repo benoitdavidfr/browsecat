@@ -73,15 +73,21 @@ else { // php_sapi_name()<>'cli'
   echo "<!DOCTYPE HTML><html><head><meta charset='UTF-8'><title>ajouttheme.php</title></head><body><pre>\n";
 }
 
+if (is_file('localhost.inc.php')) { // Choix du serveur
+  echo "Serveur local<br>\n";
+  PgSql::open('host=pgsqlserver dbname=gis user=docker');
+}
+else {
+  echo "Serveur OVH<br>\n";
+  PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public');
+}
+
 $arboCovadis = new Arbo('arbocovadis.yaml');
 
 foreach($arboCovadis->nodes() as $theme) {
   foreach ($theme->regexps() as $regexp)
     $matches[Arbo::simplif($regexp)] = ['theme'=> (string)$theme, 'nbre'=> 0];
 }
-
-// Choisir le serveur
-PgSql::open('host=pgsqlserver dbname=gis user=docker');
 
 $nbMdd = 0;
 $nbAjouts = 0;

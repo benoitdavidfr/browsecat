@@ -11,9 +11,7 @@ doc: |
   - gere.php gère (en http) les moissons.
   - index.php sera une page publique de présentation et d'utilisation.
   - ajouttheme.php exploite les regexps de arbocovadis.yaml pour ajouter des thèmes Covadis aux MDD
-  - addarea.php ajoute un champ area aux tables catalog${catid}
-  - crauxtabl.php crée 2 tables auxiliaires catorg${catid} et cattheme${catid} par catalogue indispensable
-    pour générer une carte
+  - cmde.php regroupe différentes commandes en CLI
   - map.php affiche une carte des MDD pour un thème Covadis et une organisation, il appelle geojson.php
   - geojson.php génère un flux GeoJSON pour un thème Covadis et une organisation pour la carte
     - utilise le champ area dans catalog${catid} et les tables auxiliaires catorg${catid} et cattheme${catid}
@@ -27,24 +25,28 @@ doc: |
     pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public pour écrire
     pgsql://browsecat:Browsecat9@db207552-001.dbaas.ovh.net:35250/catalog/public pour lire
     
+  Regarder les droits à donner à browsecat
+
   Schéma:
     - une table catalog${catid} qui stocke les MDD+S du catalogue ${catid} 
     - 2 tables auxiliaires catorg${catid} et cattheme${catid} qui accélèrent la sélection des MDD pour un org et un thème
-    
-  Regarder les droits à donner à browsecat
+  
+  La démarche consiste à effectuer les modifications des données dans les 2 bases depuis localhost.
   
   Pour mettre en oeuvre:
     1) réaliser une moisson des catalogues avec harvest.php, cela génère des tables catalog${catid} dans la base
        PostgreSql définie en paramètres
     2) vérifier sur chaque catalogue que les fichiers ${catid}Sel.yaml et organisation.yaml sont complets
-       en affichant les organismes hors périmètre, en les analysant visuellement et en modifiant les fichiers
+       en affichant et analysant visuellement les organismes hors périmètre et en modifiant les fichiers
        ${catid}Sel.yaml et organisation.yaml
-    3) actualiser le périmètre sur chaque catalogue avec gere.php, cela met à jour le champ perimetre de la table du
-       catalogue (obligatoire)
+    2bis) copier ces fichiers sur Alwaysdata
+    3) actualiser le périmètre tans la table catalogue sur chaque catalogue avec cmde.php
     4) ajouter les thèmes avec ajouttheme.php (facultatif)
-    5) ajouter le champ area et le peupler avec addarea.php (obligatoire)
-    6) créer les 2 tables auxiliaires par catalogue par crauxtabl.php
-    7) afficher les MD par thème et organisme et afficher les cartes
+    5) ajouter le champ area et le peupler avec cmde.php sur chaque catalogue
+    6) créer par cmde.php crauxtabl les 2 tables auxiliaires par catalogue
+    7) créer le catalogue agg qui agrège tous les catalogues sauf le Géocatalogue et les 2 tables auxiliares
+    8) sur localhost produire aggSel ou sur Alwaysdata le copier
+    9) afficher les MD par thème et organisme et afficher les cartes
     
   Le résultat de cette analyse est le suivant:
     - GéoRisques contient peu de MD principalement de la DGPR
@@ -68,6 +70,8 @@ doc: |
   Exemples intéressants:
     - N10 X DDT82
 journal: |
+  11/11/2021:
+    - écriture de cmde.php pour effectuer les traitements depuis localhost sur OVH
   7-10/11/2021:
     - mise en oeuvre d'une carte sur la sélection org + theme
   4-6/11/2021:
@@ -91,15 +95,13 @@ phpScripts:
   - /browsecat/harvest.php
   - /browsecat/gere.php
   - /browsecat/ajouttheme.php
-  - /browsecat/addarea.php
-  - /browsecat/crauxtabl.php
-  - /browsecat/manage.php
   - /browsecat/map.php
   - /browsecat/geojson.php
   - /browsecat/index.php
 phpIncludes:
   - /browsecat/cats.inc.php
   - /browsecat/catinpgsql.inc.php
+  - /browsecat/localhost.inc.php
   - /browsecat/orginsel.inc.php
   #- /browsecat/annexes.inc.php
   - /browsecat/arbo.inc.php

@@ -14,14 +14,20 @@ journal: |
 */
 //ini_set('max_execution_time', 60);
 
+header('Access-Control-Allow-Origin: *');
+header('Content-type: application/json');
+
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
 require_once __DIR__.'/arbo.inc.php';
-require_once __DIR__.'/annexes.inc.php';
+//require_once __DIR__.'/annexes.inc.php';
 require_once __DIR__.'/orginsel.inc.php';
 
 // Choisir le serveur
-PgSql::open('host=pgsqlserver dbname=gis user=docker');
+if ($_SERVER['HTTP_HOST']=='localhost')
+  PgSql::open('host=pgsqlserver dbname=gis user=docker');
+else
+  PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public');
 //PgSql::open('pgsql://browsecat:Browsecat9@db207552-001.dbaas.ovh.net:35250/catalog/public');
 
 function isOrg(string $otype, string $orgname, array $record): bool { // Teste si $_GET['org'] fait partie des $_GET['type']
@@ -92,7 +98,6 @@ function isTheme(string $arbo, string $theme, array $record): bool {
   return false;
 }
 
-header('Content-type: application/json');
 echo '{"type": "FeatureCollection",',"\n";
 
 $i = 0;
