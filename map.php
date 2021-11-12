@@ -6,7 +6,7 @@ doc: |
 journal: |
   29/10/2021:
     - création
-includes:
+includes: [cats.inc.php]
 */
 require_once __DIR__.'/cats.inc.php';
 

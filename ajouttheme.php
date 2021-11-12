@@ -11,6 +11,7 @@ doc: |
 journal: |
   6-7/11/2021:
     - création
+includes: [cats.inc.php, catinpgsql.inc.php, arbo.inc.php]
 */
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/cats.inc.php';

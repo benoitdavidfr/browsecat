@@ -40,7 +40,7 @@ doc: |
        en affichant et analysant visuellement les organismes hors périmètre et en modifiant les fichiers
        ${catid}Sel.yaml et organisation.yaml
     2bis) copier ces fichiers sur Alwaysdata
-    3) actualiser le périmètre tans la table catalogue sur chaque catalogue avec cmde.php
+    3) actualiser le périmètre dans la table catalogue sur chaque catalogue avec cmde.php
     4) ajouter les thèmes avec ajouttheme.php (facultatif)
     5) ajouter le champ area et le peupler avec cmde.php sur chaque catalogue
     6) créer par cmde.php crauxtabl les 2 tables auxiliaires par catalogue
@@ -69,9 +69,15 @@ doc: |
 
   Exemples intéressants:
     - N10 X DDT82
+  
+  Questions/idées:
+    - ne faut-il pas créer une table auxiliaire bbox ? !!!
+    - ne faut-il pas ajouter le thème dans la table auxiliaire plutot que dans record ?
+    - ajouter les MDD n'ayant pas de bbox à un bbox par défaut, ex celui de l'organisation ?
 journal: |
   11/11/2021:
     - écriture de cmde.php pour effectuer les traitements depuis localhost sur OVH
+    - carte sans org
   7-10/11/2021:
     - mise en oeuvre d'une carte sur la sélection org + theme
   4-6/11/2021:
@@ -93,6 +99,7 @@ journal: |
     - création
 phpScripts:
   - /browsecat/harvest.php
+  - /browsecat/cmde.php
   - /browsecat/gere.php
   - /browsecat/ajouttheme.php
   - /browsecat/map.php

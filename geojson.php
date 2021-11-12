@@ -13,6 +13,7 @@ journal: |
     - ajout d'un champ area dans la base pour ne pas avoir à charger tous les éléments pour les trier
     - encore trop long, la requête sur les PPRN de agg excède 3'
     - faire des tables index sur les organisations et les thèmes ?
+includes: [cats.inc.php, catinpgsql.inc.php, arbo.inc.php, orginsel.inc.php]
 */
 //ini_set('max_execution_time', 60);
 

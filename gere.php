@@ -10,6 +10,8 @@ doc: |
   A FAIRE:
     remplacer l'utilisation des *Sel.yaml par celle de organisation.yaml
 journal: |
+  11/11/2021:
+    - carte de thème indépendamment de l'org
   10/11/2021:
     - renommage manage.php -> gere.php
   8/11/2021:
@@ -24,6 +26,7 @@ includes:
   - catinpgsql.inc.php
   - arbo.inc.php
   - orginsel.inc.php
+  - mdvars2.inc.php
 */
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/cswserver.inc.php';
@@ -334,7 +337,7 @@ if ($_GET['action']=='showPg') { // affiche une fiche depuis PgSql
   die();
 }
 
-if ($_GET['action']=='showUsingIds') {
+if ($_GET['action']=='showUsingIds') { // affiche une liste de fiches définie par une liste d'ids 
   $ids = explode(',', $_GET['ids']);
   foreach ($ids as $k => $id) {
     $ids[$k] = "'$id'";
@@ -812,7 +815,8 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
   foreach (array_merge($arbos[$_GET['arbo']]->nodes(), [$nonClasse]) as $theme) {
     $plabel = $theme->prefLabel();
     if (!isset($nbMdParTheme[$plabel])) continue;
-    printf("<td align='right'><small>%d</small></td>", $nbMdParTheme[$plabel]);
+    $url = "?cat=$_GET[cat]&amp;action=mddOrgTheme&amp;arbo=$_GET[arbo]&amp;theme=".urlencode((string)$theme);
+    printf("<td align='right'><small><a href='%s'>%d</a></small></td>", $url, $nbMdParTheme[$plabel]);
   }
   echo "</tr>\n";
   echo "</table>\n";
@@ -829,50 +833,26 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
 }
 
 if ($_GET['action']=='mddOrgTheme') { // liste les MDD avec org et theme
-  $mapurl = "map.php?cat=$_GET[cat]&amp;otype=$_GET[type]&amp;org=".urlencode($_GET['org'])
-    ."&amp;arbo=$_GET[arbo]&amp;theme=$_GET[theme]";
-  echo "<h2>MDD de $_GET[type]=\"$_GET[org]\" et $_GET[arbo]=\"$_GET[theme]\" (<a href='$mapurl'>map</a>)</h2><ul>\n";
+  $mapurl = "map.php?cat=$_GET[cat]"
+    .(isset($_GET['org']) ? "&amp;otype=$_GET[type]&amp;org=".urlencode($_GET['org']) : '')
+    .(isset($_GET['theme']) ? "&amp;arbo=$_GET[arbo]&amp;theme=$_GET[theme]" : '');
+  echo "<h2>MDD de ",
+    (isset($_GET['org']) ? "$_GET[type]=\"$_GET[org]\" et " : ''),
+    (isset($_GET['theme']) ? "$_GET[arbo]=\"$_GET[theme]\"" : ''),
+    " (<a href='$mapurl'>map</a>)</h2><ul>\n";
   $arboOrgsPMin = new Arbo('orgpmin.yaml');
-  $sql = "select id, title, record from catalog$_GET[cat]
-          where type in ('dataset','series') and perimetre='Min'";
+  $sql = "select cat.id, title
+          from catalog$_GET[cat] cat"
+         .(isset($_GET['org']) ? ", catorg$_GET[cat] org" : '')
+         .(isset($_GET['theme']) ? ", cattheme$_GET[cat] theme" : '')."
+          where
+            type in ('dataset','series') and perimetre='Min' and area is not null\n";
+  if (isset($_GET['org']))
+    $sql .= "and cat.id=org.id and org.org='".str_replace("'","''", $_GET['org'])."'\n";
+  if (isset($_GET['theme']))
+    $sql .= "and cat.id=theme.id and theme.theme='".str_replace("'","''", $_GET['theme'])."'\n";
   //echo "<pre>";
   foreach (PgSql::query($sql) as $tuple) {
-    $record = json_decode($tuple['record'], true);
-    // Teste l'org
-    if ($_GET['org'] <> 'NO ORG') {
-      $isOrg = false;
-      foreach ($record[$_GET['type']] as $org) {
-        //print_r($org);
-        if (!isset($org['organisationName'])) continue;
-        $plabel = $arboOrgsPMin->prefLabel($org['organisationName']);
-        if ($plabel == $_GET['org']) {
-          $isOrg = true;
-          break;
-        }
-      }
-      // $isOrg <=> au moins une des organisations est celle demandée
-      if (!$isOrg) continue;
-    }
-    else { // ($_GET['org'] == 'NO ORG') // cas où aucune organisation n'a d'organisationName
-      foreach ($record[$_GET['type']] as $org) {
-        if (isset($org['organisationName']))
-          echo $arboOrgsPMin->prefLabel($org['organisationName']),"<br>\n";
-        else
-          echo "organisationName non défini<br>\n";
-        if (isset($org['organisationName']) && $arboOrgsPMin->prefLabel($org['organisationName'])) continue 2;
-      }
-    }
-    
-    $prefLabels = prefLabels($record['keyword'] ?? [], ['a'=>$arbos[$_GET['arbo']]]);
-    $isTheme = false;
-    foreach ($prefLabels['a'] ?? ['NON CLASSE'] as $plabel) {
-      if ($plabel == $_GET['theme']) {
-        $isTheme = true;
-        break;
-      }
-    }
-    if (!$isTheme) continue;
-
     echo "<li><a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</a></li>\n";
   }
 }

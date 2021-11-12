@@ -7,16 +7,19 @@ doc: |
 journal: |
   11/11/2021:
     - création
+includes:
+  - cats.inc.php
+  - catinpgsql.inc.php
+  - orginsel.inc.php
+  - arbo.inc.php
 */
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
 require_once __DIR__.'/orginsel.inc.php';
 require_once __DIR__.'/arbo.inc.php';
 
-
 if (php_sapi_name()=='cli') {
-  //echo "argc=$argc\n";
-  if ($argc <= 2) {
+  function usage(array $argv) {
     echo "usage: php $argv[0] {cmde} local|distant {cat}|all\n";
     echo " où {cmde} vaut:\n";
     echo "  - sperim pour actualiser le périmètre sur chaque catalogue à partir du fichier \${catid}Sel.yaml\n";
@@ -29,33 +32,49 @@ if (php_sapi_name()=='cli') {
     die();
   }
 
-  $cmde = $argv[1];
+  function usage2(array $argv, array $cats) {
+    echo "usage: php $argv[0] $argv[1] $argv[2] {cat}|all\n";
+    echo " où {cat} vaut:\n";
+    foreach ($cats as $catid => $cat)
+      echo "  - $catid\n";
+    die();
+  }
+
+  //echo "argc=$argc\n";
+  $cmde = $argv[1] ?? null;
+  if (!$cmde)
+    usage($argv);
+  elseif (!in_array($cmde, ['sperim','ajoutheme','addarea','crauxtabl','cragg'])) {
+    echo "Erreur: commande $cmde inconnue !\n";
+    usage($argv);
+  }
   
-  if ($argv[2] == 'local') { // Choix du serveur
+  $serveur = $argv[2] ?? null;
+  if ($serveur == 'local') { // Choix du serveur
     PgSql::open('host=pgsqlserver dbname=gis user=docker');
   }
-  else {
+  elseif ($serveur == 'distant') {
     PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public');
   }
+  else {
+    echo "Erreur: argument serveur $serveur inconnu !\n";
+    usage($argv);
+  }
   
+  $catid = $argv[3] ?? null;
   if ($cmde <> 'cragg') {
-    if ($argc == 3) {
-      echo "usage: php $argv[0] $cmde $argv[2] {cat}|all\n";
-      echo " où {cat} vaut:\n";
-      foreach ($cats as $catid => $cat)
-        echo "  - $catid\n";
-      die();
-    }
-    else {
-      $catid = $argv[3];
-    }
-
-    if ($catid == 'all') { // génère les cmdes pour traiter tous les catalogues
+    if (!$catid)
+      usage2($argv, $cats);
+    elseif ($catid == 'all') { // génère les cmdes pour traiter tous les catalogues
       foreach (array_keys($cats) as $catid) {
         echo "echo php $argv[0] $argv[1] $argv[2] $catid\n";
         echo "php $argv[0] $argv[1] $argv[2] $catid\n";
       }
       die();
+    }
+    elseif (!in_array($catid, array_merge(array_keys($cats), ['agg']))) {
+      echo "Erreur: catalogue $catid inconnu !\n";
+      usage2($argv, $cats);
     }
   }
 }
@@ -77,6 +96,27 @@ if ($cmde == 'sperim') { // actualiser le périmètre sur chaque catalogue à pa
 }
 
 if ($cmde == 'ajoutheme') {
+  // Renvoie la liste prefLabels structurée par arbo, [ {arboid} => [ {prefLabel} ]]
+  function prefLabels(array $keywords, array $arbos): array {
+    $prefLabels = []; // liste des prefLabels des mots-clés structuré par arbo, sous forme [arboid => [prefLabel => 1]]
+    foreach ($keywords as $keyword) {
+      //echo "<pre>"; print_r($keyword); echo "</pre>\n";
+      if ($kwValue = $keyword['value'] ?? null) {
+        foreach ($arbos as $arboid => $arbo) {
+          if ($prefLabel = $arbo->prefLabel($kwValue)) {
+            $prefLabels[$arboid][$prefLabel] = 1;
+          }
+        }
+      }
+    }
+    ksort($prefLabels);
+    foreach ($prefLabels as $arboid => $labels) {
+      $prefLabels[$arboid] = array_keys($labels);
+    }
+    //echo "<pre>prefLabels(",Yaml::dump($keywords),") -> ",Yaml::dump($prefLabels),"</pre>";
+    return $prefLabels;
+  }
+
   $arboCovadis = new Arbo('arbocovadis.yaml');
 
   foreach($arboCovadis->nodes() as $theme) {
@@ -121,7 +161,10 @@ if ($cmde == 'ajoutheme') {
     $nbMdd++;
   }
 
-  printf("%s : %d ajouts / %d mdd soit %.0f %%\n", $catid, $nbAjouts, $nbMdd, $nbAjouts/$nbMdd*100);
+  if ($nbMdd)
+    printf("%s : %d ajouts / %d mdd soit %.0f %%\n", $catid, $nbAjouts, $nbMdd, $nbAjouts/$nbMdd*100);
+  else
+    echo "Aucune MDD concernées pour $catid\n";
 
   //echo Yaml::dump($matches);
 
@@ -130,6 +173,22 @@ if ($cmde == 'ajoutheme') {
 }
 
 if ($cmde == 'addarea') { // ajouter les champs area, ... et les peupler
+  function floorp(float $num, int $precision = 0): float {
+    if (!$precision)
+      return floor($num);
+    else
+      return floor($num * 10**$precision) / 10**$precision;
+  }
+
+  function ceilp(float $num, int $precision = 0): float {
+    if (!$precision)
+      return ceil($num);
+    else
+      return ceil($num * 10**$precision) / 10**$precision;
+  }
+
+  //foreach ([5.12345,-5.12345,2/3] as $num) { echo "$num -> ",floorp($num, 2)," / ",ceilp($num, 2),"\n"; } die();
+
   function area(array $bbox): ?float {
     if (!isset($bbox['eastLon']) || !is_numeric($bbox['eastLon']) || ($bbox['eastLon'] < -180) || ($bbox['eastLon'] > 180))
       return null;
@@ -142,7 +201,7 @@ if ($cmde == 'addarea') { // ajouter les champs area, ... et les peupler
     return abs(($bbox['eastLon'] - $bbox['westLon']) * ($bbox['northLat'] - $bbox['southLat']));
   }
   
-  // résolution métrique des coordonnées => 5 chiffres après la virgule -> numeric(8,5)
+  // résolution décamétrique des coordonnées => 4 chiffres après la virgule -> numeric(7,4)
   // résolution décamétrique des surfaces => 4*2 chiffres après la virgule, max = 360 * 180 = 64800 -> numeric(13,8)
   foreach ([
       "alter table catalog$catid
@@ -150,10 +209,10 @@ if ($cmde == 'addarea') { // ajouter les champs area, ... et les peupler
         drop column if exists eastLon, drop column if exists northLat",
       "alter table catalog$catid
         add area numeric(13,8),
-        add westLon numeric(8,5),
-        add southLat numeric(8,5),
-        add eastLon numeric(8,5),
-        add northLat numeric(8,5)",
+        add westLon numeric(7,4),
+        add southLat numeric(7,4),
+        add eastLon numeric(7,4),
+        add northLat numeric(7,4)",
       "drop index if exists catalog${catid}_area_idx",
       "create index catalog${catid}_area_idx ON catalog$catid (area,westLon,southLat,eastLon)",
     ] as $sql) {
@@ -173,10 +232,10 @@ if ($cmde == 'addarea') { // ajouter les champs area, ... et les peupler
     //print_r($record['dcat:bbox']);
     if (isset($record['dcat:bbox'][0]) && ($area = area($record['dcat:bbox'][0]))) {
       $bbox = $record['dcat:bbox'][0];
-      $westLon = min($bbox['westLon'], $bbox['eastLon']);
-      $southLat = min($bbox['southLat'], $bbox['northLat']);
-      $eastLon = max($bbox['westLon'], $bbox['eastLon']);
-      $northLat = max($bbox['southLat'], $bbox['northLat']);
+      $westLon = floorp(min($bbox['westLon'], $bbox['eastLon']), 4);
+      $southLat = floorp(min($bbox['southLat'], $bbox['northLat']), 4);
+      $eastLon = ceilp(max($bbox['westLon'], $bbox['eastLon']), 4);
+      $northLat = ceilp(max($bbox['southLat'], $bbox['northLat']), 4);
       $sql = "update catalog$catid
               set area=$area, westLon=$westLon, southLat=$southLat, eastLon=$eastLon, northLat=$northLat
               where id='$tuple[id]'";
@@ -282,10 +341,10 @@ if ($cmde == 'cragg') { // créer les 3 tables du catalogue agrégé
     type varchar(256), -- 1.3. Type de la ressource
     perimetre varchar(256), -- 'Min','Op','Autres' ; null ssi non défini
     area numeric(13,8), -- surface des bbox en degrés carrés, résolution dam2, null ssi non défini ou 0
-    westLon numeric(8,5), -- coordonnées, résolution métrique
-    southLat numeric(8,5),
-    eastLon numeric(8,5),
-    northLat numeric(8,5)
+    westLon numeric(7,4), -- coordonnées, résolution décamétrique
+    southLat numeric(7,4),
+    eastLon numeric(7,4),
+    northLat numeric(7,4)
   )");
 
   foreach(['org','theme'] as $typtab) {

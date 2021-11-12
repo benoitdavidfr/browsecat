@@ -24,6 +24,7 @@ journal: |
     - décomposition en 2 avec la créaation de tree.inc.php
   3/11/2021:
     - création
+includes: [../phplib/accents.inc.php, tree.inc.php]
 */
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/../phplib/accents.inc.php';
