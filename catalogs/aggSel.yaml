@@ -347,6 +347,7 @@ orgNames:
     - DDTM83/SEF/BCFS
     - DDTM83/SEF/PFDFCI
     - DDTM83/SML/BLO
+    - DDTM85
     - DDTMs
     - DDT_45
     - DDT_46
@@ -394,6 +395,7 @@ orgNames:
     - 'DIREN du bassin Rhône-Méditerranée'
     - 'DIREN du bassin Seine-Normandie'
     - 'DIREN, BRGM, DRIRE'
+    - DIREN/DDT
     - 'DIRM MED (Direction Interrégionale de la Mer Méditerranée)'
     - 'DIRM MEMN (Direction InterRégionale Mer Manche Est - Mer du Nord)'
     - 'DIRM NAMO'
@@ -566,6 +568,7 @@ orgNames:
     - 'Direction départementale des territoires et de la mer du Var'
     - 'Direction régional de l’Environnement, de l’Aménagement et du Logement du Centre-Val de Loire'
     - 'Direction régional de l’Environnement, de l’Aménagement et du logement'
+    - 'Direction régional environnement, aénagement, logement'
     - 'Direction régionale de l'
     - 'Direction régionale de l''Environnement, de l''Aménagement et du Logement région Centre - Val de Loire'
     - 'Direction régionale de l''environnement Poitou-Charentes - DIREN/SNSP'
@@ -577,6 +580,7 @@ orgNames:
     - 'Direction régionale de l''environnement, de l''aménagement et du logement Rhône Alpes'
     - 'Direction régionale de l’environnement, de l’aménagement et du logement de Corse'
     - 'Direction régionale des affaires culturelles Ile de France'
+    - 'Direction régionale environnement aménagement logement'
     - 'Direction régionale et interdépartementale de l''équipement et de l''aménagement Île-de-France - Unité départementale de Paris'
     - 'Directions Départementales des Territoires et de la Mer (DDTM)'
     - 'Diren de La Réunion /Cellule SINP'

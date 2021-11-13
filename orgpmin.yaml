@@ -48,6 +48,7 @@ children:
         prefLabels: {fr: Commissariat général au développement Durable}
         altLabels:
           - MEDDE/CGDD/DRI/MIG
+          - Bureau des plans, programmes et projets (CGDD/SEEIDD/I3DPP2)
         children:
           COVADIS:
             prefLabels: {fr: COVADIS}
@@ -968,11 +969,10 @@ children:
           - Dreal Nord Pas-de-Calais
           - DREAL N-PdC (Direction Régionale de l'Environnement de l'Aménagement et du Logement du Nord - Pas de Calais)
       IDF:
-        short: DREAL IDF
+        short: DRIEAT IDF
         prefLabels:
           fr: >
-            DRIEAT Île-de-France (Direction régionale et interdépartementale de l'environnement, de l'aménagement
-            et des transports)
+            DRIEAT Île-de-France (Direction régionale et interdépartementale de l'environnement, de l'aménagement et des transports)
         altLabels:
           - DRIEA-IF Siège
           - Direction régionale et interdépartementale de l'équipement et de l'aménagement Île-de-France - Unité départementale de Paris

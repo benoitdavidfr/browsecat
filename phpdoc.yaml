@@ -8,8 +8,9 @@ doc: |
   
   - harvest.php moissonne en CLI un catalogue, bufferise le résultat dans un répertoire et stocke les MD en JSON
     dans une table catalog${catid} dans PostgreSql (sauf les FeatureCatalogue qui sont ignorés).
-  - gere.php gère (en http) les moissons.
-  - index.php sera une page publique de présentation et d'utilisation.
+  - gere.php gère (en http) les moissons, les actions sont définies dans a.php
+  - index.php sera une page publique de présentation et d'utilisation, les actions sont définies dans a.php
+  - a.php définit les actions utilisées à la fois dans gere.php et index.php
   - ajouttheme.php exploite les regexps de arbocovadis.yaml pour ajouter des thèmes Covadis aux MDD
   - cmde.php regroupe différentes commandes en CLI
   - map.php affiche une carte des MDD pour un thème Covadis et une organisation, il appelle geojson.php
@@ -74,7 +75,13 @@ doc: |
     - ne faut-il pas créer une table auxiliaire bbox ? !!!
     - ne faut-il pas ajouter le thème dans la table auxiliaire plutot que dans record ?
     - ajouter les MDD n'ayant pas de bbox à un bbox par défaut, ex celui de l'organisation ?
+    
+  A faire:
+    - remoissonner Géo-IDE, il semble que la version a changé
+  
 journal: |
+  13/11/2021:
+    - création de a.php avec les actions de gere.php et index.php
   11/11/2021:
     - écriture de cmde.php pour effectuer les traitements depuis localhost sur OVH
     - carte sans org
@@ -105,6 +112,7 @@ phpScripts:
   - /browsecat/map.php
   - /browsecat/geojson.php
   - /browsecat/index.php
+  - /browsecat/a.php
 phpIncludes:
   - /browsecat/cats.inc.php
   - /browsecat/catinpgsql.inc.php

@@ -1,15 +1,17 @@
 <?php
 /*PhpDoc:
-title: harvest.php - moissonne un catalogue CSW et stocke 
+title: harvest.php - moissonne un catalogue CSW et stocke la moisson dans un des serveurs PgSql prédéfinis
 name: harvest.php
 doc: |
-  Propose de choisir un des catalogues proposés.
+  Propose de choisir un des catalogues proposés et le serveur local ou distant.
   Moissonne le catalogue choisi.
   Crée un répertoire ayant pour nom l'id du catalogue dans le répertoire catalogs pour bufferiser les métadonnées.
   Enregistre la MD ISO pour les data et service et sinon la MD DublinCore full
   N'enregistre rien pour les FeatureCatalog.
-  Stocke les MD de données et de service converties en JSON dans une base PgSql
+  Stocke les MD de données et de service converties en JSON dans une base PgSql sur le serveur choisi
 journal: |
+  13/11/2021:
+    - modification des paramètres pour permettre de choisir le serveur et de la gestion de ceux-ci
   8/11/2021:
     - déplacement des caches des catalogues dans le répertoire catalogs
   28-29/10/2021:
@@ -33,40 +35,51 @@ require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
 require_once __DIR__.'/orginsel.inc.php';
 
-if ($argc <= 1) {
-  echo "usage: php $argv[0] {cat}|all [{firstRecord}]\n";
+
+if (php_sapi_name()<>'cli')
+  die("Uniquement en CLI\n");
+
+function usage(array $argv, array $cats) {
+  echo "usage: php $argv[0] {serveur} {cat}|all [{firstRecord} [{maxRecordNum}]]\n";
   echo " où {cat} vaut:\n";
   foreach ($cats as $catid => $cat)
     echo " - $catid\n";
-  echo " et où {firstRecord} est le num. du premier enregistrement requêté, par défaut 1\n";
+  echo " et où:\n";
+  echo " - {serveur} vaut local pour la base locale et distant pour la base distante\n";
+  echo " - {firstRecord} est le num. du premier enregistrement moissonné, par défaut 1\n";
+  echo " - {maxRecordNum} est le nombre maximum d'enregistrements moissonnés\n";
   die();
 }
 
-if ($argv[1] == 'all') { // génère les cmdes pour remoissonner tous les catalogues
+if (!($catid = $argv[2] ?? null)) usage($argv, $cats);
+
+if ($catid == 'all') { // génère les cmdes pour remoissonner tous les catalogues
   foreach (array_keys($cats) as $catid) {
     echo "php $argv[0] $catid\n";
   }
   die();
 }
 
-// Choisir le serveur
-//PgSql::open('host=pgsqlserver dbname=gis user=docker');
-PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public');
+if (!CatInPgSql::chooseServer($argv[1] ?? null)) { // Choix du serveur 
+  echo "Erreur: paramètre serveur incorrect !\n";
+  usage($argv, $cats);
+}
 
-$catid = $argv[1];
+$firstRecord = $argv[3] ?? 1;
+
+$maxRecordNum = $argv[4] ?? -1;
+
 if (!file_exists("catalogs/$catid"))
   mkdir("catalogs/$catid");
-$mdType = $argv[2] ?? null;
 
 $cswServer = new CswServer($cats[$catid]['endpointURL'], "catalogs/$catid");
 $cswServer->getCapabilities();
 
-echo "Moissonnage de $catid et chargement dans PostgreSql\n";
+echo "Moissonnage de $catid et chargement dans PostgreSql $argv[1]\n";
 $cat = new CatInPgSql($catid);
-$nextRecord = $argv[2] ?? 1;
-if ($nextRecord == 1)
+if ($firstRecord == 1)
   $cat->create(); // recrée une nlle table
-$maxRecordNum = $argv[3] ?? -1;
+$nextRecord = $firstRecord;
 $numberOfRecordsMatched = null;
 while ($nextRecord) {
   if (($maxRecordNum <> -1) && ($nextRecord >= $maxRecordNum))

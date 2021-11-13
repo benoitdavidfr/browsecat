@@ -5,6 +5,8 @@ name: cmde.php
 doc: |
   Certaines commandes étant longues, je les exécute pour la base OVH sur localhost
 journal: |
+  13/11/2021:
+    - modif crauxtabl pour éviter les répétitions d'org dans catorg${cat} et de theme dans cattheme
   11/11/2021:
     - création
 includes:
@@ -19,20 +21,20 @@ require_once __DIR__.'/orginsel.inc.php';
 require_once __DIR__.'/arbo.inc.php';
 
 if (php_sapi_name()=='cli') {
-  function usage(array $argv) {
-    echo "usage: php $argv[0] {cmde} local|distant {cat}|all\n";
+  function usage(array $argv) { // hors choix du catalogue
+    echo "usage: php $argv[0] {cmde} {serveur} {cat}|all\n";
     echo " où {cmde} vaut:\n";
     echo "  - sperim pour actualiser le périmètre sur chaque catalogue à partir du fichier \${catid}Sel.yaml\n";
     echo "  - ajoutheme pour ajouter des thèmes\n";
     echo "  - addarea pour ajouter les champs area, ... et les peupler\n";
     echo "  - crauxtabl pour créer les 2 tables auxilaires par catalogue\n";
     echo "  - cragg pour créer les 3 tables du catalogue agrégé (ne nécessite pas de paramètre {cat})\n";
-    echo " où local|distant vaut local pour la base locale et distant pour la base distante\n";
+    echo " où {serveur} vaut local pour la base locale et distant pour la base distante\n";
     echo " où {cat} est le nom du catalogue\n";
     die();
   }
 
-  function usage2(array $argv, array $cats) {
+  function usageCat(array $argv, array $cats) { // affiche la liste des catalogues pour en choisir un
     echo "usage: php $argv[0] $argv[1] $argv[2] {cat}|all\n";
     echo " où {cat} vaut:\n";
     foreach ($cats as $catid => $cat)
@@ -41,30 +43,22 @@ if (php_sapi_name()=='cli') {
   }
 
   //echo "argc=$argc\n";
-  $cmde = $argv[1] ?? null;
-  if (!$cmde)
+  if (!($cmde = $argv[1] ?? null))
     usage($argv);
-  elseif (!in_array($cmde, ['sperim','ajoutheme','addarea','crauxtabl','cragg'])) {
-    echo "Erreur: commande $cmde inconnue !\n";
+  elseif (!in_array($cmde, ['sperim','ajoutheme','addarea','crauxtabl','cragg','none'])) {
+    echo "Erreur: paramètre commande $cmde inconnue !\n";
     usage($argv);
   }
   
-  $serveur = $argv[2] ?? null;
-  if ($serveur == 'local') { // Choix du serveur
-    PgSql::open('host=pgsqlserver dbname=gis user=docker');
-  }
-  elseif ($serveur == 'distant') {
-    PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public');
-  }
-  else {
-    echo "Erreur: argument serveur $serveur inconnu !\n";
+  if (!CatInPgSql::chooseServer($argv[2] ?? null)) { // Choix du serveur 
+    echo "Erreur: paramètre serveur incorrect !\n";
     usage($argv);
   }
   
   $catid = $argv[3] ?? null;
   if ($cmde <> 'cragg') {
     if (!$catid)
-      usage2($argv, $cats);
+      usageCat($argv, $cats);
     elseif ($catid == 'all') { // génère les cmdes pour traiter tous les catalogues
       foreach (array_keys($cats) as $catid) {
         echo "echo php $argv[0] $argv[1] $argv[2] $catid\n";
@@ -74,12 +68,13 @@ if (php_sapi_name()=='cli') {
     }
     elseif (!in_array($catid, array_merge(array_keys($cats), ['agg']))) {
       echo "Erreur: catalogue $catid inconnu !\n";
-      usage2($argv, $cats);
+      usageCat($argv, $cats);
     }
   }
 }
-else
+else { // Uniquement en CLI 
   die("Uniquement en CLI\n");
+}
 
 
 if ($cmde == 'sperim') { // actualiser le périmètre sur chaque catalogue à partir du fichier \${catid}Sel.yaml
@@ -287,7 +282,7 @@ if ($cmde == 'crauxtabl') { // créer les 2 tables auxilaires par catalogue
     id varchar(256) not null, -- fileIdentifier de la fiche de données
     org text not null -- nom de l'organisation
   )");
-  PgSql::query("create index on catorg$catid(id)");
+  PgSql::query("create unique index on catorg$catid(id, org)");
   PgSql::query("create index on catorg$catid(org)");
 
   PgSql::query("drop table if exists cattheme$catid");
@@ -295,7 +290,7 @@ if ($cmde == 'crauxtabl') { // créer les 2 tables auxilaires par catalogue
     id varchar(256) not null, -- fileIdentifier de la fiche de données
     theme text not null -- nom du theme
   )");
-  PgSql::query("create index on cattheme$catid(id)");
+  PgSql::query("create unique index on cattheme$catid(id, theme)");
   PgSql::query("create index on cattheme$catid(theme)");
 
   $arboOrgsPMin = new Arbo('orgpmin.yaml');
@@ -313,13 +308,16 @@ if ($cmde == 'crauxtabl') { // créer les 2 tables auxilaires par catalogue
       //echo "$sql\n";
       PgSql::query($sql);
     }
-  
+    
+    $responsibleParties = []; // liste des parties pour éviter les doublons, [{$orgname}=> 1]
     foreach ($record['responsibleParty'] ?? [] as $party) {
       if (!isset($party['organisationName'])) continue;
       $orgname = $party['organisationName'];
       //echo "  orgname=$orgname\n";
       $orgname = $arboOrgsPMin->prefLabel($orgname);
-      if (!$orgname) continue;
+      if (!$orgname || ($orgname == 'COVADIS')) continue;
+      if (isset($responsibleParties[$orgname])) continue;
+      $responsibleParties[$orgname] = 1;
       //echo "  stdOrgname=$orgname\n";
       $orgname = str_replace("'", "''", $orgname);
       $sql = "insert into catorg$catid(id, org) values ('$tuple[id]', '$orgname')";
@@ -379,4 +377,8 @@ if ($cmde == 'cragg') { // créer les 3 tables du catalogue agrégé
   PgSql::query("create index on catthemeagg(theme)");
 
   echo "Ok\n";
+}
+
+if ($cmde == 'none') { // utilisée pour tester le dialogue 
+  echo "ok none\n";
 }
