@@ -34,7 +34,7 @@ use Symfony\Component\Yaml\Yaml;
 
 // concept SKOS avec un nom court et organisé en arbre
 // Normalement il existe toujours au moins un prefLabel
-// sauf certains noeuds intermédiaires qui sont juste 
+// sauf certains noeuds intermédiaires qui sont juste des contenants
 class Concept extends Node {
   private ?string $short; // éventuel nom court servant uniquement à l'affichage et pas comme clé
   private array $prefLabels; // [{lang}=> {label}], éventuellement non utilisé

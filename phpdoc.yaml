@@ -77,7 +77,7 @@ doc: |
     - ajouter les MDD n'ayant pas de bbox à un bbox par défaut, ex celui de l'organisation ?
     
   A faire:
-    - remoissonner Géo-IDE, il semble que la version a changé
+    - remoissonner Géo-IDE, il semble que la version a changé / FAIT le 13/11/2021
   
 journal: |
   13/11/2021:
@@ -118,6 +118,7 @@ phpIncludes:
   - /browsecat/catinpgsql.inc.php
   - /browsecat/localhost.inc.php
   - /browsecat/orginsel.inc.php
+  - /browsecat/trestant.inc.php
   #- /browsecat/annexes.inc.php
   - /browsecat/arbo.inc.php
   - /browsecat/tree.inc.php

@@ -51,7 +51,7 @@ else { // (isset($_GET['cat'])) // choix d'une action sur un catalogue particuli
   echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=listdata'>Toutes les MDD (type dataset ou series)</a></li>\n";
   echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=listdataYaml'>Toutes les MDD (type dataset ou series) en Yaml</a></li>\n";
   echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=listservices'>Toutes les MD de service</a></li>\n";
-  //echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=orgsHorsSel'>Liste des organisations hors périmètre</a></li>\n";
+  echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=orgsHorsSel'>Liste des organisations hors périmètre</a></li>\n";
   echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=orgsHorsArbo&amp;type=responsibleParty'>
     Liste des responsibleParty hors arbo. des orgs.</a></li>\n";
   echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=orgsHorsArbo&amp;type=mdContact'>

@@ -5,6 +5,11 @@ title: tree.inc.php - arbre de noeuds
 classes:
 doc: |
   Créé pour simplifier arbo.inc.php
+  Un arbre est constitué de noeuds.
+  Dans un noeud, chaque sous-arbre est identifié par une clé.
+  Ainsi, tout noeud est identifié (et peut être accédé) par une liste de clés.
+  La racine d'un arbre est un noeud particulier portant des propriétés et méthodes spécifiques.
+  Une feuille d'un arbre est un noeud n'ayant pas d'enfants.
 journal: |
   6/11/2021:
     - création
@@ -19,7 +24,7 @@ abstract class RootOrNode { // Classe commune pour la racine et les noeuds inter
 
 class Node extends RootOrNode { // Noud intermédiaire
   protected array $path; // chemin d'accès dans l'arbre comme liste de clés
-  protected array $children; // tableau associatif des enfants, chacun comme Node ou objet d'une sous-classe, avec un clé
+  protected array $children; // tableau associatif des enfants, chacun comme Node ou objet d'une sous-classe, avec une clé
 
   function path(): array { return $this->path; }
   function pathAsString(): string { return '/'.implode('/', $this->path); }
@@ -63,5 +68,4 @@ class Tree extends RootOrNode { //
     }
     return $nodes;
   }
-  
 };

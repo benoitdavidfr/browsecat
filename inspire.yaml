@@ -1,0 +1,54 @@
+title: inspire
+rolesOfResponsibleParty:
+  title: Liste des rôles possibles pour la partie responsable, annexe D.6 du règlement No 1205/2008 sur les métadonnées
+  note: listage dans l'ordre du plus responsable au moins
+  roles:
+    owner:
+      title: Propriétaire
+      description: Partie à laquelle appartient la ressource.
+    author:
+      title: Auteur
+      description: Partie qui est l’auteur de la ressource.
+    originator:
+      title: Commanditaire
+      description: Partie qui a créé la ressource.
+    resourceProvider:
+      title: Fournisseur de la ressource
+      description: Partie qui fournit la ressource.
+    principalInvestigator:
+      title: Maître d’œuvre
+      description: Principale partie chargée de recueillir des informations et de mener les recherches.
+    processor:
+      title: Intégrateur
+      description: Partie qui a traité les données de manière telle que la ressource a été modifiée.
+    custodian:
+      title: Gestionnaire
+      description: |
+        Partie qui accepte d’assumer la responsabilité des données et d’assurer une maintenance appropriée de la ressource.
+    publisher:
+      title: Éditeur
+      description: Partie qui a publié la ressource.
+    distributor:
+      title: Distributeur
+      description: Partie qui distribue la ressource.
+    pointOfContact:
+      title: Point de contact
+      description: Partie qu’il est possible de contacter pour s’informer sur la ressource ou en faire l’acquisition.
+    user:
+      title: Utilisateur
+      description: Partie qui utilise la ressource.
+roleOrderForUser:
+  title: ordre du plus pertinent au moins pour un utilisateur
+  roles:
+    distributor:
+    publisher:
+    custodian:
+    resourceProvider:
+    pointOfContact:
+    originator:
+    owner:
+    author:
+    principalInvestigator:
+    processor:
+    user:
+eof:

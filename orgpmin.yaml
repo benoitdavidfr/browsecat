@@ -8,10 +8,55 @@ description: |
   Les anciennes organisations sont définies comme synonymes des organisations actuelles.
   Un schéma permet de controller la structure du fichier et documente les différents champs.
 
+  Une pseudo-organisation dénommée 'IMPRECIS' définit en synonymes des libellés d'organisation insuffisamment précis
+  pour être significatif. L'ajout au libellé de l'adresse électronique permet souvent de préciser l'organisation concernée.
 $schema: org
 
 keyIsPrefLabel: false
 children:
+  IMPRECIS:
+    note: libellés imprécis, utilisé pour compléter le libellé avec l'adresse mail
+    prefLabels: {fr: IMPRECIS}
+    altLabels:
+      - ADL
+      - Atelier de Suivi des Territoires
+      - BARBERA Francis
+      - Bureau d'Administration et de Valorisation des Données (BAVD)
+      - Cellule Risques
+      - Christophe ARNAUD
+      - Contact repris de l'existant 58615
+      - Contact repris de l'existant 59088
+      - DDAM - Service Cultures marines
+      - DDE
+      - DDT/SPAE/NSER
+      - DDTM/SEF/BECV
+      - Délégation à la Mer et au Littoral
+      - Délégation à l'action foncière et immobilière
+      - Données STAP 65 / Report DDT 65
+      - François virevialle
+      #- Gaëlle CARENE # inutile
+      - Groupe Socle Geomatique
+      #- Jean-Emmanuel Ménard # inutile
+      - JOGUET-RECCORDON
+      - laurent dufour
+      - magali monier
+      - Maljean
+      - Nathalie LE COZ
+      - Nicolas Marchand
+      - SDE
+      - "SDE : Isabelle DUBOIS"
+      - SER/cellule EAU
+      - Service Agricole et Forêt/ Pôle Exploitations et Espaces Agricoles
+      - Service de l'Agriculture et de la Forêt / Pôle Forêt
+      - Service du Haut fonctionnaire de défense et de sécurité
+      - Service d’Administration Nationale des Données et Référentiels sur l’Eau (SANDRE)
+      - Service Environnement Industriel DDPP
+      - Service Mer et Littoral
+      - Service Mer, Eau et Environnement (SMEE)
+      - Service territorial de l'architecture et du patrimoine de Charente
+      - sig sriset alpc site de bordeaux
+      - Sylvie Girard
+      
   AC:
     note: organsation en centrale plus appellations génériques du ministère, puis découpage par DG
     children:
@@ -39,11 +84,16 @@ children:
         prefLabels: {fr: Ministère de la Cohésion des territoires et des Relations avec les Collectivités Territoriales (MCTRCT)}
         altLabels:
           - Ministère de la Cohésion des territoires
+      MinMer:
+        prefLabels: {fr: Ministère de la Mer}
+        altLabels:
+          - François virevialle | francois.virevialle@mer.gouv.fr
       ANCT:
         prefLabels: {fr: Agence Nationale de la Cohésion des Territoires (ANCT)}
         note: Exceptionellement je considère l'ANCT comme dans le périmètre ministériel, notamment car le CGET l'était
         altLabels:
           - Commissariat général à l'égalité des territoires
+          - Délégation interministérielle à l'aménagement du territoire et à l'attractivité régionale (DATAR)
       CGDD:
         prefLabels: {fr: Commissariat général au développement Durable}
         altLabels:
@@ -96,6 +146,7 @@ children:
           - Ministère chargé de l'environnement / DGALN - DEB - ELM3
           - Ministère de la Transition Ecologique - Camino
           - Ministère de l'Écologie et du Développement durable (DNP)
+          - Nicolas Marchand | sig-carto.bcsi.dgaln@developpement-durable.gouv.fr
       DGEC:
         prefLabels: {fr: Direction Générale de l'Energie et du Climat}
         altLabels:
@@ -132,20 +183,30 @@ children:
           - georisques.gouv.fr
       SG:
         prefLabels: {fr: Secrétariat Général du pôle ministériel MTE-MCTRCT-MM}
-        altLabels:
-          - Ministére de la Transition écologique et solidaire - Direction des affaires européennes et internationales
+        children:
+          DAEI:
+            prefLabels: {fr: Direction des affaires européennes et internationales (SG)}
+            altLabels:
+              - Ministére de la Transition écologique et solidaire - Direction des affaires européennes et internationales}
+          SNUM:
+            prefLabels: {fr: SNUM}
+            altLabels:
+              - Groupe Socle Geomatique | jean-luc.bernardi@developpement-durable.gouv.fr
+          SPES:
+            prefLabels: {fr: SPES}
+            altLabels:
+              - Délégation à l'action foncière et immobilière | F.Dafi.Spes.Sg@developpement-durable.gouv.fr
+          SHFDS:
+            prefLabels: {fr: Service du Haut fonctionnaire de défense et de sécurité}
+            altLabels:
+              - Service du Haut fonctionnaire de défense et de sécurité | unite-mpo.po.dpgc.shfds.sg@developpement-durable.gouv.fr
   DDT00-25:
     children:
-      DDT:
-        prefLabels: {fr: DDT}
+      DDTMs:
+        note: concept représentant plusieurs DDTMs
+        prefLabels: {fr: Directions Départementales des Territoires et de la Mer (DDTM)}
         altLabels:
-          - Directions Départementales des Territoires et de la Mer (DDTM)
           - DDTMs
-          - DDT/SPAE/NSER
-          - DDTM/SEF/BECV
-          - Délégation à la Mer et au Littoral
-          - DDE
-          - DDAM - Service Cultures marines
       DDT01:
         short: DDT 01 (Ain)
         prefLabels: {fr: DDT 01 (Direction Départementale des Territoires de l'Ain)}
@@ -178,6 +239,7 @@ children:
           - Direction Départementale des Territoires des Hautes Alpes
         hiddenLabels:
           - DDT 05 (Direction Départementale des territoires des Hautes-Alpes
+          - Christophe ARNAUD | christophe.arnaud@hautes-alpes.gouv.fr
       DDT06:
         short: DDTM 06 (Alpes-Maritimes)
         prefLabels: {fr: DDTM 06 (Direction Départementale des territoires et de la Mer des Alpes-Maritimes)}
@@ -217,9 +279,13 @@ children:
         altLabels:
           - DDT12
           - Direction Départementale des Territoires de l'Aveyron
+          - Service Agricole et Forêt/ Pôle Exploitations et Espaces Agricoles | ddtm-saf@bouches-du-rhone.gouv.fr
+          - Service de l'Agriculture et de la Forêt / Pôle Forêt | ddtm-sig@bouches-du-rhne.gouv.fr
       DDT13:
         short: DDTM 13 (Bouches-du-Rhône)
         prefLabels: {fr: DDTM 13 (Direction Départementale des Territoires et de la Mer des Bouches-du-Rhône)}
+        altLabels:
+          - Service Mer, Eau et Environnement (SMEE) | franck.zoulalian@bouches-du-rhone.gouv.fr
       DDT14:
         short: DDTM 14 (Calvados)
         prefLabels: {fr: DDTM 14 (Direction départementale des territoires et de la Mer du Calvados)}
@@ -241,6 +307,8 @@ children:
       DDT16:
         short: DDT 16 (Charente)
         prefLabels: {fr: DDT 16 (Direction Départementale des Territoires de Charente)}
+        altLabels:
+          - Sylvie Girard | sylvie-florence.girard@charente.gouv.fr
       DDT17:
         short: DDTM 17 (Charente-Maritime)
         prefLabels: {fr: DDTM 17 (Direction Départementale des Territoires et de la Mer de Charente-Maritime)}
@@ -296,6 +364,7 @@ children:
           - DDTM 22
           - DDTM 22 (Direction Départementale des Territoires et de la Mer des Côtes d'Armor)
           - DDTM 22 / MOTDDP / EC
+          - DDTM 22 / SOFT / EM
       DDT23:
         short: DDT 23 (Creuse)
         prefLabels: {fr: DDT 23 (Direction Départementale des Territoires de la Creuse)}
@@ -312,6 +381,7 @@ children:
           - DDT24-Direction Départementale des Territoires de la Dordogne
           - DDT 24
           - DDT de la Dordogne
+          - BARBERA Francis | ddt-seer-rgdpf@dordogne.gouv.fr
       DDT25:
         short: DDT 25 (Doubs)
         prefLabels: {fr: DDT 25 (Direction Départementale des Territoires du Doubs)}
@@ -335,12 +405,14 @@ children:
         prefLabels: {fr: DDTM 27 (Direction Départementale des Territoires et de la Mer de l'Eure)}
         altLabels:
           - DDTM de l'Eure
+          - Atelier de Suivi des Territoires | ddtm-sctsrd-aster@eure.gouv.fr
       DDT28:
         short: DDT 28 (Eure-et-Loir)
         prefLabels: {fr: DDT 28 (Direction Départementale des Territoires d'Eure-et-Loir)}
         hiddenLabels:
           - DDT 28 (Direction Départementale des Territoires du Eure-et-Loir)
           - Direction Départementale des Territoire d'Eure-et-Loir
+          - ADL DDT d'Eure-et-Loir
       DDT29:
         short: DDTM 29 (Finistère)
         prefLabels: {fr: DDTM 29 (Direction Départementale des Territoires et de la Mer du Finistère)}
@@ -400,11 +472,13 @@ children:
         altLabels:
           - DDT de l'Indre
           - Direction Départementale des Territoires de l'Indre
+          - laurent dufour | ddt-sig@indre.gouv.fr
       DDT37:
         short: DDT 37 (Indre-et-Loire)
         prefLabels: {fr: DDT 37 (Direction Départementale des Territoires d'Indre-et-Loire)}
         altLabels:
           - DDT 37 (Direction départementale des territoires  d'Indre-et-Loire)
+          - Maljean | roland.maljean@indre-et-loire.gouv.fr
       DDT38:
         short: DDT 38 (Isère)
         prefLabels: {fr: DDT 38 (Direction Départementale des Territoires de l'Isère)}
@@ -462,6 +536,7 @@ children:
           - DDT45 - SEEF
           - DDT45 - SHRU
           - DDT45 - SUADT
+          - Préfecture du Loiret - DDT45 - SLRT / PRC
       DDT46:
         short: DDT 46 (Lot)
         prefLabels: {fr: DDT 46 (Direction Départementale des Territoires du Lot)}
@@ -503,6 +578,10 @@ children:
           - DDTM50
           - DDTM 50 - DML/DPM-CM
           - DDTM 50 - DML/IML - Chargé de mission SIG Littoral
+          - Contact repris de l'existant 58615 | ddtm-setris-geom@manche.gouv.fr
+          - Délégation à la Mer et au Littoral | ddtm-dml@manche.gouv.fr
+          - magali monier | ddtm-setris-gc@manche.gouv.fr
+          - Service Mer et Littoral | ddtm-sml@manche.gouv.fr
   DDT51-75:
     children:
       DDT51:
@@ -585,6 +664,7 @@ children:
           - Direction Départementale du Territoire et de la Mer du Pas-de-Calais
           - DDTM du Pas-de-Calais / MCSIG
           - DDE62
+          - ADL | nicolas.kusmierek@pas-de-calais.gouv.fr
       DDT63:
         short: DDT 63 (Puy-de-Dôme)
         prefLabels: {fr: DDT 63 (Direction Départementale des Territoires du Puy-de-Dôme)}
@@ -598,6 +678,8 @@ children:
       DDT65:
         short: DDT 65 (Hautes-Pyrénées)
         prefLabels: {fr: DDT 65 (Direction Départementale des Territoires des Hautes-Pyrénées)}
+        altLabels:
+          - Données STAP 65 / Report DDT 65 | ddt-sig1@hautes-pyrenees.gouv.fr
       DDT66:
         short: DDTM 66 (Pyrénées-Orientales)
         prefLabels: {fr: DDTM 66 (Direction Départementale des Territoires et de la Mer des Pyrénées-Orientales)}
@@ -632,6 +714,8 @@ children:
         altLabels:
           - DDT 70 SER/Prévention des Risques et gestion de Crises
           - DDT70-SER/EAU
+          - Cellule Risques | francoise.cornet@haute-saone.gouv.fr
+          - SER/cellule EAU | thierry.huvert@haute-saone.gouv.fr
       DDT71:
         short: DDT 71 (Saône-et-Loire)
         prefLabels: {fr: DDT 71 (Direction Départementale des Territoires de Saône-et-Loire)}
@@ -733,6 +817,7 @@ children:
           - DDTM83/SEF/BCFS
           - DDTM83/SEF/PFDFCI
           - DDTM83/SML/BLO
+          - DDTM/SEF/BECV | ddtm-sef-becv@var.gouv.fr
       DDT84:
         short: DDT 84 (Vaucluse)
         prefLabels: {fr: DDT 84 (Direction Départementale des Territoires du Vaucluse)}
@@ -774,6 +859,7 @@ children:
         prefLabels: {fr: DDT 88 (Direction Départementale des Territoires des Vosges)}
         altLabels:
           - Direction Départementale des Territoires des Vosges
+          - Bureau d'Administration et de Valorisation des Données (BAVD) | ddt-sept-bavd@vosges.gouv.fr
       DDT89:
         short: DDT 89 (Yonne)
         prefLabels: {fr: DDT 89 (Direction Départementale des Territoires de l'Yonne)}
@@ -801,6 +887,7 @@ children:
         altLabels:
           - DDT95 - Pôle Urbanisme
           - DDT95 - Pôle risques et bruit
+          - COQUILLON Nathalie (Responsable de la MAT-SD) - DDT 95/SUAD/PEAD
   Outre-mer:
     children:
       Deal:
@@ -954,6 +1041,7 @@ children:
           - DREAL Grand Est - Service eau, biodiversité, paysages - Pôle Espèces et expertises naturalistes
           - DREAL Grand Est [ex-Lorraine] (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Grand Est)
           - Dreal Lorraine
+          - JOGUET-RECCORDON | sig.dreal-lorraine@developpement-durable.gouv.fr
           - DIREN du bassin Rhin-Meuse
           - DREAL Alsace / Milieux et Risques Naturels
           - DREAL Alsace / Système d'Information Géographique
@@ -971,8 +1059,7 @@ children:
       IDF:
         short: DRIEAT IDF
         prefLabels:
-          fr: >
-            DRIEAT Île-de-France (Direction régionale et interdépartementale de l'environnement, de l'aménagement et des transports)
+          fr: DRIEAT Île-de-France (Direction régionale et interdépartementale de l'environnement, de l'aménagement et des transports)
         altLabels:
           - DRIEA-IF Siège
           - Direction régionale et interdépartementale de l'équipement et de l'aménagement Île-de-France - Unité départementale de Paris
@@ -1002,6 +1089,7 @@ children:
           - DIREN Basse-Normandie
           - DREAL de Basse-Normandie
           - DREAL de Haute-Normandie
+          - UT DREAL 61 (Directions Régionales de l'Environnement, de l'Aménagement et du Logement - Unité Territoriale de l'Orne)
         hiddenLabels:
           - DREAL Normandie-
       NAQ:
@@ -1017,6 +1105,7 @@ children:
           - DREAL Aquitaine (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Aquitaine)
           - DREAL Aquitaine / SPR / SCSOH
           - DREAL Aquitaine Limousin Poitou-Charentes
+          - Contact repris de l'existant 59088 | mce.dreal-aquitaine@developpement-durable.gouv.fr
           - DREAL ALPC
           - DREAL Limousin
           - DREAL Poitou-Charentes

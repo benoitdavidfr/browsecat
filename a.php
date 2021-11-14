@@ -24,8 +24,8 @@ includes:
   - cswserver.inc.php
   - cats.inc.php
   - catinpgsql.inc.php
-  - arbo.inc.php
-  - orginsel.inc.php
+  - orgarbo.inc.php
+  #- orginsel.inc.php
   - mdvars2.inc.php
 */
 define('VERSION', "a.php 13/11/2021 10:11");
@@ -33,8 +33,8 @@ require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/cswserver.inc.php';
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
-require_once __DIR__.'/arbo.inc.php';
-require_once __DIR__.'/orginsel.inc.php';
+require_once __DIR__.'/orgarbo.inc.php';
+//require_once __DIR__.'/orginsel.inc.php';
 
 use Symfony\Component\Yaml\Yaml;
 
@@ -376,15 +376,31 @@ if ($_GET['action']=='orgsHorsArbo') { // liste les organisations $_GET[type] ho
   else
     $arboOrgs = new Arbo('orgpmin.yaml');
   $orgNames = []; // liste des organisations hors Arbo sous la forme [{lower}=> {name}]
-  $sql = "select record from catalog$_GET[cat] where type in('data','series')"
+  $sql = "select id,title,record from catalog$_GET[cat] where type in('dataset','series')"
     .(($_GET['type']=='mdContact') ? " and perimetre='Min'" : '');
   foreach (PgSql::query($sql) as $tuple) {
+    //echo "$tuple[title]<br>\n";
     $record = json_decode($tuple['record'], true);
     //echo "<pre>"; print_r($record); //die();
     foreach ($record[$_GET['type']] ?? [] as $org) {
-      if (isset($org['organisationName'])) {
-        if (!$arboOrgs || !$arboOrgs->labelIn($org['organisationName']))
-          $orgNames[strtolower($org['organisationName'])] = $org['organisationName'];
+      if (!($orgname = $org['organisationName'] ?? null)) continue;
+      if (!$arboOrgs) { // pas d'arbo
+        $orgNames[strtolower($orgname)] = $orgname;
+      }
+      elseif (!($plabel = $arboOrgs->prefLabel($orgname))) { // name absent de l'arbo
+        $orgNames[strtolower($orgname)] = $orgname;
+      }
+      elseif ($plabel == 'IMPRECIS') { // cas particulier des noms imprécis
+        //echo "<a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$orgname imprécis</a><br>\n";
+        $orgname .= ' | '.($org['electronicMailAddress'] ?? "NO electronicMailAddress");
+        //echo "-> orgname2=$orgname<br>\n";
+        if (!($plabel = $arboOrgs->prefLabel($orgname))) {
+          //echo "-> plabel null<br>\n";
+          $orgNames[strtolower($orgname)] = $orgname;
+        }
+        else {
+          //echo "plabel=$plabel<br>\n";
+        }
       }
     }
   }
@@ -697,7 +713,7 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
     new Concept(['NOORG'],['short'=>'NO ORG', 'prefLabels'=>['fr'=>'NO ORG']]),
   ];
 
-  $arboOrgsPMin = new Arbo('orgpmin.yaml');
+  $arboOrgsPMin = new OrgArbo('orgpmin.yaml');
   $nbMdParOrgTheme = []; // nb de MD par org. et par theme -> [{orgName} => [{theme} => nb]]
   $nbMdParOrg = []; // nb de MD par org -> [{orgName} => nb]
   $nbMdParTheme = []; // nb de MD par thème -> [{theme} => nb]
@@ -710,30 +726,26 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
   foreach (PgSql::query($sql) as $tuple) {
     $record = json_decode($tuple['record'], true);
     //echo "record = "; print_r($record);
-    $orgShortNames = []; // liste des noms courts du périm. ou ['HORS MIN'=> 1]
+    $shortNames = []; // liste des noms courts, [{shortName} => 1]
     foreach ($record[$_GET['type']] as $org) {
       //print_r($org);
-      
-      if (!isset($org['organisationName'])) continue;
-      if (!($orgShortName = $arboOrgsPMin->short($org['organisationName']))) continue;
-      $orgShortNames[$orgShortName] = 1;
+      if (!($shortName = $arboOrgsPMin->short($org))) continue;
+      $shortNames[$shortName] = 1;
     }
-    if (!$orgShortNames)
-      $orgShortNames = ['NO ORG'=> 1];
-    $nbOrgs = count($orgShortNames);
+    $nbOrgs = count($shortNames);
 
     $prefLabels = prefLabels($record['keyword'] ?? [], ['a'=>$arbos[$_GET['arbo']]]);
     //echo "prefLabels()="; print_r($prefLabels); echo "<br>\n";
     $nbThemes = count($prefLabels['a'] ?? ['xx']);
-    foreach (array_keys($orgShortNames) as $orgShortName) {
-      $nbMdParOrg[$orgShortName] = 1/$nbOrgs + ($nbMdParOrg[$orgShortName] ?? 0);
+    foreach (array_keys($shortNames) as $shortName) {
+      $nbMdParOrg[$shortName] = 1/$nbOrgs + ($nbMdParOrg[$shortName] ?? 0);
       foreach ($prefLabels['a'] ?? ['NON CLASSE'] as $plabel) {
         //echo "$orgShortName X $plabel -> ",1/$nbOrgs/$nbThemes,"<br>\n";
         $nbMdParTheme[$plabel] = 1/$nbOrgs/$nbThemes + ($nbMdParTheme[$plabel] ?? 0);
-        if (!isset($nbMdParOrgTheme[$orgShortName][$plabel]))
-          $nbMdParOrgTheme[$orgShortName][$plabel] = 1/$nbOrgs/$nbThemes;
+        if (!isset($nbMdParOrgTheme[$shortName][$plabel]))
+          $nbMdParOrgTheme[$shortName][$plabel] = 1/$nbOrgs/$nbThemes;
         else
-          $nbMdParOrgTheme[$orgShortName][$plabel] += 1/$nbOrgs/$nbThemes;
+          $nbMdParOrgTheme[$shortName][$plabel] += 1/$nbOrgs/$nbThemes;
       }
     }
     $nbMdd++;

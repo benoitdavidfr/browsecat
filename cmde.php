@@ -5,6 +5,9 @@ name: cmde.php
 doc: |
   Certaines commandes étant longues, je les exécute pour la base OVH sur localhost
 journal: |
+  14/11/2021:
+    - modif sperim et crauxtabl pour utiliser OrgArbo à la place de Arbo
+    - ajout possibilité cmde=all
   13/11/2021:
     - modif crauxtabl pour éviter les répétitions d'org dans catorg${cat} et de theme dans cattheme
   11/11/2021:
@@ -13,12 +16,13 @@ includes:
   - cats.inc.php
   - catinpgsql.inc.php
   - orginsel.inc.php
-  - arbo.inc.php
+  - orgarbo.inc.php
 */
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
 require_once __DIR__.'/orginsel.inc.php';
-require_once __DIR__.'/arbo.inc.php';
+require_once __DIR__.'/orgarbo.inc.php';
+
 
 if (php_sapi_name()=='cli') {
   function usage(array $argv) { // hors choix du catalogue
@@ -43,8 +47,21 @@ if (php_sapi_name()=='cli') {
   }
 
   //echo "argc=$argc\n";
+  $catid = $argv[3] ?? '';
   if (!($cmde = $argv[1] ?? null))
     usage($argv);
+  elseif ($cmde == 'all') {
+    foreach (['sperim','ajoutheme','addarea','crauxtabl'] as $cmde) {
+      $listcats = ($catid == 'all') ? array_keys($cats) : [$catid];
+      foreach ($listcats as $catid2) {
+        echo "echo php $argv[0] $cmde $argv[2] $catid\n";
+        echo "php $argv[0] $cmde $argv[2] $catid2\n";
+      }
+    }
+    echo "echo php $argv[0] cragg $argv[2]\n";
+    echo "php $argv[0] cragg $argv[2]\n";
+    die();
+  }
   elseif (!in_array($cmde, ['sperim','ajoutheme','addarea','crauxtabl','cragg','none'])) {
     echo "Erreur: paramètre commande $cmde inconnue !\n";
     usage($argv);
@@ -55,7 +72,6 @@ if (php_sapi_name()=='cli') {
     usage($argv);
   }
   
-  $catid = $argv[3] ?? null;
   if ($cmde <> 'cragg') {
     if (!$catid)
       usageCat($argv, $cats);
@@ -66,10 +82,14 @@ if (php_sapi_name()=='cli') {
       }
       die();
     }
-    elseif (!in_array($catid, array_merge(array_keys($cats), ['agg']))) {
+    elseif (!in_array($catid, array_merge(array_keys($cats), ['agg','none']))) {
       echo "Erreur: catalogue $catid inconnu !\n";
       usageCat($argv, $cats);
     }
+  }
+
+  if ($catid == 'none') {
+    die("ok cat none\n");
   }
 }
 else { // Uniquement en CLI 
@@ -77,12 +97,14 @@ else { // Uniquement en CLI
 }
 
 
+$arboOrgsPMin = new OrgArbo('orgpmin.yaml');
+
 if ($cmde == 'sperim') { // actualiser le périmètre sur chaque catalogue à partir du fichier \${catid}Sel.yaml
   PgSql::query("update catalog$catid set perimetre=null");
   foreach (PgSql::query("select id,record from catalog$catid where type in ('dataset','series')") as $tuple) {
     $id = $tuple['id'];
     $record = json_decode($tuple['record'], true);
-    if (orgInSel($catid, $record)) {
+    if ($arboOrgsPMin->recordIn($record)) {
       PgSql::query("update catalog$catid set perimetre='Min' where id='$id'");
     }
   }
@@ -293,8 +315,6 @@ if ($cmde == 'crauxtabl') { // créer les 2 tables auxilaires par catalogue
   PgSql::query("create unique index on cattheme$catid(id, theme)");
   PgSql::query("create index on cattheme$catid(theme)");
 
-  $arboOrgsPMin = new Arbo('orgpmin.yaml');
-
   $sql = "select id, title, record from catalog$catid where type in ('dataset','series') and perimetre='Min'";
   foreach (PgSql::query($sql) as $tuple) {
     //echo "$tuple[title]\n";
@@ -311,21 +331,17 @@ if ($cmde == 'crauxtabl') { // créer les 2 tables auxilaires par catalogue
     
     $responsibleParties = []; // liste des parties pour éviter les doublons, [{$orgname}=> 1]
     foreach ($record['responsibleParty'] ?? [] as $party) {
-      if (!isset($party['organisationName'])) continue;
-      $orgname = $party['organisationName'];
-      //echo "  orgname=$orgname\n";
-      $orgname = $arboOrgsPMin->prefLabel($orgname);
-      if (!$orgname || ($orgname == 'COVADIS')) continue;
-      if (isset($responsibleParties[$orgname])) continue;
-      $responsibleParties[$orgname] = 1;
+      if (!($plabel = $arboOrgsPMin->prefLabel($party))) continue;
+      if (isset($responsibleParties[$plabel])) continue;
+      $responsibleParties[$plabel] = 1;
       //echo "  stdOrgname=$orgname\n";
-      $orgname = str_replace("'", "''", $orgname);
-      $sql = "insert into catorg$catid(id, org) values ('$tuple[id]', '$orgname')";
+      $plabel = str_replace("'", "''", $plabel);
+      $sql = "insert into catorg$catid(id, org) values ('$tuple[id]', '$plabel')";
       //echo "  $sql\n";
       PgSql::query($sql);
     }
   }
-  echo "Ok $catid<br>\n";
+  echo "Ok $catid\n";
 }
 
 if ($cmde == 'cragg') { // créer les 3 tables du catalogue agrégé

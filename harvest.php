@@ -12,6 +12,7 @@ doc: |
 journal: |
   13/11/2021:
     - modification des paramètres pour permettre de choisir le serveur et de la gestion de ceux-ci
+    - ajout des fichiers start et end 
   8/11/2021:
     - déplacement des caches des catalogues dans le répertoire catalogs
   28-29/10/2021:
@@ -28,46 +29,51 @@ includes:
   - cats.inc.php
   - catinpgsql.inc.php
   - orginsel.inc.php
+  - trestant.inc.php
 */
 require_once __DIR__.'/cswserver.inc.php';
 require_once __DIR__.'/mdvars2.inc.php';
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
 require_once __DIR__.'/orginsel.inc.php';
+require_once __DIR__.'/trestant.inc.php';
 
 
 if (php_sapi_name()<>'cli')
   die("Uniquement en CLI\n");
-
-function usage(array $argv, array $cats) {
-  echo "usage: php $argv[0] {serveur} {cat}|all [{firstRecord} [{maxRecordNum}]]\n";
-  echo " où {cat} vaut:\n";
-  foreach ($cats as $catid => $cat)
-    echo " - $catid\n";
-  echo " et où:\n";
-  echo " - {serveur} vaut local pour la base locale et distant pour la base distante\n";
-  echo " - {firstRecord} est le num. du premier enregistrement moissonné, par défaut 1\n";
-  echo " - {maxRecordNum} est le nombre maximum d'enregistrements moissonnés\n";
-  die();
-}
-
-if (!($catid = $argv[2] ?? null)) usage($argv, $cats);
-
-if ($catid == 'all') { // génère les cmdes pour remoissonner tous les catalogues
-  foreach (array_keys($cats) as $catid) {
-    echo "php $argv[0] $catid\n";
+else { // gestion du dialogue pour définir les paramètres 
+  function usage(array $argv, array $cats) {
+    echo "usage: php $argv[0] {serveur} {cat}|all [{firstRecord} [{maxRecordNum}]]\n";
+    echo " où {cat} vaut:\n";
+    foreach ($cats as $catid => $cat)
+      echo " - $catid\n";
+    echo " et où:\n";
+    echo " - {serveur} vaut local pour la base locale et distant pour la base distante\n";
+    echo " - {firstRecord} est le num. du premier enregistrement moissonné, par défaut 1\n";
+    echo " - {maxRecordNum} est le nombre maximum d'enregistrements moissonnés\n";
+    die();
   }
-  die();
+
+  if (!($catid = $argv[2] ?? null)) usage($argv, $cats);
+
+  if ($catid == 'all') { // génère les cmdes pour remoissonner tous les catalogues
+    foreach (array_keys($cats) as $catid) {
+      echo "php $argv[0] $catid\n";
+    }
+    die();
+  }
+
+  if (!CatInPgSql::chooseServer($server = $argv[1] ?? null)) { // Choix du serveur 
+    echo "Erreur: paramètre serveur incorrect !\n";
+    usage($argv, $cats);
+  }
+
+  $firstRecord = $argv[3] ?? 1;
+
+  $maxRecordNum = $argv[4] ?? -1;
 }
 
-if (!CatInPgSql::chooseServer($argv[1] ?? null)) { // Choix du serveur 
-  echo "Erreur: paramètre serveur incorrect !\n";
-  usage($argv, $cats);
-}
-
-$firstRecord = $argv[3] ?? 1;
-
-$maxRecordNum = $argv[4] ?? -1;
+tempsRestant(); // initialisation 
 
 if (!file_exists("catalogs/$catid"))
   mkdir("catalogs/$catid");
@@ -75,10 +81,12 @@ if (!file_exists("catalogs/$catid"))
 $cswServer = new CswServer($cats[$catid]['endpointURL'], "catalogs/$catid");
 $cswServer->getCapabilities();
 
-echo "Moissonnage de $catid et chargement dans PostgreSql $argv[1]\n";
+echo "Moissonnage de $catid et chargement dans PostgreSql $server\n";
 $cat = new CatInPgSql($catid);
-if ($firstRecord == 1)
+if ($firstRecord == 1) {
   $cat->create(); // recrée une nlle table
+  touch("catalogs/$catid/start");
+}
 $nextRecord = $firstRecord;
 $numberOfRecordsMatched = null;
 while ($nextRecord) {
@@ -87,7 +95,8 @@ while ($nextRecord) {
   if (!$numberOfRecordsMatched)
     fprintf(STDERR, "$catid> nextRecord=%d\n", $nextRecord);
   else
-    fprintf(STDERR, "$catid> nextRecord=%d/numberOfRecordsMatched=%d\n", $nextRecord, $numberOfRecordsMatched);
+    fprintf(STDERR, "$catid> nextRecord=%d/numberOfRecordsMatched=%d, %s restant\n",
+      $nextRecord, $numberOfRecordsMatched, tempsRestant(($nextRecord-1)/$numberOfRecordsMatched));
   try {
     $getRecords = $cswServer->getRecords($nextRecord);
   }
@@ -148,3 +157,4 @@ while ($nextRecord) {
     (int)$getRecords->csw_SearchResults['numberOfRecordsMatched']
     : null;
 }
+touch("catalogs/$catid/end");
