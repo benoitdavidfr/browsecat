@@ -50,11 +50,11 @@ if (php_sapi_name()=='cli') {
   $catid = $argv[3] ?? '';
   if (!($cmde = $argv[1] ?? null))
     usage($argv);
-  elseif ($cmde == 'all') {
+  elseif ($cmde == 'all') { // exécute ttes les commandes
     foreach (['sperim','ajoutheme','addarea','crauxtabl'] as $cmde) {
       $listcats = ($catid == 'all') ? array_keys($cats) : [$catid];
       foreach ($listcats as $catid2) {
-        echo "echo php $argv[0] $cmde $argv[2] $catid\n";
+        echo "echo php $argv[0] $cmde $argv[2] $catid2\n";
         echo "php $argv[0] $cmde $argv[2] $catid2\n";
       }
     }
