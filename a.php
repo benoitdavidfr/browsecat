@@ -8,6 +8,8 @@ doc: |
   Les mdContacts de ces MDD ne sont parfois pas des organisations du pôle.
 
 journal: |
+  14/11/2021:
+    - utilisation de orgarbo.inc.php
   13/11/2021:
     - création de a.php avec les actions de gere.php, créé à partir de gesre.php
   11/11/2021:
@@ -25,16 +27,16 @@ includes:
   - cats.inc.php
   - catinpgsql.inc.php
   - orgarbo.inc.php
-  #- orginsel.inc.php
+  - orginsel.inc.php
   - mdvars2.inc.php
 */
-define('VERSION', "a.php 13/11/2021 10:11");
+define('VERSION', "a.php 14/11/2021 9:32");
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/cswserver.inc.php';
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
 require_once __DIR__.'/orgarbo.inc.php';
-//require_once __DIR__.'/orginsel.inc.php';
+require_once __DIR__.'/orginsel.inc.php';
 
 use Symfony\Component\Yaml\Yaml;
 

@@ -40,6 +40,9 @@ definitions:
           hiddenLabels:
             description: liste d'étiquettes cachées associées au noeud, orthographe, graphie, ...
             $ref: '#/definitions/labels'
+          homepage:
+            description: page d'accueil de l'organisme
+            type: string
           note:
             description: commentaire complémentaire destinée au gestionnaire
             type: string

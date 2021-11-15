@@ -1,7 +1,6 @@
-title: arborescence des organisations hors périmètre ministériel mais apparaissant comme MdContact de MDD du périmètre
+title: arborescence des organisations hors périmètre ministériel mais utiles à l'analyse des MDD du périmètre
 description: |
-  Arborescence des organisations hors périmètre Ministériel (AC+SD+DDT) mais apparaissant comme MdContact de MDD
-  du périmètre.
+  Arborescence des organisations hors périmètre Ministériel (AC+SD+DDT) mais utiles à l'analyse des MDD du périmètre.
   Associe à chaque organisation les différents libellés utilisés dans les catalogues.
   A chaque organisation un libellé court et significatif est affecté soit par le champ short soit par la clé utilisée.
   Le premier niveau de l'arborescence correspond à des regroupements d'organisations pour lesquels le prefLabel n'est pas
@@ -32,6 +31,27 @@ children:
         prefLabels: {fr: IGN-F}
         altLabels:
           - Institut Géographique National (IGN-F)
+      Ifremer:
+        prefLabels: {fr: IFREMER}
+      SNOSAN:
+        prefLabels: {fr: SNOSAN}
+        homepage: https://www.snosan.fr/
+        description: |
+          Le Système National d'Observation de la Sécurité des Activités Nautiques (SNOSAN) est un observatoire interministériel qui répond à la volonté de mieux connaître les caractéristiques des accidents relatifs à la plaisance et aux activités nautiques récréatives et sportives en eaux françaises.
+
+          Il est né de la conclusion d’un protocole d’accord interministériel le 2 juillet 2015 associant :
+
+            - Le Ministère chargé de la mer ;
+            - Le Ministère chargé des sports ;
+            - Le Ministère de l'Intérieur ;
+            - L'École Nationale de Voile et des Sports Nautiques (ENVSN) ;
+            - La Société Nationale de Sauvetage en Mer (SNSM).
+
+          Le SNOSAN s’appuie sur les données provenant:
+
+            - de l’ensemble des centres régionaux opérationnels de surveillance et de sauvetage (CROSS) métropolitains et ultramarins;
+            - des opérations SNSM pour lesquelles les CROSS n’ont pas été avisés. A terme, il pourra s’appuyer sur les données issues des SDIS.
+
   horsPMinSD:
     note: services déconcentrés hors périmètre Min apparaissant comme MdContact de MDD du périmètre
     children:

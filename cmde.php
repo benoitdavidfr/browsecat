@@ -5,9 +5,11 @@ name: cmde.php
 doc: |
   Certaines commandes étant longues, je les exécute pour la base OVH sur localhost
 journal: |
+  15/11/2021:
+    - ajout dans crauxtabl / cattheme$catid des NON CLASSE
   14/11/2021:
     - modif sperim et crauxtabl pour utiliser OrgArbo à la place de Arbo
-    - ajout possibilité cmde=all
+    - ajout possibilités cmde=all et d'une liste de cmdes
   13/11/2021:
     - modif crauxtabl pour éviter les répétitions d'org dans catorg${cat} et de theme dans cattheme
   11/11/2021:
@@ -18,23 +20,29 @@ includes:
   - orginsel.inc.php
   - orgarbo.inc.php
 */
+require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
 require_once __DIR__.'/orginsel.inc.php';
 require_once __DIR__.'/orgarbo.inc.php';
+
+use Symfony\Component\Yaml\Yaml;
 
 
 if (php_sapi_name()=='cli') {
   function usage(array $argv) { // hors choix du catalogue
     echo "usage: php $argv[0] {cmde} {serveur} {cat}|all\n";
     echo " où {cmde} vaut:\n";
+    echo "  - export pour exporter en Yaml les fiches de MDD du catalogue\n";
     echo "  - sperim pour actualiser le périmètre sur chaque catalogue à partir du fichier \${catid}Sel.yaml\n";
     echo "  - ajoutheme pour ajouter des thèmes\n";
     echo "  - addarea pour ajouter les champs area, ... et les peupler\n";
     echo "  - crauxtabl pour créer les 2 tables auxilaires par catalogue\n";
     echo "  - cragg pour créer les 3 tables du catalogue agrégé (ne nécessite pas de paramètre {cat})\n";
+    echo "  - all pour éxécuter ttes les commandes sauf export\n";
+    echo "  - une liste de noms de commande séparés par ',' pour éxécuter cette liste\n";
     echo " où {serveur} vaut local pour la base locale et distant pour la base distante\n";
-    echo " où {cat} est le nom du catalogue\n";
+    echo " où {cat} est le nom du catalogue ou all pour tous les catalogues sauf le Géocatalogue\n";
     die();
   }
 
@@ -46,14 +54,12 @@ if (php_sapi_name()=='cli') {
     die();
   }
 
-  //echo "argc=$argc\n";
-  $catid = $argv[3] ?? '';
-  if (!($cmde = $argv[1] ?? null))
-    usage($argv);
-  elseif ($cmde == 'all') { // exécute ttes les commandes
-    foreach (['sperim','ajoutheme','addarea','crauxtabl'] as $cmde) {
-      $listcats = ($catid == 'all') ? array_keys($cats) : [$catid];
-      foreach ($listcats as $catid2) {
+  function multicmdes(array $cmdes, array $argv, string $catid, array $cats) { // génère les ordes pour plusieurs cmdes
+    unset($cats['geocatalogue']);
+    $listcats = ($catid == 'all') ? array_keys($cats) : [$catid];
+    foreach ($listcats as $catid2) {
+      foreach ($cmdes as $cmde) {
+        if ($cmde == 'cragg') continue;
         echo "echo php $argv[0] $cmde $argv[2] $catid2\n";
         echo "php $argv[0] $cmde $argv[2] $catid2\n";
       }
@@ -62,7 +68,17 @@ if (php_sapi_name()=='cli') {
     echo "php $argv[0] cragg $argv[2]\n";
     die();
   }
-  elseif (!in_array($cmde, ['sperim','ajoutheme','addarea','crauxtabl','cragg','none'])) {
+  //echo "argc=$argc\n";
+  $catid = $argv[3] ?? '';
+  if (!($cmde = $argv[1] ?? null))
+    usage($argv);
+  elseif ($cmde == 'all') { // exécute ttes les commandes
+    multicmdes(['sperim','ajoutheme','addarea','crauxtabl','cragg'], $argv, $catid, $cats);
+  }
+  elseif (strpos($cmde, ',') !== false) {
+    multicmdes(explode(',', $cmde), $argv, $catid, $cats);
+  }
+  elseif (!in_array($cmde, ['sperim','ajoutheme','addarea','crauxtabl','cragg','export','none'])) {
     echo "Erreur: paramètre commande $cmde inconnue !\n";
     usage($argv);
   }
@@ -76,6 +92,7 @@ if (php_sapi_name()=='cli') {
     if (!$catid)
       usageCat($argv, $cats);
     elseif ($catid == 'all') { // génère les cmdes pour traiter tous les catalogues
+      unset($cats['geocatalogue']);
       foreach (array_keys($cats) as $catid) {
         echo "echo php $argv[0] $argv[1] $argv[2] $catid\n";
         echo "php $argv[0] $argv[1] $argv[2] $catid\n";
@@ -98,6 +115,14 @@ else { // Uniquement en CLI
 
 
 $arboOrgsPMin = new OrgArbo('orgpmin.yaml');
+
+if ($cmde == 'export') {
+  foreach (PgSql::query("select record from catalog$catid where type in ('dataset','series')") as $tuple) {
+    $record = json_decode($tuple['record'], true);
+    echo Yaml::dump([$record], 3, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+  }
+  die();
+}
 
 if ($cmde == 'sperim') { // actualiser le périmètre sur chaque catalogue à partir du fichier \${catid}Sel.yaml
   PgSql::query("update catalog$catid set perimetre=null");
@@ -304,16 +329,12 @@ if ($cmde == 'crauxtabl') { // créer les 2 tables auxilaires par catalogue
     id varchar(256) not null, -- fileIdentifier de la fiche de données
     org text not null -- nom de l'organisation
   )");
-  PgSql::query("create unique index on catorg$catid(id, org)");
-  PgSql::query("create index on catorg$catid(org)");
 
   PgSql::query("drop table if exists cattheme$catid");
   PgSql::query("create table cattheme$catid(
     id varchar(256) not null, -- fileIdentifier de la fiche de données
     theme text not null -- nom du theme
   )");
-  PgSql::query("create unique index on cattheme$catid(id, theme)");
-  PgSql::query("create index on cattheme$catid(theme)");
 
   $sql = "select id, title, record from catalog$catid where type in ('dataset','series') and perimetre='Min'";
   foreach (PgSql::query($sql) as $tuple) {
@@ -323,8 +344,15 @@ if ($cmde == 'crauxtabl') { // créer les 2 tables auxilaires par catalogue
     $prefLabels = prefLabels($record['keyword'] ?? [], [$arbo=> $arbos[$arbo]]);
     //echo "id=$tuple[id], prefLabels="; print_r($prefLabels);
 
-    foreach ($prefLabels[$arbo] ?? [] as $theme) {
-      $sql = "insert into cattheme$catid(id, theme) values ('$tuple[id]', '$theme')";
+    if (isset($prefLabels[$arbo])) {
+      foreach ($prefLabels[$arbo] as $theme) {
+        $sql = "insert into cattheme$catid(id, theme) values ('$tuple[id]', '$theme')";
+        //echo "$sql\n";
+        PgSql::query($sql);
+      }
+    }
+    else { // cas où aucun thème n'est associé
+      $sql = "insert into cattheme$catid(id, theme) values ('$tuple[id]', 'NON CLASSE')";
       //echo "$sql\n";
       PgSql::query($sql);
     }
@@ -341,6 +369,12 @@ if ($cmde == 'crauxtabl') { // créer les 2 tables auxilaires par catalogue
       PgSql::query($sql);
     }
   }
+
+  PgSql::query("create unique index on catorg$catid(id, org)");
+  PgSql::query("create index on catorg$catid(org)");
+  PgSql::query("create unique index on cattheme$catid(id, theme)");
+  PgSql::query("create index on cattheme$catid(theme)");
+
   echo "Ok $catid\n";
 }
 

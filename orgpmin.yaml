@@ -19,10 +19,15 @@ children:
     prefLabels: {fr: IMPRECIS}
     altLabels:
       - ADL
+      - Annaelle Bargain
       - Atelier de Suivi des Territoires
+      - Aurore PARIAT
+      - Banque Hydro
       - BARBERA Francis
       - Bureau d'Administration et de Valorisation des Données (BAVD)
       - Cellule Risques
+      - CHATAIGNER
+      - Christian
       - Christophe ARNAUD
       - Contact repris de l'existant 58615
       - Contact repris de l'existant 59088
@@ -33,15 +38,28 @@ children:
       - Délégation à la Mer et au Littoral
       - Délégation à l'action foncière et immobilière
       - Données STAP 65 / Report DDT 65
+      - DOSA
+      - DRM
+      - Enquête sur le prix des terrains à bâtir (EPTB)
+      - ETAT
+      - Fanny Testu
       - François virevialle
-      #- Gaëlle CARENE # inutile
+      - Gabrielle POUX
+      - Garcia, Hernan E.
+      - Gaëlle CARENE # inutile
+      - GEOLITT
       - Groupe Socle Geomatique
-      #- Jean-Emmanuel Ménard # inutile
+      - Jean-Emmanuel Ménard # inutile
       - JOGUET-RECCORDON
+      - Julien DALLEMAGNE
+      - Julien Defenouillère
       - laurent dufour
       - magali monier
       - Maljean
+      - Ministere de l'Equipement, des Transport et du Logement. SERVICE TERRITORIAL ET MARITIME
       - Nathalie LE COZ
+      - Natura 2000 database and GIS
+      - NATURA2000
       - Nicolas Marchand
       - SDE
       - "SDE : Isabelle DUBOIS"
@@ -56,7 +74,7 @@ children:
       - Service territorial de l'architecture et du patrimoine de Charente
       - sig sriset alpc site de bordeaux
       - Sylvie Girard
-      
+      - Virginie DESVIGNE
   AC:
     note: organsation en centrale plus appellations génériques du ministère, puis découpage par DG
     children:
@@ -80,6 +98,7 @@ children:
           - Ministère de l'Énvironnement, de l'Energie et de la Mer
           - Ministery of Ecology, Sustainable Development and Energy (MEDDE)
           - MTES
+          - Ministere de l'Equipement, des Transport et du Logement. SERVICE TERRITORIAL ET MARITIME | Jean-Yves.Lefevre@equipement.gouv.fr
       MCTRCT:
         prefLabels: {fr: Ministère de la Cohésion des territoires et des Relations avec les Collectivités Territoriales (MCTRCT)}
         altLabels:
@@ -92,8 +111,11 @@ children:
         prefLabels: {fr: Agence Nationale de la Cohésion des Territoires (ANCT)}
         note: Exceptionellement je considère l'ANCT comme dans le périmètre ministériel, notamment car le CGET l'était
         altLabels:
+          - Agence nationale de la cohésion des territoires
           - Commissariat général à l'égalité des territoires
+          - Commissariat générale à l'égalite des territoire - Observatoire des territoires
           - Délégation interministérielle à l'aménagement du territoire et à l'attractivité régionale (DATAR)
+          - DATAR
       CGDD:
         prefLabels: {fr: Commissariat général au développement Durable}
         altLabels:
@@ -117,6 +139,8 @@ children:
               - SOeS – SSP, Enquêtes "Eau et assainissement"
               - Service de l'observation et des statistiques (SOeS)
               - Service de la donnée et des études statistiques (SDES)
+              - Observatoire national de la mer et du littoral
+              - Observatoire national de la mer et du littoral (SOeS)
       DGAC:
         prefLabels: {fr: Direction Générale de l'Aviation Civile (DGAC)}
         altLabels:
@@ -132,26 +156,32 @@ children:
         altLabels:
           - Ministère en charge de l'environnement / DGALN
           - Ministère en charge de l'environnement / DGALN - CGDD - DML
-          - Ministère en charge de l'environnement / DGALN - DEB
           - Ministère en charge de l'environnement / DGALN-CGDD-DML
-          - Direction de l'Eau et de la Biodiversité (DEB)
-          - Direction de l'Eau et de la Biodiversité (MTES/DGALN/DEB)
           - MEEM / DGALN
-          - Ministère de l'Ecologie, du Développement Durable et de l'Energie / Direction Générale de l'Aménagement, du Logement et de la Nature / Direction de l'Eau et de la Biodiversité
-          - MTES - DEB
-          - Ministère chargé de l'environnement - Direction de l'Eau et de la Biodiversité
-          - Ministère de la Transition écologique et solidaire - Direction de l'eau et de la biodiversité
-          - Ministére de la Transition écologique et solidaire - Direction de l'eau et de la biodiversité
-          - DGALN/DEB/LM3
-          - Ministère chargé de l'environnement / DGALN - DEB - ELM3
-          - Ministère de la Transition Ecologique - Camino
           - Ministère de l'Écologie et du Développement durable (DNP)
           - Nicolas Marchand | sig-carto.bcsi.dgaln@developpement-durable.gouv.fr
+          - Geolittoral
+        children:
+          DEB:
+            prefLabels: {fr: DGALN/DEB (Direction de l'Eau et de la Biodiversité')}
+            altLabels:
+              - Ministère en charge de l'environnement / DGALN - DEB
+              - Direction de l'Eau et de la Biodiversité (DEB)
+              - Direction de l'Eau et de la Biodiversité (MTES/DGALN/DEB)
+              - Ministère de l'Ecologie, du Développement Durable et de l'Energie / Direction Générale de l'Aménagement, du Logement et de la Nature / Direction de l'Eau et de la Biodiversité
+              - MTES - DEB
+              - Ministère chargé de l'environnement - Direction de l'Eau et de la Biodiversité
+              - Ministère de la Transition écologique et solidaire - Direction de l'eau et de la biodiversité
+              - Ministére de la Transition écologique et solidaire - Direction de l'eau et de la biodiversité
+              - DGALN/DEB/LM3
+              - Ministère chargé de l'environnement / DGALN - DEB - ELM3
+              - Ministère de la Transition Ecologique - Camino
       DGEC:
         prefLabels: {fr: Direction Générale de l'Energie et du Climat}
         altLabels:
           - Ministère en charge de l'environnement / DGEC
           - Ministère en charge de l'environnement/ DGEC
+          - France - Ministere de la Transition ecologique - Direction Generale de l'energie et du Climat (DGEC)
           - MEEM / DGEC
       DGITM:
         prefLabels: {fr: "Direction Générale des Infrastructures, des Transports et de la Mer (DGITM)"}
@@ -174,20 +204,28 @@ children:
           - DGPR
           - MEEM / DGPR
           - DGPR (base de données Gaspar)
-          - SCHAPI
           - DGPR/DAGSI
           - DGPR/MTES
           - DGPR/SRSEDPD/MBAP
           - Direction Générale de la Prévention des Risques (DGPR/DAGSI)
           - Ministère en charge de l'environnement - Direction générale de la prévention des risques - Inspection des installations classées
           - georisques.gouv.fr
+          - Géorisques
+        children:
+          SCHAPI:
+            prefLabels: {fr: Service Central d'Hydrométéorologie et d'Appui à la Prévision des Inondations (DGPR/SHAPI)}
+            altLabels:
+              - Service Central d'Hydrométéorologie et d'Appui à la Prévision des Inondations
+              - Service Central d'Hydrométéorologie et d'Appui à la Prévision des Inondations -  Contact - Ingénieur SIG
+              - SCHAPI
+              - Banque Hydro | hydro@developpement-durable.gouv.fr
       SG:
         prefLabels: {fr: Secrétariat Général du pôle ministériel MTE-MCTRCT-MM}
         children:
           DAEI:
             prefLabels: {fr: Direction des affaires européennes et internationales (SG)}
             altLabels:
-              - Ministére de la Transition écologique et solidaire - Direction des affaires européennes et internationales}
+              - Ministére de la Transition écologique et solidaire - Direction des affaires européennes et internationales
           SNUM:
             prefLabels: {fr: SNUM}
             altLabels:
@@ -279,13 +317,13 @@ children:
         altLabels:
           - DDT12
           - Direction Départementale des Territoires de l'Aveyron
-          - Service Agricole et Forêt/ Pôle Exploitations et Espaces Agricoles | ddtm-saf@bouches-du-rhone.gouv.fr
-          - Service de l'Agriculture et de la Forêt / Pôle Forêt | ddtm-sig@bouches-du-rhne.gouv.fr
       DDT13:
         short: DDTM 13 (Bouches-du-Rhône)
         prefLabels: {fr: DDTM 13 (Direction Départementale des Territoires et de la Mer des Bouches-du-Rhône)}
         altLabels:
           - Service Mer, Eau et Environnement (SMEE) | franck.zoulalian@bouches-du-rhone.gouv.fr
+          - Service Agricole et Forêt/ Pôle Exploitations et Espaces Agricoles | ddtm-saf@bouches-du-rhone.gouv.fr
+          - Service de l'Agriculture et de la Forêt / Pôle Forêt | ddtm-sig@bouches-du-rhne.gouv.fr
       DDT14:
         short: DDTM 14 (Calvados)
         prefLabels: {fr: DDTM 14 (Direction départementale des territoires et de la Mer du Calvados)}
@@ -356,6 +394,7 @@ children:
         altLabels:
           - Direction départementale des territoires de la Côte-d'Or
           - DDT21/SPAE/NSER
+          - DDT/SPAE/NSER | ddt-spae@cote-dor.gouv.fr
       DDT22:
         short: DDTM 22 (Côtes-d'Armor)
         prefLabels: {fr: DDTM 22 (Direction Départementale des Territoires et de la Mer des Côtes-d'Armor)}
@@ -466,6 +505,7 @@ children:
           - DDAM d'Ille-et-Vilaine - Service Cultures marines
           - DDAM d'Ille-et-Vilaine - Sevice cultures Marines
           - DDAM d'Ille-et-Vilaine- Service Cultures marines
+          - DDAM - Service Cultures marines | DDAM-Ille-et-Vilaine@equipement.gouv.fr
       DDT36:
         short: DDT 36 (Indre)
         prefLabels: {fr: DDT 36 (Direction Départementale des Territoires de l'Indre)}
@@ -938,12 +978,17 @@ children:
           - DIREN de la Réunion
           - DIREN de la Réunion / Cellule SIE
           - DIREN de la Réunion / Cellule SINP
+          - Diren de La Réunion /Cellule SINP
           - DDE 974 / PROSPET / CARG
           - DDE 974 / PROSPET / PCTS
           - DDE 974 / SGR / CPER
           - DDE 974 / SGT / CMO
           - DDE 974 / SHAU / CPRN
           - DDE 974 / SHAU / CUP
+      DMSOI:
+        prefLabels: {fr: Dir. Mer Sud Océan Indien (DMSOI)}
+        altLabels:
+          - dmsoi
       DtamPM:
         prefLabels: {fr: DTAM Saint Pierre et Miquelon}
         altLabels:
@@ -962,6 +1007,7 @@ children:
           - Direction régionale de l'environnement, de l'aménagement et du logement
           - Direction régionale environnement aménagement logement
           - Direction régional environnement, aénagement, logement
+          - Agences de l'eau, Offices de l'eau, ARS, DEAL, DREAL
           - DIREN
           - DIREN/DDT
           - DIREN, BRGM, DRIRE
@@ -1019,6 +1065,8 @@ children:
           - DREAL Centre-Val de Loire
           - Dreal Centre
           - Dreal Centre - Val de Loire
+          - Direction régionale de l'environnement, de l'aménagement et du logement Centre-Val de Loirede la série de données --
+          - Direction régionale de l'environnement, de l'aménagement et du logement Centre-Val de Loiree de la série de données --
           - DIREN du bassin Loire-Bretagne
         hiddenLabels:
           - Direction régionale de l'environnement, de l'aménagement et du logement Centre-Val de Loirede la série de données --
@@ -1084,6 +1132,7 @@ children:
           - DREAL Normandie - Site de Caen
           - DREAL Basse Normandie
           - DREAL Basse-Normandie
+          - La DREAL de Basse-Normandie
           - DREAL H.Normandie (Direction Régionale de l Environnement, de l Aménagement et du Logement Haute-Normandie)
           - DIREN de Basse-Normandie
           - DIREN Basse-Normandie
@@ -1149,6 +1198,7 @@ children:
         prefLabels: {fr: DIRM MEMN (Direction InterRégionale Mer Manche Est - Mer du Nord)}
         altLabels:
           - Direction InterRégionale de la Mer Manche Est - Mer du Nord
+          - Direction Interrégionale de la mer Manche Est – mer du Nord
           - CROSS Gris-Nez
       NAMO:
         short: DIRM NAMO

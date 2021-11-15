@@ -80,6 +80,8 @@ doc: |
     - remoissonner Géo-IDE, il semble que la version a changé / FAIT le 13/11/2021
   
 journal: |
+  14/11/2021:
+    - création de orgarbo.inc.php pour simplifier la gestion de l'arbo des orgs
   13/11/2021:
     - création de a.php avec les actions de gere.php et index.php
   11/11/2021:
@@ -120,6 +122,7 @@ phpIncludes:
   - /browsecat/orginsel.inc.php
   - /browsecat/trestant.inc.php
   #- /browsecat/annexes.inc.php
+  - /browsecat/orgarbo.inc.php
   - /browsecat/arbo.inc.php
   - /browsecat/tree.inc.php
   - /browsecat/mdvars2.inc.php
