@@ -116,12 +116,24 @@ else { // Uniquement en CLI
 
 $arboOrgsPMin = new OrgArbo('orgpmin.yaml');
 
-if ($cmde == 'export') {
+if ($cmde == 'export') { // export d'un catalogue dans un fichier Yaml
+  // Le champ title est modifié pour faciliter la visualisation dans TextMate
+  // De même le formattage de chaque fiche est modifiée
+  echo "title: 'Export du catalogue $catid'\n";
+  echo "records:\n";
   foreach (PgSql::query("select record from catalog$catid where type in ('dataset','series')") as $tuple) {
     $record = json_decode($tuple['record'], true);
-    echo Yaml::dump([$record], 3, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+    $title = $record['dct:title'][0];
+    unset($record['dct:title']);
+    $record = array_merge(['dct:title'=> $title], $record);
+    echo str_replace("-\n  ","- ",Yaml::dump([$record], 3, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
   }
   die();
+}
+
+if ($cmde == 'testexport') { // Test de relecture du fichier Yaml généré
+  $yaml = Yaml::parsefile("$catid.yaml");
+  echo Yaml::dump($yaml, 4, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
 }
 
 if ($cmde == 'sperim') { // actualiser le périmètre sur chaque catalogue à partir du fichier \${catid}Sel.yaml

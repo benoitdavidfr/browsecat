@@ -4,6 +4,8 @@ title: geojson.php - sortie GéoJSON du catalogue
 name: geojson.php
 doc: |
 journal: |
+  15/11/2021:
+    - modif du lien pour référence a.php
   11/11/2021:
     - regroupement des bbox identiques en un seul
   10/11/2021:
@@ -22,7 +24,6 @@ header('Access-Control-Allow-Origin: *');
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
 require_once __DIR__.'/arbo.inc.php';
-//require_once __DIR__.'/annexes.inc.php';
 require_once __DIR__.'/orginsel.inc.php';
 
 // Choisir le serveur
@@ -107,7 +108,7 @@ class Feature {
     $this->feature = [
       'type'=> 'Feature',
       'area'=> ($bbox['eastLon']-$bbox['westLon']) * ($bbox['northLat']-$bbox['southLat']),
-      'link'=> "http://$_SERVER[HTTP_HOST]/browsecat/gere.php?cat=$_GET[cat]&action=showPg&id=$tuple[id]",
+      'link'=> "http://$_SERVER[HTTP_HOST]/browsecat/a.php?cat=$_GET[cat]&action=showPg&id=$tuple[id]",
       'style'=> ['color'=> 'blue', 'fillOpacity'=> 0],
       'properties'=> [
         'title'=> $tuple['title'],
@@ -212,7 +213,7 @@ class Feature {
       $this->feature['ids'][] = $tuple['id'];
       $this->feature['properties']['title'][] = $tuple['title'];
     }
-    $this->feature['link'] = "http://$_SERVER[HTTP_HOST]/browsecat/gere.php?cat=$_GET[cat]&action=showUsingIds"
+    $this->feature['link'] = "http://$_SERVER[HTTP_HOST]/browsecat/a.php?cat=$_GET[cat]&action=showUsingIds"
       ."&ids=".implode(',',$this->feature['ids']);
   }
   
