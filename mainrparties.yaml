@@ -1,0 +1,179 @@
+title: analyse des 6 fiches de MD / 28906 pour lesquelles il est impossible de réduire les respParties à 1
+abstract: |
+  Infos issues du traitement effectué par mainrparties.php
+  Tous les cas identifiés peuvent être traités.
+fiches:
+  - title: 'Zones de répartition des eaux superficielles'
+    cat: Sextant
+    id: 6d6ca200-8721-11de-8545-000086f6a603
+    responsibleParty:
+        - { organisationName: 'DIREN du bassin Seine-Normandie', role: pointOfContact, individualName: 'DIREN du bassin Seine-Normandie', electronicMailAddress: diren@ile-de-france.ecologie.gouv.fr }
+        - { organisationName: 'DIREN du bassin Loire-Bretagne', role: pointOfContact, individualName: 'DIREN du bassin Loire-Bretagne', electronicMailAddress: diren@centre.ecologie.gouv.fr }
+        - { organisationName: 'DIREN du bassin Rhin-Meuse', role: pointOfContact, individualName: 'DIREN du bassin Rhin-Meuse', electronicMailAddress: webmaster@lorraine.ecologie.gouv.fr }
+        - { organisationName: 'DIREN du bassin Adour-Garonne', role: pointOfContact, individualName: 'DIREN du bassin Adour-Garonne', electronicMailAddress: diren@midi-pyrenees.ecologie.gouv.fr }
+        - { organisationName: 'DIREN du bassin Artois-Picardie', role: pointOfContact, individualName: 'DIREN du bassin Artois-Picardie', electronicMailAddress: contact.webmestre@npdc.ecologie.gouv.fr }
+        - { organisationName: 'DIREN du bassin Rhône-Méditerranée', role: pointOfContact, individualName: 'DIREN du bassin Rhône-Méditerranée', electronicMailAddress: webdiren@rhone-alpes.ecologie.gouv.fr }
+        - { organisationName: 'DIREN du bassin Corse', role: pointOfContact, individualName: 'DIREN du bassin Corse', electronicMailAddress: diren@corse.ecologie.gouv.fr }
+    mainRParties:
+        - 'DRIEAT IDF (PMin)'
+        - 'DREAL CVL (PMin)'
+        - 'DREAL GES (PMin)'
+        - 'DREAL Occitanie (PMin)'
+        - 'DREAL HDF (PMin)'
+        - 'DREAL ARA (PMin)'
+        - 'DREAL Corse (PMin)'
+    analyse: C'est le Sandre qui diffuse, il devrait être indiqué comme responsibleParty => ERREUR Sandre
+  - title: 'Zones de répartition des eaux souterraines'
+    cat: Sextant
+    id: 6b2a5320-8721-11de-8545-000086f6a603
+    responsibleParty:
+        - { organisationName: 'DIREN du bassin Seine-Normandie', role: pointOfContact, individualName: 'DIREN du bassin Seine-Normandie', electronicMailAddress: diren@ile-de-france.ecologie.gouv.fr }
+        - { organisationName: 'DIREN du bassin Loire-Bretagne', role: pointOfContact, individualName: 'DIREN du bassin Loire-Bretagne', electronicMailAddress: diren@centre.ecologie.gouv.fr }
+        - { organisationName: 'DIREN du bassin Rhin-Meuse', role: pointOfContact, individualName: 'DIREN du bassin Rhin-Meuse', electronicMailAddress: webmaster@lorraine.ecologie.gouv.fr }
+        - { organisationName: 'DIREN du bassin Adour-Garonne', role: pointOfContact, individualName: 'DIREN du bassin Adour-Garonne', electronicMailAddress: diren@midi-pyrenees.ecologie.gouv.fr }
+        - { organisationName: 'DIREN du bassin Artois-Picardie', role: pointOfContact, individualName: 'DIREN du bassin Artois-Picardie', electronicMailAddress: contact.webmestre@npdc.ecologie.gouv.fr }
+        - { organisationName: 'DIREN du bassin Rhône-Méditerranée', role: pointOfContact, individualName: 'DIREN du bassin Rhône-Méditerranée', electronicMailAddress: webdiren@rhone-alpes.ecologie.gouv.fr }
+        - { organisationName: 'DIREN du bassin Corse', role: pointOfContact, individualName: 'DIREN du bassin Corse', electronicMailAddress: diren@corse.ecologie.gouv.fr }
+    mainRParties:
+        - 'DRIEAT IDF (PMin)'
+        - 'DREAL CVL (PMin)'
+        - 'DREAL GES (PMin)'
+        - 'DREAL Occitanie (PMin)'
+        - 'DREAL HDF (PMin)'
+        - 'DREAL ARA (PMin)'
+        - 'DREAL Corse (PMin)'
+    analyse: C'est le Sandre qui diffuse, il devrait être indiqué comme responsibleParty => ERREUR Sandre
+  - title: 'Périmètre de protection des monuments historiques du Morbihan et du Pas de Calais'
+    cat: Sextant
+    id: 08d08530-66e9-11de-a4bc-000086f6a603
+    responsibleParty:
+        - { organisationName: 'DDEA du Morbihan', role: pointOfContact, individualName: 'DESCHÈRE Jean-Philippe', electronicMailAddress: jean-philippe.deschere@equipement-agriculture.gouv.fr }
+        - { organisationName: DDE62, role: pointOfContact, individualName: 'SWIERGIEL PHILIPPE', electronicMailAddress: Philippe.Swiergiel@developpement-durable.gouv.fr }
+    mainRParties:
+        - 'DDTM 56 (Morbihan) (PMin)'
+        - 'DDTM 62 (Pas-de-Calais) (PMin)'
+    analyse: Semble provenir de GéoLittoral, agrégé par Céréma qui pourrait être distributeur
+  - title: 'Coupures d''urbanisation dans le Morbihan et le Pas de Calais'
+    cat: Sextant
+    id: dc38b2d0-66e9-11de-a4bc-000086f6a603
+    responsibleParty:
+        - { organisationName: 'DDEA du Morbihan', role: pointOfContact, individualName: 'DESCHÈRE Jean-Philippe', electronicMailAddress: jean-philippe.deschere@equipement-agriculture.gouv.fr }
+        - { organisationName: DDE62, role: pointOfContact, individualName: 'SWIERGIEL PHILIPPE', electronicMailAddress: Philippe.Swiergiel@developpement-durable.gouv.fr }
+    mainRParties:
+        - 'DDTM 56 (Morbihan) (PMin)'
+        - 'DDTM 62 (Pas-de-Calais) (PMin)'
+    analyse: Semble provenir de GéoLittoral, agrégé par Céréma qui pourrait être distributeur
+  - title: 'Monuments historiques du Morbihan et du Pas de Calais- Emplacements'
+    cat: Sextant
+    id: 7c3ba4f0-663f-11de-8d5c-000086f6a603
+    responsibleParty:
+        - { organisationName: 'DDEA du Morbihan', role: pointOfContact, individualName: 'DESCHÈRE Jean-Philippe', electronicMailAddress: jean-philippe.deschere@equipement-agriculture.gouv.fr }
+        - { organisationName: DDE62, role: pointOfContact, individualName: 'SWIERGIEL PHILIPPE', electronicMailAddress: Philippe.Swiergiel@developpement-durable.gouv.fr }
+    mainRParties:
+        - 'DDTM 56 (Morbihan) (PMin)'
+        - 'DDTM 62 (Pas-de-Calais) (PMin)'
+    analyse: Semble provenir de GéoLittoral, agrégé par Céréma qui pourrait être distributeur
+  - title: 'Zones d''aléa du Plan de Prévention des Risques Naturels (PPRN) de Dax – Landes (40)'
+    cat: geoide
+    id: fr-120066022-jdd-b194ad57-2c16-46a0-bd72-49987995e8d3
+    responsibleParty:
+        - { organisationName: 'DDTM 40 (Direction Départementale des Territoires et de la Mer des Landes)', role: owner, electronicMailAddress: ddtm-adl@landes.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+        - { organisationName: 'DDTM 80 (Direction Départementale des Territoires et de la Mer de la Somme)', role: owner, electronicMailAddress: ddtm-middeg-psig@somme.gouv.fr }
+    mainRParties:
+        - 'DDTM 40 (Landes) (PMin)'
+        - 'DDT 80 (Somme) (PMin)'
+    analyse: semble une erreur
+    cat: geoide
+    id: fr-120066022-jdd-7afc1296-11bf-4b91-a93d-f74b529279d7
+    responsibleParty:
+        - { organisationName: 'DREAL Nouvelle-Aquitaine / MiCAT / PIG', role: pointOfContact, electronicMailAddress: pig.micat.dreal-na@developpement-durable.gouv.fr }
+        - { organisationName: 'DREAL Midi-Pyrénées', role: resourceProvider, electronicMailAddress: dreal-midi-pyrenees@developpement-durable.gouv.fr }
+        - { organisationName: 'DREAL Aquitaine Limousin Poitou-Charentes', role: owner, electronicMailAddress: pig.micat.dreal-alpc@developpement-durable.gouv.fr }
+        - { organisationName: 'Agence de l''eau Adour-Garonne', role: resourceProvider, electronicMailAddress: geocatalogue@eau-adour-garonne.fr }
+    mainRParties:
+        - 'DREAL Occitanie (PMin)'
+        - 'DREAL NAQ (PMin)'
+    analyse: La Dreal NAQ est l'agrégateur et devrait être indiquée comme distributeur
+
+githubMessage: |
+  J'ai regardé ce sujet de multiples responsibleParty. On a dans Géoide des cas comme:
+    fileIdentifier: fr-120066022-jdd-f0809cd7-3181-41d0-bc75-e3201abf019b
+    title: 'TRI Agen - zones de champ de vitesse'
+  avec 2 responsibleParty: DDT 47 et Dreal Aquitaine
+
+  J'ai réfléchis à une règle pour mono-attribuer chaque fiche qui marche assez bien:
+    1) La Covadis ne doit pas être responsibleParty
+    2) si les organismes ont des roles différents alors choix de celui qui a le rôle le plus pertinent avec le classement ci-dessous.
+    3) si les organismes ont même rôle mais des statuts différents alors choix DREAL > DIR > DDT > DG
+
+  L'ordre des rôles du plus pertinent au moins pertinent dans la logique du guichet est:
+    - distributor
+    - publisher
+    - custodian
+    - processor
+    - resourceProvider
+    - pointOfContact
+    - originator
+    - owner
+    - author
+    - principalInvestigator
+    - user
+
+  Par exemple, je considère que 'distributor' est plus pertinent que 'owner' car il vaut mieux, pour avoir des infos, s'adresser à un organisme affiché comme 'distributor' que 'owner'.
+
+  Dans Géoide, il n'y a qu'un cas où cette règle ne suffit pas, il s'agit de:
+  - fileIdentifier: fr-120066022-jdd-b194ad57-2c16-46a0-bd72-49987995e8d3
+    title: 'Zones d''aléa du Plan de Prévention des Risques Naturels (PPRN) de Dax – Landes (40)'
+
+  A priori, c'est une erreur de contenu de la fiche car il n'y a pas de raison que la DDTM 80 soit owner du PPRN de Dax.
+
+  Dans l'agrégation des catalogues que j'ai faite, j'ai 5 autres cas où la règle ne fonctionne pas tous provenant de Sextant:
+    - title: 'Zones de répartition des eaux superficielles'
+      id: 6d6ca200-8721-11de-8545-000086f6a603
+    - title: 'Zones de répartition des eaux souterraines'
+      id: 6b2a5320-8721-11de-8545-000086f6a603
+    - title: 'Périmètre de protection des monuments historiques du Morbihan et du Pas de Calais'
+      id: 08d08530-66e9-11de-a4bc-000086f6a603
+    - title: 'Coupures d''urbanisation dans le Morbihan et le Pas de Calais'
+      id: dc38b2d0-66e9-11de-a4bc-000086f6a603
+    - title: 'Monuments historiques du Morbihan et du Pas de Calais- Emplacements'
+      id: 7c3ba4f0-663f-11de-8d5c-000086f6a603
+  
+  Dans les 2 premiers cas, ce sont des fiches a priori reprises du Sandre ; c'est le Sandre qui diffuse
+  alors qu'il n'est pas indiqué comme ResponsibleParty. Il devait l'être par ex. comme 'distributor''
+  Dans les 3 derniers cas, ce sont des fiches a priori reprises de GéoLittoral ; c'est GéoLittoral qui semble avoir agrégé
+  alors qu'il n'est pas indiqué comme ResponsibleParty. Il devait l'être par ex. comme 'processor'
+  
+eof:
