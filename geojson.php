@@ -1,11 +1,12 @@
 <?php
 /*PhpDoc:
-title: geojson.php - sortie GéoJSON du catalogue
+title: geojson.php - sortie GéoJSON du catalogue ou d'une partie
 name: geojson.php
 doc: |
 journal: |
   15/11/2021:
     - modif du lien pour référence a.php
+    - ajout paramètre id pour fabriquer une carte de situation
   11/11/2021:
     - regroupement des bbox identiques en un seul
   10/11/2021:
@@ -236,7 +237,8 @@ $sql = "select cat.id, title, area, record
        .(isset($_GET['org']) ? ", catorg$_GET[cat] org" : '')
        .(isset($_GET['theme']) ? ", cattheme$_GET[cat] theme" : '')."
         where
-          type in ('dataset','series') and perimetre='Min' and area is not null\n";
+          type in ('dataset','series') and perimetre='Min' and area is not null\n"
+  .(isset($_GET['id']) ? "and id='$_GET[id]'\n" : '');
 if (isset($_GET['org']))
   $sql .= "and cat.id=org.id and org.org='".str_replace("'","''", $_GET['org'])."'\n";
 if (isset($_GET['theme']))

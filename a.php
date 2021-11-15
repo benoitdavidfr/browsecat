@@ -8,6 +8,8 @@ doc: |
   Les mdContacts de ces MDD ne sont parfois pas des organisations du pôle.
 
 journal: |
+  15/11/2021:
+    - ajout carte de situation
   14/11/2021:
     - utilisation de orgarbo.inc.php
   13/11/2021:
@@ -251,6 +253,26 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
     $offset = $limit + ($_GET['offset'] ?? 0);
     echo "<a href='?action=diffgeocat&amp;offset=$offset'>next</a>\n";
   }
+  elseif ($_GET['action']=='searchById') { // Cherche dans les différents catalogues dans lesquels cette fiche est présente
+    echo "<form action='a.php'>\n";
+    echo "<input type=hidden name='action' value='searchById'>\n";
+    echo "id: <input type=text size='80' name='id' value='",$_GET['id'] ?? '',"'>\n";
+    echo "<input type=submit value='go'>\n";
+    echo "</form>\n";
+    if (!isset($_GET['id'])) die();
+    echo "<ul>";
+    foreach (array_keys($cats) as $catid) {
+      $tuples = PgSql::getTuples("select id, title from catalog$catid where id='$_GET[id]'");
+      if (!$tuples) {
+        echo "<li>$catid: Aucun enregistrement</li>\n";
+      }
+      else {
+        $tuple = $tuples[0];
+        echo "<li>$catid: <a href='?cat=$catid&amp;action=showPg&amp;id=$_GET[id]'>$tuple[title]</a></li>\n";
+      }
+    }
+    die("</ul>\n");
+  }
   die();
 }
   
@@ -289,14 +311,86 @@ if ($_GET['action']=='listservices') { // Toutes les MD de type service
   die();
 }
 
+function bboxesError(array $bboxes): ?string {
+  $max = ['westLon'=>180,'eastLon'=>180,'southLat'=>90,'northLat'=>90];
+  if (!$bboxes)
+    return "Aucun BBox";
+  foreach($bboxes as $bbox) {
+    foreach (['westLon','eastLon','southLat','northLat'] as $k) {
+      if (!isset($bbox[$k]))
+        return "$k absent";
+      if (!is_numeric($bbox[$k]))
+        return "$k non numérique";
+      if (($bbox[$k] > $max[$k]) || ($bbox[$k] < -$max[$k]))
+        return "$k hors bound";
+    }
+  }
+  return null;
+}
+
 if ($_GET['action']=='showPg') { // affiche une fiche depuis PgSql
+  function center(array $bboxes): array { // retourne le centre des bbox en [Lat, Lon]
+    $s['lon'] = 0; 
+    $s['lat'] = 0; 
+    foreach ($bboxes as $bbox) {
+      $s['lon'] += ($bbox['westLon'] + $bbox['eastLon'])/2;
+      $s['lat'] += ($bbox['southLat'] + $bbox['northLat'])/2;
+    }
+    return [$s['lat']/count($bboxes), $s['lon']/count($bboxes)];
+  }
+  
+  function zoom(array $bboxes): int { // retourne le niveau de zoom à utiliser pour une liste de bbox
+    define('MAXZOOM', 18);
+    $min = [
+      'lat'=> min($bboxes[0]['southLat'], $bboxes[0]['northLat']),
+      'lon'=> min($bboxes[0]['westLon'], $bboxes[0]['eastLon']),
+    ];
+    $max = [
+      'lat'=> max($bboxes[0]['southLat'], $bboxes[0]['northLat']),
+      'lon'=> max($bboxes[0]['westLon'], $bboxes[0]['eastLon']),
+    ];
+    foreach ($bboxes as $bbox) {
+      $min = [
+        'lat'=> min($bboxes[0]['southLat'], $bboxes[0]['northLat'], $min['lat']),
+        'lon'=> min($bboxes[0]['westLon'],  $bboxes[0]['eastLon'],  $min['lon']),
+      ];
+      $max = [
+        'lat'=> max($bboxes[0]['southLat'], $bboxes[0]['northLat'], $max['lat']),
+        'lon'=> max($bboxes[0]['westLon'],  $bboxes[0]['eastLon'],  $max['lon']),
+      ];
+    }
+    // taille max en degrés de longueur constante (Zoom::$size0 / 360)
+    $cos = cos(($min['lat'] + $max['lat'])/2 / 180 * pi()); // cosinus de la latitude moyenne
+    $size = max(($max['lon'] - $min['lon']) * $cos, ($max['lat'] - $min['lat']));
+    //echo "size=$size<br>\n";
+    // niveau de zoom adapté à la visualisation d'une géométrie définie par la taille de son GBox
+    if ($size) {
+      $z = log(360.0 / $size, 2);
+      //echo "z=$z<br>\n";
+      return min(round($z), MAXZOOM);
+    }
+    else
+      return MAXZOOM;
+  }
+  
   $tuples = PgSql::getTuples("select record from catalog$_GET[cat] where id='$_GET[id]'");
   if (!$tuples) {
     die("Aucun enregistrement pour id='$_GET[id]'<br>\n");
   }
   $record = json_decode($tuples[0]['record'], true);
   //echo "<pre>",json_encode($record, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
-  echo '<pre>',Yaml::dump($record, 2, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+  echo '<pre>',Yaml::dump($record, 2, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK),"</pre>\n";
+
+  if (isset($record['dcat:bbox']) && !bboxesError($record['dcat:bbox'])
+    && ($center = center($record['dcat:bbox']))
+    && (($zoom = zoom($record['dcat:bbox'])) !== null)) {
+      $url = "map.php?cat=$_GET[cat]&amp;id=$_GET[id]&amp;center=".implode(',',$center)."&amp;zoom=$zoom";
+      echo "<iframe width='800' height='600' src='$url'></iframe>\n";
+  }
+  else {
+    echo "Pas de carte de situation\n";
+  }
+  
   die();
 }
 
@@ -535,6 +629,41 @@ if ($_GET['action']=='mdContacts') { // Liste les mdContacts des MDD du périmè
   die();
 }
 
+if ($_GET['action']=='qualibbox') { // Analyse de la qualité des BBox  
+  echo "<h2>Analyse de la qualité des BBox</h2>\n";
+  $sql = "select ".($_GET['cat']=='agg' ? 'cat,':'')."id,title,record
+    from catalog$_GET[cat]
+    where type in ('dataset','series') and perimetre='Min'";
+  $nbMdd = 0;
+  $bboxesKo = 0;
+  $errors = [];
+  $errorsPerCat = [];
+  $nbPerCat = [];
+  echo "<ul>\n";
+  foreach (PgSql::query($sql) as $tuple) {
+    $record = json_decode($tuple['record'], true);
+    if ($error = bboxesError($record['dcat:bbox'] ?? [])) {
+      $errors[$error] = 1 + ($errors[$error] ?? 0);
+      echo "<li>$error: <a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</a></li>\n";
+      //echo '<pre>',Yaml::dump([$record], 4, 2), "</pre>\n";
+      $bboxesKo++;
+      if ($_GET['cat']=='agg') {
+        $errorsPerCat[$tuple['cat']] = 1 + ($errorsPerCat[$tuple['cat']] ?? 0);
+      }
+    }
+    $nbMdd++;
+    $nbPerCat[$tuple['cat']] = 1 + ($nbPerCat[$tuple['cat']] ?? 0);
+  }
+  echo "</ul>\n";
+  printf("%d incorrects soit %.0f %% sur %d<br>\n", $bboxesKo, $bboxesKo/$nbMdd*100, $nbMdd);
+  echo '<pre>',Yaml::dump(['$errors'=> $errors]),"</pre>\n";
+  foreach ($errorsPerCat as $catid => $nberr) {
+    $errorsPerCat[$catid] = sprintf('%d / %d soit %.0f %%', $nberr, $nbPerCat[$catid], $nberr/$nbPerCat[$catid]*100);
+  }
+  echo '<pre>',Yaml::dump(['$errorsPerCat'=> $errorsPerCat]),"</pre>\n";
+  die();
+}
+
 if ($_GET['action']=='nbMdParTheme') { // Dénombrement des MDD par thème
   $nbMdParTheme = []; // [{arboid} => [{prefLabel} => nb]]
   $nbMd = 0;
@@ -764,7 +893,9 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
   foreach(array_merge($arboOrgsPMin->nodes(), $orgNonDefinies) as $idorg => $org) {
     $short = $org->short();
     if (!isset($nbMdParOrg[$short])) continue;
-    printf("<tr><td>%s</td><td align='right'>%d</td>", $short, ceil($nbMdParOrg[$short]));
+    $url = "?cat=$_GET[cat]&amp;action=mddOrgTheme"
+        ."&amp;type=$_GET[type]&amp;org=".urlencode((string)$org);
+    printf("<tr><td>%s</td><td align='right'><a href='%s'>%d</a></td>", $short, $url, ceil($nbMdParOrg[$short]));
     foreach (array_merge($arbos[$_GET['arbo']]->nodes(), [$nonClasse]) as $theme) {
       $plabel = (string)$theme;
       if (!isset($nbMdParTheme[$plabel])) continue;

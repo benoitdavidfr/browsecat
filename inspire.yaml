@@ -38,17 +38,17 @@ rolesOfResponsibleParty:
       title: Utilisateur
       description: Partie qui utilise la ressource.
 roleOrderForUser:
-  title: ordre du plus pertinent au moins pour un utilisateur
+  title: ordre du plus pertinent au moins vis à vis d'un utilisateur
   roles:
     distributor:
     publisher:
     custodian:
+    processor:
     resourceProvider:
     pointOfContact:
     originator:
     owner:
     author:
     principalInvestigator:
-    processor:
     user:
 eof:

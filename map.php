@@ -4,6 +4,8 @@ name: map.php
 title: map.php - carte Leaflet
 doc: |
 journal: |
+  15/11/2021:
+    - ajout paramètre id pour fabriquer une carte de situation
   29/10/2021:
     - création
 includes: [cats.inc.php]
@@ -20,10 +22,11 @@ if (!isset($_GET['cat'])) { // choix du catalogue
 }
 
 $params = "cat=$_GET[cat]"
-  .(isset($_GET['otype']) ?  "&otype=$_GET[otype]" :  '')
+  .(isset($_GET['otype']) ? "&otype=$_GET[otype]" :  '')
   .(isset($_GET['org']) ?   "&org=".urlencode($_GET['org']) :   '')
   .(isset($_GET['arbo']) ?  "&arbo=$_GET[arbo]" :  '')
-  .(isset($_GET['theme']) ? "&theme=$_GET[theme]" : '');
+  .(isset($_GET['theme']) ? "&theme=$_GET[theme]" : '')
+  .(isset($_GET['id']) ?    "&id=$_GET[id]" : '');
 //echo "params=$params<br>\n";
 $browsecaturl = ($_SERVER['HTTP_HOST']=='localhost') ?
   'http://localhost/browsecat' : 'https://bdavid.alwaysdata.net/browsecat';

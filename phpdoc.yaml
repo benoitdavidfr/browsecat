@@ -77,7 +77,7 @@ doc: |
     - ajouter les MDD n'ayant pas de bbox à un bbox par défaut, ex celui de l'organisation ?
     
   A faire:
-    - remoissonner Géo-IDE, il semble que la version a changé / FAIT le 13/11/2021
+    - intégrer DiDo et DataGouv
   
 journal: |
   14/11/2021:

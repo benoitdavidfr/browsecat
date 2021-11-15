@@ -41,6 +41,7 @@ if (!isset($_GET['cat'])) { // choix d'une action globale ou d'un catalogue
   echo "<li><a href='a.php?action=listkws'>Synthèse des taux d'appartenance des mots-clés aux arborescences</a></li>\n";
   echo "<li><a href='a.php?action=croise'>Calcul du nbre de MD communes entre catalogues</a></li>\n";
   echo "<li><a href='a.php?action=diffgeocat'>Affichage des MDD du Géocatalogue du périmètre n'appartenant pas à agg</a></li>\n";
+  echo "<li><a href='a.php?action=searchById'>Cherche dans les différents catalogues dans lesquels cette fiche est présente</a></li>\n";
   echo "<li><a href='a.php?action=version'>Affichage de la version des actions</a></li>\n";
   echo "</ul>\n";
   echo "--<br>\nVersion ",VERSION,"<br>\n";
@@ -64,6 +65,7 @@ else { // (isset($_GET['cat'])) // choix d'une action sur un catalogue particuli
   echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=ldnkw'>MDD dont aucun mot-clé correspond à une des arborescences</a></li>\n";
   echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=setPerimetre'>Enregistre le périmetre sur les MD</a></li>\n";
   echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=mdContacts'>Liste les mdContacts des MDD du périmètre</a></li>\n";
+  echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=qualibbox'>Analyse de la qualité des BBox</a></li>\n";
   echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=nbMdParTheme'>Dénombrement des MD par thème</a></li>\n";
   echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=nbMdParOrg&amp;type=responsibleParty'>Dénombrement des MD par responsibleParty</a></li>\n";
   echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=nbMdParOrgTheme&amp;type=responsibleParty&amp;arbo=arboCovadis'>
