@@ -7,6 +7,7 @@ doc: |
 journal: |
   15/11/2021:
     - ajout dans crauxtabl / cattheme$catid des NON CLASSE
+    - ajout d'un export en yaml d'un catalogue
   14/11/2021:
     - modif sperim et crauxtabl pour utiliser OrgArbo à la place de Arbo
     - ajout possibilités cmde=all et d'une liste de cmdes
@@ -134,6 +135,7 @@ if ($cmde == 'export') { // export d'un catalogue dans un fichier Yaml
 if ($cmde == 'testexport') { // Test de relecture du fichier Yaml généré
   $yaml = Yaml::parsefile("$catid.yaml");
   echo Yaml::dump($yaml, 4, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+  die();
 }
 
 if ($cmde == 'sperim') { // actualiser le périmètre sur chaque catalogue à partir du fichier \${catid}Sel.yaml
