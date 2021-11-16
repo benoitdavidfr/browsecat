@@ -5,6 +5,8 @@ name: cmde.php
 doc: |
   Certaines commandes étant longues, je les exécute pour la base OVH sur localhost
 journal: |
+  16/11/2021:
+    - chgt de mécanisme pour addarea avec une table catbbox et renomage de la commande en addbbox
   15/11/2021:
     - ajout dans crauxtabl / cattheme$catid des NON CLASSE
     - ajout d'un export en yaml d'un catalogue
@@ -37,7 +39,7 @@ if (php_sapi_name()=='cli') {
     echo "  - export pour exporter en Yaml les fiches de MDD du catalogue\n";
     echo "  - sperim pour actualiser le périmètre sur chaque catalogue à partir du fichier \${catid}Sel.yaml\n";
     echo "  - ajoutheme pour ajouter des thèmes\n";
-    echo "  - addarea pour ajouter les champs area, ... et les peupler\n";
+    echo "  - addbbox pour ajouter la table catbbox par catalogue et la peupler\n";
     echo "  - crauxtabl pour créer les 2 tables auxilaires par catalogue\n";
     echo "  - cragg pour créer les 3 tables du catalogue agrégé (ne nécessite pas de paramètre {cat})\n";
     echo "  - all pour éxécuter ttes les commandes sauf export\n";
@@ -69,17 +71,18 @@ if (php_sapi_name()=='cli') {
     echo "php $argv[0] cragg $argv[2]\n";
     die();
   }
+  
   //echo "argc=$argc\n";
   $catid = $argv[3] ?? '';
   if (!($cmde = $argv[1] ?? null))
     usage($argv);
   elseif ($cmde == 'all') { // exécute ttes les commandes
-    multicmdes(['sperim','ajoutheme','addarea','crauxtabl','cragg'], $argv, $catid, $cats);
+    multicmdes(['sperim','ajoutheme','addbbox','crauxtabl','cragg'], $argv, $catid, $cats);
   }
   elseif (strpos($cmde, ',') !== false) {
     multicmdes(explode(',', $cmde), $argv, $catid, $cats);
   }
-  elseif (!in_array($cmde, ['sperim','ajoutheme','addarea','crauxtabl','cragg','export','none'])) {
+  elseif (!in_array($cmde, ['sperim','ajoutheme','addbbox','crauxtabl','cragg','export','none'])) {
     echo "Erreur: paramètre commande $cmde inconnue !\n";
     usage($argv);
   }
@@ -151,7 +154,7 @@ if ($cmde == 'sperim') { // actualiser le périmètre sur chaque catalogue à pa
   die("Ok $catid<br>\n");
 }
 
-if ($cmde == 'ajoutheme') {
+if ($cmde == 'ajoutheme') { // pour ajouter des thèmes
   // Renvoie la liste prefLabels structurée par arbo, [ {arboid} => [ {prefLabel} ]]
   function prefLabels(array $keywords, array $arbos): array {
     $prefLabels = []; // liste des prefLabels des mots-clés structuré par arbo, sous forme [arboid => [prefLabel => 1]]
@@ -173,11 +176,13 @@ if ($cmde == 'ajoutheme') {
     return $prefLabels;
   }
 
+  $cat = new CatInPgSql($catid);
   $arboCovadis = new Arbo('arbocovadis.yaml');
 
+  $regexps = []; // liste des regexps - [{regexp} => ['theme'=> {theme}, 'nbre'=> {nbre}]]
   foreach($arboCovadis->nodes() as $theme) {
     foreach ($theme->regexps() as $regexp)
-      $matches[Arbo::simplif($regexp)] = ['theme'=> (string)$theme, 'nbre'=> 0];
+      $regexps[Arbo::simplif($regexp)] = ['theme'=> (string)$theme, 'nbre'=> 0];
   }
 
   $nbMdd = 0;
@@ -186,17 +191,30 @@ if ($cmde == 'ajoutheme') {
           where type in ('dataset','series') and perimetre='Min'";
   foreach (PgSql::query($sql) as $tuple) {
     $record = json_decode($tuple['record'], true);
-    if ($prefLabels = prefLabels($record['keyword'] ?? [], ['a'=>$arboCovadis]))
-      continue;
-    //echo " - $tuple[title]\n";
-    $keywords = [];
-    foreach ($matches as $label => $match) {
-      if (preg_match("!$label!i", Arbo::simplif($tuple['title']))) {
-        $keywords[$match['theme']] = 1;
-        $matches[$label]['nbre']++;
+    // Supprime les keyword précédemmnt ajoutés
+    $keywordsDeleted = false;
+    foreach ($record['keyword'] ?? [] as $i => $keyword) {
+      if ('http://localhost/browsecat/ajouttheme.php/arbocovadis' == ($keyword['thesaurusId'] ?? '')) {
+        unset($record['keyword'][$i]);
+        $keywordsDeleted = true;
       }
     }
-    if ($keywords) {
+    if ($record['keyword'] ?? [])
+      $record['keyword'] = array_values($record['keyword']);
+    if ($prefLabels = prefLabels($record['keyword'] ?? [], ['a'=>$arboCovadis])) {
+      if ($keywordsDeleted)
+        $cat->updateRecord($tuple['id'], $record);
+      continue;
+    }
+    //echo " - $tuple[title]\n";
+    $keywords = []; // mots-clés à ajouter [{label}=> 1]
+    foreach ($regexps as $regexp => $match) {
+      if (preg_match("!$regexp!i", Arbo::simplif($tuple['title']))) {
+        $keywords[$match['theme']] = 1;
+        $regexps[$regexp]['nbre']++;
+      }
+    }
+    if ($keywords || $keywordsDeleted) {
       //echo "   + ",implode(', ', array_keys($keywords)),"\n";
       foreach (array_keys($keywords) as $kw)
         $record['keyword'][] = [
@@ -207,7 +225,6 @@ if ($cmde == 'ajoutheme') {
           'thesaurusId'=> 'http://localhost/browsecat/ajouttheme.php/arbocovadis',
         ];
       //print_r($record);
-      $cat = new CatInPgSql($catid);
       $cat->updateRecord($tuple['id'], $record);
       $nbAjouts++;
     }
@@ -222,13 +239,17 @@ if ($cmde == 'ajoutheme') {
   else
     echo "Aucune MDD concernées pour $catid\n";
 
-  //echo Yaml::dump($matches);
+  //echo Yaml::dump(['$regexps'=> $regexps]);
+  foreach ($regexps as $regexp => $match) {
+    if ($match['nbre'])
+      echo Yaml::dump([$regexp => $match]);
+  }
 
   //echo Yaml::dump(['$noMatches' => $noMatches]);
   die();
 }
 
-if ($cmde == 'addarea') { // ajouter les champs area, ... et les peupler
+if ($cmde == 'addbbox') { // ajout de la table catbbox
   function floorp(float $num, int $precision = 0): float {
     if (!$precision)
       return floor($num);
@@ -257,20 +278,39 @@ if ($cmde == 'addarea') { // ajouter les champs area, ... et les peupler
     return abs(($bbox['eastLon'] - $bbox['westLon']) * ($bbox['northLat'] - $bbox['southLat']));
   }
   
+  if (0)
+  foreach (array_keys($cats) as $catid) { // suppression des anciennes structures
+    foreach ([
+        "alter table catalog$catid
+          drop column if exists area, drop column if exists westLon, drop column if exists southLat,
+          drop column if exists eastLon, drop column if exists northLat",
+        "drop index if exists catalog${catid}_area_idx",
+      ] as $sql) {
+        try {
+          PgSql::query($sql);
+        }
+        catch (Exception $e) {
+          echo '<b>',$e->getMessage()," sur $sql</b>\n\n";
+          die();
+        }
+      }
+  }
+  
   // résolution décamétrique des coordonnées => 4 chiffres après la virgule -> numeric(7,4)
   // résolution décamétrique des surfaces => 4*2 chiffres après la virgule, max = 360 * 180 = 64800 -> numeric(13,8)
   foreach ([
-      "alter table catalog$catid
-        drop column if exists area, drop column if exists westLon, drop column if exists southLat,
-        drop column if exists eastLon, drop column if exists northLat",
-      "alter table catalog$catid
-        add area numeric(13,8),
-        add westLon numeric(7,4),
-        add southLat numeric(7,4),
-        add eastLon numeric(7,4),
-        add northLat numeric(7,4)",
-      "drop index if exists catalog${catid}_area_idx",
-      "create index catalog${catid}_area_idx ON catalog$catid (area,westLon,southLat,eastLon)",
+      "drop table if exists catbbox$catid",
+      "create table catbbox$catid(
+        id varchar(256) not null, -- fileIdentifier
+        nobbox int not null, -- le no de bbox à partir de 0
+        area numeric(13,8),
+        westLon numeric(7,4),
+        southLat numeric(7,4),
+        eastLon numeric(7,4),
+        northLat numeric(7,4)
+      )",
+      "create unique index on catbbox$catid(id, nobbox)",
+      "create index catbbox${catid}_area_idx ON catbbox$catid (area desc,westLon,southLat,eastLon)",
     ] as $sql) {
       try {
         PgSql::query($sql);
@@ -286,21 +326,24 @@ if ($cmde == 'addarea') { // ajouter les champs area, ... et les peupler
     //echo "$tuple[title]\n";
     $record = json_decode($tuple['record'], true);
     //print_r($record['dcat:bbox']);
-    if (isset($record['dcat:bbox'][0]) && ($area = area($record['dcat:bbox'][0]))) {
-      $bbox = $record['dcat:bbox'][0];
-      $westLon = floorp(min($bbox['westLon'], $bbox['eastLon']), 4);
-      $southLat = floorp(min($bbox['southLat'], $bbox['northLat']), 4);
-      $eastLon = ceilp(max($bbox['westLon'], $bbox['eastLon']), 4);
-      $northLat = ceilp(max($bbox['southLat'], $bbox['northLat']), 4);
-      $sql = "update catalog$catid
-              set area=$area, westLon=$westLon, southLat=$southLat, eastLon=$eastLon, northLat=$northLat
-              where id='$tuple[id]'";
-      try {
-        PgSql::query($sql);
-      }
-      catch (Exception $e) {
-        echo '<b>',$e->getMessage()," sur $sql</b>\n\n";
-        die();
+    foreach ($record['dcat:bbox'] ?? [] as $nobbox => $bbox) {
+      if ($area = area($bbox)) {
+        $westLon = floorp(min($bbox['westLon'], $bbox['eastLon']), 4);
+        $southLat = floorp(min($bbox['southLat'], $bbox['northLat']), 4);
+        $eastLon = ceilp(max($bbox['westLon'], $bbox['eastLon']), 4);
+        $northLat = ceilp(max($bbox['southLat'], $bbox['northLat']), 4);
+        /*$sql = "update catalog$catid
+                set area=$area, westLon=$westLon, southLat=$southLat, eastLon=$eastLon, northLat=$northLat
+                where id='$tuple[id]'";*/
+        $sql = "insert into catbbox$catid(id, nobbox, area, westLon, southLat, eastLon, northLat)
+                values ('$tuple[id]', $nobbox, $area, $westLon, $southLat, $eastLon, $northLat)";
+        try {
+          PgSql::query($sql);
+        }
+        catch (Exception $e) {
+          echo '<b>',$e->getMessage()," sur $sql</b>\n\n";
+          die();
+        }
       }
     }
   }
@@ -401,12 +444,7 @@ if ($cmde == 'cragg') { // créer les 3 tables du catalogue agrégé
     record json, -- enregistrement de la fiche en JSON
     title text, -- 1.1. Intitulé de la ressource
     type varchar(256), -- 1.3. Type de la ressource
-    perimetre varchar(256), -- 'Min','Op','Autres' ; null ssi non défini
-    area numeric(13,8), -- surface des bbox en degrés carrés, résolution dam2, null ssi non défini ou 0
-    westLon numeric(7,4), -- coordonnées, résolution décamétrique
-    southLat numeric(7,4),
-    eastLon numeric(7,4),
-    northLat numeric(7,4)
+    perimetre varchar(256) -- 'Min','Op','Autres' ; null ssi non défini
   )");
 
   foreach(['org','theme'] as $typtab) {
@@ -417,10 +455,21 @@ if ($cmde == 'cragg') { // créer les 3 tables du catalogue agrégé
     )");
   }
 
+  PgSql::query("drop table if exists catbboxagg");
+  PgSql::query("create table catbboxagg(
+    id varchar(256) not null, -- fileIdentifier
+    nobbox int not null, -- le no de bbox à partir de 0
+    area numeric(13,8), -- surface des bbox en degrés carrés, résolution dam2, null ssi non défini ou 0
+    westLon numeric(7,4), -- coordonnées, résolution décamétrique
+    southLat numeric(7,4),
+    eastLon numeric(7,4),
+    northLat numeric(7,4)
+  )");
+
   foreach ($cats as $catid => $cat) {
     if ($cat['dontAgg'] ?? false) continue;
-    $sql = "insert into catalogagg(cat, id, record, title, type, perimetre, area, westLon, southLat, eastLon, northLat)\n"
-          ."  select '$catid', id, record, title, type, perimetre, area, westLon, southLat, eastLon, northLat\n"
+    $sql = "insert into catalogagg(cat, id, record, title, type, perimetre)\n"
+          ."  select '$catid', id, record, title, type, perimetre\n"
           ."  from catalog$catid\n"
           ."  where id not in (select id from catalogagg)";
     echo "$sql\n";
@@ -432,13 +481,21 @@ if ($cmde == 'cragg') { // créer les 3 tables du catalogue agrégé
       echo "$sql\n";
       PgSql::query($sql);
     }
+    
+    $sql = "insert into catbboxagg(id, nobbox, area, westLon, southLat, eastLon, northLat)\n"
+          ."  select id, nobbox, area, westLon, southLat, eastLon, northLat\n"
+          ."  from catbbox$catid\n"
+          ."  where id not in (select id from catbboxagg)";
+    echo "$sql\n";
+    PgSql::query($sql);
   }
 
-  PgSql::query("create index on catalogagg(area,westLon,southLat,eastLon)");
   PgSql::query("create index on catorgagg(id)");
   PgSql::query("create index on catorgagg(org)");
   PgSql::query("create index on catthemeagg(id)");
   PgSql::query("create index on catthemeagg(theme)");
+  PgSql::query("create unique index on catbboxagg(id, nobbox)");
+  PgSql::query("create index on catbboxagg(area desc,westLon,southLat,eastLon)");
 
   echo "Ok\n";
 }

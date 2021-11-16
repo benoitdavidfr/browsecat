@@ -68,7 +68,16 @@ if ((__FILE__ <> realpath($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME'])) &&
 
 $arboOrgsPMin = new OrgArbo('orgpmin.yaml');
 
-if (0) {
+if (!isset($_GET['action'])) {
+  echo "Actions proposées:<ul>\n";
+  echo "<li><a href='?action=testops'>Test orgIn/prefLabel/short</a></li>\n";
+  echo "<li><a href='?action=testRecordIn'>Test recordIn</a></li>\n";
+  echo "<li><a href='?action=selRef'>Test de compatibilité entre les fichiers Sel et le référentiel</a></li>\n";
+  echo "<li><a href='?action=nodes'>Affiche les nodes</a></li>\n";
+  die("</ul>\n");
+}
+
+elseif ($_GET['action']=='testops') { // Test orgIn/prefLabel/short 
   $orgs = <<<EOT
 - { organisationName: 'DDT 12 (Direction Départementale des Territoires de l''Aveyron)', role: owner, electronicMailAddress: ddt-mact@aveyron.gouv.fr }
 - { organisationName: ADL, role: pointOfContact, electronicMailAddress: nicolas.kusmierek@pas-de-calais.gouv.fr }
@@ -89,7 +98,8 @@ EOT;
       3);
   }
 }
-elseif (0) {
+
+elseif ($_GET['action']=='testRecordIn') { // Test recordIn
   $records = <<<EOT
 - 'dct:title':
     - 'Gestion du domaine public maritime naturel (DPM)'
@@ -117,7 +127,8 @@ EOT;
       5);
   }
 }
-else {
+
+elseif ($_GET['action']=='selRef') { // Test de compatibilité entre les fichiers Sel et le référentiel
   echo "<h2>Test de compatibilité entre les fichiers Sel et le référentiel</h2>\n";
   echo "<h3>Libellés de Sel hors référentiel</h3>\n";
   $dir = 'catalogs';
@@ -136,4 +147,15 @@ else {
     echo "</ul>\n";
   }
   closedir($dh);
+}
+
+elseif ($_GET['action']=='nodes') {
+  echo "<pre>\n";
+  foreach ($arboOrgsPMin->nodes() as $key => $theme) {
+    echo Yaml::dump([$key => [
+        'prefLabel'=> $theme->prefLabel(),
+        'short'=> $theme->short(),
+      ]]);
+  }
+  die("</pre>\n");
 }

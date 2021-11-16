@@ -41,6 +41,8 @@ class Concept extends Node {
   private array $altLabels; // liste des synonymes
   private array $hiddenLabels; // liste des synonymes cachés
   private array $regexps; // liste d'expression régulières utilisées pour classer une fiche à partir de ses champs textuels
+  private ?string $definition; // champ définition
+  private ?string $note; // champ note
   
   function __construct(array $path, array $labels, array $children=[]) {
     //echo "Concept::__construct(prefLabels: ",json_encode($prefLabels),")<br>\n";
@@ -50,6 +52,8 @@ class Concept extends Node {
     $this->altLabels = $labels['altLabels'] ?? [];
     $this->hiddenLabels = $labels['hiddenLabels'] ?? [];
     $this->regexps = $labels['regexps'] ?? [];
+    $this->definition = $labels['definition'] ?? null;
+    $this->note = $labels['note'] ?? null;
     $this->children = $children;
   }
 
@@ -58,6 +62,8 @@ class Concept extends Node {
   function __toString(): string { return $this->prefLabels['fr'] ?? ''; }
   function prefLabel(string $lang='fr'): ?string { return $this->prefLabels[$lang] ?? null; }
   function regexps() : array { return $this->regexps; }
+  function definition() : ?string { return $this->definition; }
+  function note() : ?string { return $this->note; }
 
   function asArray(): array {
     $children = [];

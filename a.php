@@ -8,7 +8,7 @@ doc: |
   Les mdContacts de ces MDD ne sont parfois pas des organisations du pôle.
 
 journal: |
-  15/11/2021:
+  15-16/11/2021:
     - ajout carte de situation
   14/11/2021:
     - utilisation de orgarbo.inc.php
@@ -32,7 +32,7 @@ includes:
   - orginsel.inc.php
   - mdvars2.inc.php
 */
-define('VERSION', "a.php 14/11/2021 9:32");
+define('VERSION', "a.php 16/11/2021 8:00");
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/cswserver.inc.php';
 require_once __DIR__.'/cats.inc.php';
@@ -351,14 +351,15 @@ if ($_GET['action']=='showPg') { // affiche une fiche depuis PgSql
     ];
     foreach ($bboxes as $bbox) {
       $min = [
-        'lat'=> min($bboxes[0]['southLat'], $bboxes[0]['northLat'], $min['lat']),
-        'lon'=> min($bboxes[0]['westLon'],  $bboxes[0]['eastLon'],  $min['lon']),
+        'lat'=> min($bbox['southLat'], $bbox['northLat'], $min['lat']),
+        'lon'=> min($bbox['westLon'],  $bbox['eastLon'],  $min['lon']),
       ];
       $max = [
-        'lat'=> max($bboxes[0]['southLat'], $bboxes[0]['northLat'], $max['lat']),
-        'lon'=> max($bboxes[0]['westLon'],  $bboxes[0]['eastLon'],  $max['lon']),
+        'lat'=> max($bbox['southLat'], $bbox['northLat'], $max['lat']),
+        'lon'=> max($bbox['westLon'],  $bbox['eastLon'],  $max['lon']),
       ];
     }
+    //echo '<pre>',Yaml::dump(['$bboxes'=> $bboxes, '$min'=> $min, '$max'=> $max]),"</pre>\n";
     // taille max en degrés de longueur constante (Zoom::$size0 / 360)
     $cos = cos(($min['lat'] + $max['lat'])/2 / 180 * pi()); // cosinus de la latitude moyenne
     $size = max(($max['lon'] - $min['lon']) * $cos, ($max['lat'] - $min['lat']));
@@ -891,6 +892,7 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
   
   // affichage du contenu de la table org X theme
   foreach(array_merge($arboOrgsPMin->nodes(), $orgNonDefinies) as $idorg => $org) {
+    if (!$org->prefLabel()) continue; // Noeud ingtermédiare ne correspondant pas à un concept
     $short = $org->short();
     if (!isset($nbMdParOrg[$short])) continue;
     $url = "?cat=$_GET[cat]&amp;action=mddOrgTheme"
@@ -929,10 +931,11 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
   
   // Enfin affichage de la liste des thèmes avec le nom court
   echo "<h2>Nomenclature des thèmes</h2>\n";
-  echo "<table border=1><th>code</th><th>étiquette</th>\n";
+  echo "<table border=1><th>code</th><th>étiquette</th><th>définition</th><th>note</th>\n";
   foreach (array_merge($arbos[$_GET['arbo']]->nodes(), [$nonClasse]) as $theme) {
     if (isset($nbMdParTheme[(string)$theme]))
-      echo "<tr><td>",$theme->short(),"</td><td>$theme</td></tr>\n";
+      echo "<tr><td>",$theme->short(),"</td><td>$theme</td>",
+            "<td>",$theme->definition(),"</td><td>",$theme->note(),"</td></tr>\n";
   }
   echo "</table>\n";
   die();
@@ -952,7 +955,7 @@ if ($_GET['action']=='mddOrgTheme') { // liste les MDD avec org et theme
          .(isset($_GET['org']) ? ", catorg$_GET[cat] org" : '')
          .(isset($_GET['theme']) ? ", cattheme$_GET[cat] theme" : '')."
           where
-            type in ('dataset','series') and perimetre='Min' and area is not null\n";
+            type in ('dataset','series') and perimetre='Min'\n";
   if (isset($_GET['org']))
     $sql .= "and cat.id=org.id and org.org='".str_replace("'","''", $_GET['org'])."'\n";
   if (isset($_GET['theme']))

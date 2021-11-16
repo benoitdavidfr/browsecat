@@ -3,7 +3,12 @@
 title: geojson.php - sortie GéoJSON du catalogue ou d'une partie
 name: geojson.php
 doc: |
+  Génère un Feature GeoJSON par bbox associé à une fiche de métadonnées
+  grâce à l'utilisation des table catbbox généré dans addbbox
+  Si plusieurs fiches s'appuient sur le même bbox, ces fiches sonr regroupées pour en afficher un seul.
 journal: |
+  16/11/2021:
+    - utilisation de catbbox
   15/11/2021:
     - modif du lien pour référence a.php
     - ajout paramètre id pour fabriquer une carte de situation
@@ -27,14 +32,11 @@ require_once __DIR__.'/catinpgsql.inc.php';
 require_once __DIR__.'/arbo.inc.php';
 require_once __DIR__.'/orginsel.inc.php';
 
-// Choisir le serveur
-if ($_SERVER['HTTP_HOST']=='localhost')
-  PgSql::open('host=pgsqlserver dbname=gis user=docker');
-else
-  PgSql::open('pgsql://benoit@db207552-001.dbaas.ovh.net:35250/catalog/public');
-//PgSql::open('pgsql://browsecat:Browsecat9@db207552-001.dbaas.ovh.net:35250/catalog/public');
+if (!CatInPgSql::chooseServer($_SERVER['HTTP_HOST']=='localhost' ? 'local' : 'distant')) { // Choix du serveur 
+  die("Erreur dans  CatInPgSql::chooseServer()!\n");
+}
 
-function isOrg(string $otype, string $orgname, array $record): bool { // Teste si $_GET['org'] fait partie des $_GET['type']
+/*function isOrg(string $otype, string $orgname, array $record): bool { // Teste si $_GET['org'] fait partie des $_GET['type']
   //echo "isOrg(otype=$otype, organme=$orgname)\n";
   static $arboOrgsPMin = null;
   if (!$arboOrgsPMin)
@@ -64,10 +66,10 @@ function isOrg(string $otype, string $orgname, array $record): bool { // Teste s
     }
     return true;
   }
-}
+}*/
 
 // Renvoie la liste prefLabels structurée par arbo, [ {arboid} => [ {prefLabel} ]]
-function prefLabels(array $keywords, array $arbos): array {
+/*function prefLabels(array $keywords, array $arbos): array {
   $prefLabels = []; // liste des prefLabels des mots-clés structuré par arbo, sous forme [arboid => [prefLabel => 1]]
   foreach ($keywords as $keyword) {
     //echo "<pre>"; print_r($keyword); echo "</pre>\n";
@@ -85,10 +87,10 @@ function prefLabels(array $keywords, array $arbos): array {
   }
   //echo "<pre>prefLabels(",Yaml::dump($keywords),") -> ",Yaml::dump($prefLabels),"</pre>";
   return $prefLabels;
-}
+}*/
 
 // Teste si $theme fait partie des mots-clés de $record
-function isTheme(string $arbo, string $theme, array $record): bool {
+/*function isTheme(string $arbo, string $theme, array $record): bool {
   $arbos = [
     'arboCovadis'=> new Arbo('arbocovadis.yaml'),
     'annexesInspire'=> new Arbo('annexesinspire.yaml'),
@@ -100,25 +102,12 @@ function isTheme(string $arbo, string $theme, array $record): bool {
       return true;
   }
   return false;
-}
+}*/
 
 class Feature {
   private array $feature;
   
-  function __construct(string $gtype, array $tuple, array $bbox) {
-    $this->feature = [
-      'type'=> 'Feature',
-      'area'=> ($bbox['eastLon']-$bbox['westLon']) * ($bbox['northLat']-$bbox['southLat']),
-      'link'=> "http://$_SERVER[HTTP_HOST]/browsecat/a.php?cat=$_GET[cat]&action=showPg&id=$tuple[id]",
-      'style'=> ['color'=> 'blue', 'fillOpacity'=> 0],
-      'properties'=> [
-        'title'=> $tuple['title'],
-        'lon'=> sprintf('%.4f -> %.4f', $bbox['westLon'], $bbox['eastLon']),
-        'lat'=> sprintf('%.4f -> %.4f', $bbox['southLat'], $bbox['northLat']),
-        'area'=> ($bbox['eastLon']-$bbox['westLon']) * ($bbox['northLat']-$bbox['southLat']),
-        'id'=> $tuple['id'],
-      ]
-    ];
+  static function geometry(string $gtype, array $bbox): array { // construit la géométrie pour un bbox
     if ($bbox['westLon'] > $bbox['eastLon']) { // si erreur alors échange westLon <-> eastLon
       $westLon = $bbox['westLon'];
       $bbox['westLon'] = $bbox['eastLon'];
@@ -131,7 +120,7 @@ class Feature {
     }
     switch ($gtype) {
       case 'xPolygon': {
-        $this->feature['geometry'] = [
+        return [
           'type'=> 'Polygon',
           'coordinates'=> [ // le bbox
             [
@@ -143,7 +132,6 @@ class Feature {
             ]
           ],
         ];
-        break;
       }
       
       case 'Polygon': {
@@ -153,7 +141,7 @@ class Feature {
         $s = $bbox['southLat'];
         $n = $bbox['northLat'];
         $dlat = $n - $s;
-        $this->feature['geometry'] = [
+        return [
           'type'=> 'Polygon',
           'coordinates'=> [ // coins cassés
             [
@@ -169,31 +157,57 @@ class Feature {
             ]
           ],
         ];
-        break;
       }
 
       case 'LineString': {
-        $this->feature['geometry'] = [
+        return [
           'type'=> 'LineString',
           'coordinates'=> [
               [$bbox['westLon'], $bbox['southLat']],
               [$bbox['eastLon'], $bbox['northLat']],
           ],
         ];
-        break;
       }
     
       case 'Point': {
-        $this->feature['geometry'] = [
+        return [
           'type'=> 'Point',
           'coordinates'=> [
             ($bbox['westLon']+$bbox['eastLon'])/2,
             ($bbox['southLat']+$bbox['northLat'])/2,
           ],
         ];
-        break;
       }
     }
+  }
+  
+  /*static function multiGeometry(string $gtype, array $bboxes): array { // construit la géométrie pour plusieurs bbox
+    $geometry = [
+      'type'=> "Multi$gtype",
+      'coordinates'=> [],
+    ];
+    foreach ($bboxes as $bbox) {
+      $gbbox = self::geometry($gtype, $bbox);
+      $geometry['coordinates'][] = $gbbox['coordinates'];
+    }
+    return $geometry;
+  }*/
+  
+  function __construct(string $gtype, array $tuple, array $bbox) {
+    $this->feature = [
+      'type'=> 'Feature',
+      'area'=> ($bbox['eastLon']-$bbox['westLon']) * ($bbox['northLat']-$bbox['southLat']),
+      'link'=> "http://$_SERVER[HTTP_HOST]/browsecat/a.php?cat=$_GET[cat]&action=showPg&id=$tuple[id]",
+      'style'=> ['color'=> 'blue', 'fillOpacity'=> 0],
+      'properties'=> [
+        'title'=> $tuple['title'],
+        'lon'=> sprintf('%.4f -> %.4f', $bbox['westLon'], $bbox['eastLon']),
+        'lat'=> sprintf('%.4f -> %.4f', $bbox['southLat'], $bbox['northLat']),
+        'area'=> ($bbox['eastLon']-$bbox['westLon']) * ($bbox['northLat']-$bbox['southLat']),
+        'id'=> $tuple['id'],
+      ],
+      'geometry'=> self::geometry($gtype, $bbox),
+    ];
   }
   
   function aggFeatures(array $tuple, array $bbox): void {
@@ -232,19 +246,19 @@ function sep(): string {
 header('Content-type: text/plain');
 echo '{"type": "FeatureCollection",',"\n";
 
-$sql = "select cat.id, title, area, record
-        from catalog$_GET[cat] cat"
+$sql = "select cat.id, title, record, nobbox, area
+        from catalog$_GET[cat] cat, catbbox$_GET[cat] bbox"
        .(isset($_GET['org']) ? ", catorg$_GET[cat] org" : '')
        .(isset($_GET['theme']) ? ", cattheme$_GET[cat] theme" : '')."
         where
-          type in ('dataset','series') and perimetre='Min' and area is not null\n"
-  .(isset($_GET['id']) ? "and id='$_GET[id]'\n" : '');
+          type in ('dataset','series') and perimetre='Min' and cat.id=bbox.id\n"
+  .(isset($_GET['id']) ? "and cat.id='$_GET[id]'\n" : '');
 if (isset($_GET['org']))
   $sql .= "and cat.id=org.id and org.org='".str_replace("'","''", $_GET['org'])."'\n";
 if (isset($_GET['theme']))
   $sql .= "and cat.id=theme.id and theme.theme='".str_replace("'","''", $_GET['theme'])."'\n";
 $sql .= "order by area desc,westLon,southLat,eastLon";
-//echo "\"query\": \"",str_replace("\n",' ',$sql),"\",\n";
+echo "\"query\": \"",str_replace("\n",' ',$sql),"\",\n";
 //echo "\"query\": \"",str_replace("\n",' ',$sql),"\"\n"; die("\n]}\n");
 echo '"features": [',"\n";
 $i = 0;
@@ -255,7 +269,8 @@ foreach (PgSql::query($sql) as $tuple) {
   
   //echo "<li><a href='gere.php?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</a></li>\n";
   
-  if (!($bbox = $record['dcat:bbox'][0] ?? null)) continue;
+  if (!($bboxes = $record['dcat:bbox'] ?? null)) continue;
+  if (!($bbox = $bboxes[$tuple['nobbox']] ?? null)) continue;
   
   //print_r($tuple);
   if ($prevTuple && ($tuple['area'] == $prevTuple['area'])) {

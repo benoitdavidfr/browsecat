@@ -912,6 +912,8 @@ children:
           - gêne sonore
           - Cartes? de bruit strat(é|e)gique
           - plans? d'exposition au bruit
+          - Niveau de bruit
+          - cartographie du bruit
       N_DECHET:
         short: L2
         definition: Ménagers, dangereux, mines, boues STEP, nucléaires… -  traitement
@@ -948,6 +950,8 @@ children:
           - Installations? classées? pour l'environnement
           - SEVESO
           - Tours? aéroréfrigérantes?
+          - Registre français des émissions polluantes
+          - Directive sur les émissions industrielles
   RESEAU_ENERGIE_DIVERS:
     short: M
     children:
@@ -1268,8 +1272,8 @@ children:
         definition: Infrastructure portuaire
         altLabels:
           - Transports Infrastructure/Maritime
-        regexps:
-          - Ports?
+        #regexps:
+          #- Ports? # trop général, prend par exemple Rapportage
       N_PLATE_FORME_MULTIMODALE:
         short: R6
         definition: Infrastructure des plate-formes multimodales
