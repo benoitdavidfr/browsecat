@@ -10,6 +10,8 @@ doc: |
   N'enregistre rien pour les FeatureCatalog.
   Stocke les MD de données et de service converties en JSON dans une base PgSql sur le serveur choisi
 journal: |
+  16-17/11/2021:
+    - gestion à minima du catalogue Corse dont les MD sont en DublinCore
   13/11/2021:
     - modification des paramètres pour permettre de choisir le serveur et de la gestion de ceux-ci
     - ajout des fichiers start et end 
