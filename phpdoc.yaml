@@ -72,12 +72,12 @@ doc: |
     - N10 X DDT82
   
   Questions/idées:
-    - ne faut-il pas créer une table auxiliaire bbox ? !!!
+    - ne faut-il pas créer une table auxiliaire bbox ? !!! FAIT le 16/11/2021
     - ne faut-il pas ajouter le thème dans la table auxiliaire plutot que dans record ?
     - ajouter les MDD n'ayant pas de bbox à un bbox par défaut, ex celui de l'organisation ?
     
   A faire:
-    - intégrer DiDo et DataGouv
+    - intégrer Corse, DiDo et DataGouv
   
 journal: |
   14/11/2021:

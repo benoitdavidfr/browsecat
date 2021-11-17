@@ -284,6 +284,14 @@ if (!isset($_GET['action'])) { // menu principal
   die("Choix de l'action dans index.php");
 }
 
+if ($_GET['action']=='listmd') { // Toutes les MD de type dataset ou series
+  echo "<ul>\n";
+  foreach (PgSql::query("select id,title from catalog$_GET[cat]") as $record) {
+    echo "<li><a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$record[id]'>$record[title]</a></li>\n";
+  }
+  die("</ul>\n");
+}
+
 if ($_GET['action']=='listdata') { // Toutes les MD de type dataset ou series
   echo "<ul>\n";
   foreach (PgSql::query("select id,title from catalog$_GET[cat] where type in ('dataset','series')") as $record) {

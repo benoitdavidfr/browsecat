@@ -7,6 +7,8 @@ functions:
 doc: |
   Script repris de geocat3 et adapté pour geocat4.
 journal: |
+  17/11/2021:
+    - renommage de la classe en Iso19139
   20/2/2021:
     - plusieurs évolutions
   8/2/2021:
@@ -25,8 +27,8 @@ journal: |
 */
 
 /*PhpDoc: classes
-name:  Mdvars
-title: Mdvars - classe statique contenant la description des variables des éléments de MD et l'utilisant pour certains traitements
+name:  Iso19139
+title: Iso19139 - classe statique contenant la description des variables des éléments de MD et l'utilisant pour certains traitements
 pubproperties:
 methods:
 doc: |
@@ -34,7 +36,7 @@ doc: |
   La méthode extract() utilise mdvars pour extraire d'un fragment XML ISO19139 les valeurs pour les différents champs.
   La méthode show() permet de visualiser les données retournées par extract().
 */
-class Mdvars {
+class Iso19139 {
   // les prefixes et espaces de noms utilisés dans les xpath des variables sous la forme namespace -> prefix
   static private $namespaces = [
     'http://www.isotc211.org/2005/gmd' => 'gmd',

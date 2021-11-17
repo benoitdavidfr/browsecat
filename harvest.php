@@ -26,6 +26,7 @@ journal: |
 includes:
   - cswserver.inc.php
   - mdvars2.inc.php
+  - dublincore.inc.php
   - cats.inc.php
   - catinpgsql.inc.php
   - orginsel.inc.php
@@ -33,6 +34,7 @@ includes:
 */
 require_once __DIR__.'/cswserver.inc.php';
 require_once __DIR__.'/mdvars2.inc.php';
+require_once __DIR__.'/dublincore.inc.php';
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
 require_once __DIR__.'/orginsel.inc.php';
@@ -103,13 +105,17 @@ while ($nextRecord) {
   catch (Exception $e) {
     die($e->getMessage()."\n");
   }
-  if (!$getRecords->csw_SearchResults->csw_BriefRecord) { // erreurs dans SigLoire le 28/10/2021
-    print_r($getRecords);
-    echo "** Erreur de getRecords() ligne ",__LINE__,"<br>\n";
+  if (!$getRecords->searchResults()->csw_BriefRecord) { // erreurs dans SigLoire le 28/10/2021
+    //print_r($getRecords);
+    echo "** Erreur de getRecords(), aucun enregistrement retourné, ligne ",__LINE__,"<br>\n";
+    $nextRecord = $getRecords->nextRecord();
+    $numberOfRecordsMatched = $getRecords->numberOfRecordsMatched();
+    echo "nextRecord=$nextRecord, numberOfRecordsMatched=$numberOfRecordsMatched\n";
+    if (($nextRecord == 0) || ($nextRecord >= $numberOfRecordsMatched)) break;
     $nextRecord += 20;
     continue;
   }
-  foreach ($getRecords->csw_SearchResults->csw_BriefRecord as $briefRecord) {
+  foreach ($getRecords->searchResults()->csw_BriefRecord as $briefRecord) {
     $dc_type = (string)$briefRecord->dc_type;
     //echo "$dc_type\n";
     //print_r($briefRecord);
@@ -117,11 +123,7 @@ while ($nextRecord) {
     if ($dc_type == 'FeatureCatalogue') { // on ne récupère pas les FeatureCatalogue
       continue;
     }
-    elseif (!in_array($dc_type, ['dataset','series','service'])) {
-      // récupération de l'enregistrement en DublinCore
-      $dcRecord = $cswServer->getRecordById($mdid, 'dc', 'full');
-    }
-    else { // dans le cas data ou service, j'utilise ISO19139
+    elseif (in_array($dc_type, ['dataset','series','service'])) { // dans le cas data ou service, j'utilise ISO19139
       try {
         $isoRecord = $cswServer->getRecordById($mdid);
       }
@@ -130,10 +132,10 @@ while ($nextRecord) {
         continue;
       }
       try {
-        $mdrecord = Mdvars::extract($mdid, $isoRecord);
+        $mdrecord = Iso19139::extract($mdid, $isoRecord);
       }
       catch (Exception $e) {
-        echo "Erreur: dans Mdvars::extract pour $mdid\n";
+        echo "Erreur: dans Iso19139::extract pour $mdid\n";
         continue;
       }
       if (!$mdrecord) {
@@ -141,20 +143,45 @@ while ($nextRecord) {
         print_r($briefRecord);
         $cswServer->delRecordById($mdid);
         $isoRecord = $cswServer->getRecordById($mdid);
-        $mdrecord = Mdvars::extract($mdid, $isoRecord);
+        $mdrecord = Iso19139::extract($mdid, $isoRecord);
         if (!$mdrecord) {
           echo "2ème erreur: enregistrement ISO non défini pour $mdid\n";
           continue;
         }
       }
-      $cat->storeRecord($mdrecord, orgInSel($catid, $mdrecord) ? 'Min' : null);
     }
+    else { // Sinon, récupération de l'enregistrement en DublinCore
+      $dcRecord = $cswServer->getRecordById($mdid, 'dc', 'full');
+      //print_r($dcRecord);
+      try {
+        $mdrecord = DublinCore::extract($mdid, $dcRecord);
+      }
+      catch (Exception $e) {
+        echo "Erreur: dans DublinCore::extract pour $mdid\n";
+        continue;
+      }
+      if ($ows_Exception = ($mdrecord['ows_Exception'] ?? null)) {
+        echo "Exception $ows_Exception[exceptionCode] sur $mdid : $ows_Exception[ows_ExceptionText]\n";
+        $mdrecord = DublinCore::cswRecord2Array($briefRecord);
+      }
+      if (!$mdrecord) {
+        echo "Erreur: enregistrement DublinCore non défini pour $mdid\n";
+        echo "briefRecord="; print_r($briefRecord);
+        echo "dcRecord="; print_r($dcRecord);
+        $cswServer->delRecordById($mdid);
+        $isoRecord = $cswServer->getRecordById($mdid);
+        $mdrecord = DublinCore::extract($mdid, $isoRecord);
+        if (!$mdrecord) {
+          echo "2ème erreur: enregistrement ISO non défini pour $mdid\n";
+          continue;
+        }
+      }
+    }
+    $cat->storeRecord($mdrecord);
   }
-  $nextRecord = isset($getRecords->csw_SearchResults['nextRecord']) ?
-    (int)$getRecords->csw_SearchResults['nextRecord']
-    : null;
-  $numberOfRecordsMatched = isset($getRecords->csw_SearchResults['numberOfRecordsMatched']) ?
-    (int)$getRecords->csw_SearchResults['numberOfRecordsMatched']
-    : null;
+  $nextRecord = $getRecords->nextRecord();
+  $numberOfRecordsMatched = $getRecords->numberOfRecordsMatched();
+  echo "nextRecord=$nextRecord, numberOfRecordsMatched=$numberOfRecordsMatched\n";
+  if ($nextRecord >= $numberOfRecordsMatched) break;
 }
 touch("catalogs/$catid/end");

@@ -20,6 +20,40 @@ includes:
 require_once __DIR__.'/httpcache.inc.php';
 
 /*PhpDoc: classes
+name: CswSearchResults
+title: class CswSearchResults -- Information retournée par un getRecords
+methods:
+*/
+class CswSearchResults {
+  private SimpleXMLElement $xmlElt; // le retour XML convertit en SimpleXMLElement
+  
+  function __construct(string $xml) {
+    $xml = preg_replace('!<(/)?([^:]+):!', '<$1$2_', $xml);
+    $this->xmlElt = new SimpleXMLElement($xml);
+  }
+  
+  function searchResults(): SimpleXMLElement {
+    //echo "CswSearchResults::searchResults::briefRecord()\n";
+    //echo "csw_SearchResults="; print_r($this->xmlElt->csw_SearchResults);
+    $result = $this->xmlElt->csw_SearchResults;
+    //echo "result="; print_r($result);
+    return $result;
+  }
+  
+  function nextRecord(): ?int {
+    return isset($this->xmlElt->csw_SearchResults['nextRecord']) ?
+      (int)$this->xmlElt->csw_SearchResults['nextRecord']
+      : null;
+  }
+  
+  function numberOfRecordsMatched(): ?int {
+    return isset($this->xmlElt->csw_SearchResults['numberOfRecordsMatched']) ?
+      (int)$this->xmlElt->csw_SearchResults['numberOfRecordsMatched']
+      : null;
+  }
+};
+
+/*PhpDoc: classes
 name: CswServer
 title: class CswServer -- gère les appels à un serveur CSW
 methods:
@@ -62,17 +96,15 @@ class CswServer {
       .'&startPosition='.$start;
   }
   
-  // effectue un GetRecords en DublinCore et retourne un SimpleXMLElement
-  function getRecords(int $start, $elementSetName='brief'): SimpleXMLElement {
-    $namespace = '';
+  // effectue un GetRecords en DublinCore et retourne un CswSearchResults
+  function getRecords(int $start, $elementSetName='brief'): CswSearchResults {
     $url = $this->getRecordsUrl($start, $elementSetName);
     try {
       $records = $this->cacheGetRecs->request($url, 'xml');
     } catch (Exception $e) {
       throw new Exception("Erreur dans CswServer::GetRecords($start, $elementSetName) avec message ".$e->getMessage());
     }
-    $records = preg_replace('!<(/)?([^:]+):!', '<$1$2_', $records);
-    $result = new SimpleXMLElement($records);
+    $result = new CswSearchResults($records);
     return $result;
   }
   
@@ -106,11 +138,13 @@ class CswServer {
        .'&ID='.rawurlencode($id);
   }
   
-  // Effectue un GetRecordById par défaut en récupérant les MD en ISO 19139 (défaut), en DC ou en DCAT
-  // $output prend pour valeur:
-  //  - 'dc' pour Dublin Core
-  //  - 'dcat' pour DCAT
-  //  - 'iso19139' pour ISO 19115/19139 (défaut)
+  /* Effectue un GetRecordById en récupérant les MD en ISO 19139 (défaut), en DC ou en DCAT
+    Le retour est une chaine de caractères
+    $output prend pour valeur:
+      - 'dc' pour Dublin Core
+      - 'dcat' pour DCAT
+      - 'iso19139' pour ISO 19115/19139 (défaut)
+  */
   function getRecordById(string $id, string $output='iso19139', string $elementSetName='full'): string {
     if (strlen($id) > 256) {
       throw new Exception("Erreur dans CswServer::getRecordById($id): ID trop long");

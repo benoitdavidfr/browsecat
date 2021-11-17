@@ -49,6 +49,7 @@ if (!isset($_GET['cat'])) { // choix d'une action globale ou d'un catalogue
   
 else { // (isset($_GET['cat'])) // choix d'une action sur un catalogue particulier
   echo "Actions proposées:<ul>\n";
+  echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=listmd'>Toutes les MD</a></li>\n";
   echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=listdata'>Toutes les MDD (type dataset ou series)</a></li>\n";
   echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=listdataYaml'>Toutes les MDD (type dataset ou series) en Yaml</a></li>\n";
   echo "<li><a href='a.php?cat=$_GET[cat]&amp;action=listservices'>Toutes les MD de service</a></li>\n";

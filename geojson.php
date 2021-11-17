@@ -6,7 +6,11 @@ doc: |
   Génère un Feature GeoJSON par bbox associé à une fiche de métadonnées
   grâce à l'utilisation des table catbbox généré dans addbbox
   Si plusieurs fiches s'appuient sur le même bbox, ces fiches sonr regroupées pour en afficher un seul.
+  Dans le cas où id est défini, la table catbbox n'a pas besoin d'être définie.
+  Permet de faire des cartes de situation avec des données incomplètes.
 journal: |
+  17/11/2021:
+    - cas particulier lorsque id est défini pour afficher alors éventuellement une multiGeometry
   16/11/2021:
     - utilisation de catbbox
   15/11/2021:
@@ -181,7 +185,7 @@ class Feature {
     }
   }
   
-  /*static function multiGeometry(string $gtype, array $bboxes): array { // construit la géométrie pour plusieurs bbox
+  static function multiGeometry(string $gtype, array $bboxes): array { // construit la géométrie pour plusieurs bbox
     $geometry = [
       'type'=> "Multi$gtype",
       'coordinates'=> [],
@@ -191,22 +195,22 @@ class Feature {
       $geometry['coordinates'][] = $gbbox['coordinates'];
     }
     return $geometry;
-  }*/
+  }
   
-  function __construct(string $gtype, array $tuple, array $bbox) {
+  function __construct(string $gtype, array $tuple, array $bboxes) {
     $this->feature = [
       'type'=> 'Feature',
-      'area'=> ($bbox['eastLon']-$bbox['westLon']) * ($bbox['northLat']-$bbox['southLat']),
+      'area'=> ($bboxes[0]['eastLon']-$bboxes[0]['westLon']) * ($bboxes[0]['northLat']-$bboxes[0]['southLat']),
       'link'=> "http://$_SERVER[HTTP_HOST]/browsecat/a.php?cat=$_GET[cat]&action=showPg&id=$tuple[id]",
       'style'=> ['color'=> 'blue', 'fillOpacity'=> 0],
       'properties'=> [
         'title'=> $tuple['title'],
-        'lon'=> sprintf('%.4f -> %.4f', $bbox['westLon'], $bbox['eastLon']),
-        'lat'=> sprintf('%.4f -> %.4f', $bbox['southLat'], $bbox['northLat']),
-        'area'=> ($bbox['eastLon']-$bbox['westLon']) * ($bbox['northLat']-$bbox['southLat']),
+        'lon'=> sprintf('%.4f -> %.4f', $bboxes[0]['westLon'], $bboxes[0]['eastLon']),
+        'lat'=> sprintf('%.4f -> %.4f', $bboxes[0]['southLat'], $bboxes[0]['northLat']),
+        'area'=> ($bboxes[0]['eastLon']-$bboxes[0]['westLon']) * ($bboxes[0]['northLat']-$bboxes[0]['southLat']),
         'id'=> $tuple['id'],
       ],
-      'geometry'=> self::geometry($gtype, $bbox),
+      'geometry'=> (count($bboxes) > 1) ? self::multiGeometry($gtype, $bboxes) : self::geometry($gtype, $bboxes[0]),
     ];
   }
   
@@ -246,46 +250,59 @@ function sep(): string {
 header('Content-type: text/plain');
 echo '{"type": "FeatureCollection",',"\n";
 
-$sql = "select cat.id, title, record, nobbox, area
-        from catalog$_GET[cat] cat, catbbox$_GET[cat] bbox"
-       .(isset($_GET['org']) ? ", catorg$_GET[cat] org" : '')
-       .(isset($_GET['theme']) ? ", cattheme$_GET[cat] theme" : '')."
-        where
-          type in ('dataset','series') and perimetre='Min' and cat.id=bbox.id\n"
-  .(isset($_GET['id']) ? "and cat.id='$_GET[id]'\n" : '');
-if (isset($_GET['org']))
-  $sql .= "and cat.id=org.id and org.org='".str_replace("'","''", $_GET['org'])."'\n";
-if (isset($_GET['theme']))
-  $sql .= "and cat.id=theme.id and theme.theme='".str_replace("'","''", $_GET['theme'])."'\n";
-$sql .= "order by area desc,westLon,southLat,eastLon";
-echo "\"query\": \"",str_replace("\n",' ',$sql),"\",\n";
-//echo "\"query\": \"",str_replace("\n",' ',$sql),"\"\n"; die("\n]}\n");
-echo '"features": [',"\n";
-$i = 0;
-$feature = null;
-$prevTuple = [];
-foreach (PgSql::query($sql) as $tuple) {
+
+if (isset($_GET['id'])) {
+  $sql = "select id, title, record from catalog$_GET[cat] where id='$_GET[id]'";
+  echo "\"query\": \"$sql\",\n";
+  echo '"features": [',"\n";
+  $tuple = PgSql::getTuples($sql)[0];
   $record = json_decode($tuple['record'], true);
-  
-  //echo "<li><a href='gere.php?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</a></li>\n";
-  
-  if (!($bboxes = $record['dcat:bbox'] ?? null)) continue;
-  if (!($bbox = $bboxes[$tuple['nobbox']] ?? null)) continue;
-  
-  //print_r($tuple);
-  if ($prevTuple && ($tuple['area'] == $prevTuple['area'])) {
-    //echo sep(),"\"$tuple[id] a même area que $prevTuple[id] -> $tuple[area]\"";
-    $feature->aggFeatures($tuple, $bbox);
+  if ($bboxes = $record['dcat:bbox'] ?? null) {
+    $feature = new Feature($_GET['gtype'], $tuple, $bboxes);
+    echo $feature;
   }
-  else {
-    if ($feature)
-      echo sep(),$feature;
-    $feature = new Feature($_GET['gtype'], $tuple, $bbox);
-  }
-  $prevTuple = $tuple;
 }
-if ($feature) {
-  echo sep(),$feature;
+else {
+  $sql = "select cat.id, title, record, nobbox, area
+          from catalog$_GET[cat] cat, catbbox$_GET[cat] bbox"
+         .(isset($_GET['org']) ? ", catorg$_GET[cat] org" : '')
+         .(isset($_GET['theme']) ? ", cattheme$_GET[cat] theme" : '')."
+          where
+           type in ('dataset','series') and perimetre='Min' and cat.id=bbox.id\n";
+  if (isset($_GET['org']))
+    $sql .= "and cat.id=org.id and org.org='".str_replace("'","''", $_GET['org'])."'\n";
+  if (isset($_GET['theme']))
+    $sql .= "and cat.id=theme.id and theme.theme='".str_replace("'","''", $_GET['theme'])."'\n";
+  $sql .= "order by area desc,westLon,southLat,eastLon";
+  echo "\"query\": \"",str_replace("\n",' ',$sql),"\",\n";
+  //echo "\"query\": \"",str_replace("\n",' ',$sql),"\"\n"; die("\n]}\n");
+  echo '"features": [',"\n";
+  $i = 0;
+  $feature = null;
+  $prevTuple = [];
+  foreach (PgSql::query($sql) as $tuple) {
+    $record = json_decode($tuple['record'], true);
+  
+    //echo "<li><a href='gere.php?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</a></li>\n";
+  
+    if (!($bboxes = $record['dcat:bbox'] ?? null)) continue;
+    if (!($bbox = $bboxes[$tuple['nobbox']] ?? null)) continue;
+  
+    //print_r($tuple);
+    if ($prevTuple && ($tuple['area'] == $prevTuple['area'])) {
+      //echo sep(),"\"$tuple[id] a même area que $prevTuple[id] -> $tuple[area]\"";
+      $feature->aggFeatures($tuple, $bbox);
+    }
+    else {
+      if ($feature)
+        echo sep(),$feature;
+      $feature = new Feature($_GET['gtype'], $tuple, [$bbox]);
+    }
+    $prevTuple = $tuple;
+  }
+  if ($feature) {
+    echo sep(),$feature;
+  }
 }
 
 die("\n]}\n");

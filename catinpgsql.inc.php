@@ -486,7 +486,7 @@ class CatInPgSql {
     )");
   }
   
-  function storeRecord(array $record, ?string $perimetre=null): void { // enregistre une fiche de métadonnées
+  function storeRecord(array $record): void { // enregistre une fiche de métadonnées
     //print_r($record);
     $catid = $this->catid;
     if (!isset($record['fileIdentifier'][0])) {
@@ -501,11 +501,10 @@ class CatInPgSql {
     else
       $title = "NON DEFINI";
     $type = str_replace("'", "''", $record['dct:type'][0]);
-    $perimetre2 = $perimetre ? "'".$perimetre."'" : 'null';
 
     try {
-      PgSql::query("insert into catalog$catid(id,record,title,type,perimetre)"
-        ." values('$id','$recjson','$title','$type',$perimetre2)");
+      PgSql::query("insert into catalog$catid(id,record,title,type)"
+        ." values('$id','$recjson','$title','$type')");
     }
     catch (Exception $e) {
       echo "Erreur dans storeRecord: ", $e->getMessage(),"<br>\n";

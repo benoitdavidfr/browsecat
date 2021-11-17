@@ -4,6 +4,8 @@ title: cats.inc.php - liste des catalogues
 name: cats.inc.php
 doc: |
 journal: |
+  16/11/2021:
+    - test Corse non concluant, ca moissonne bien mais ca ne stocke rien
   22-30/10/2021:
     - ajouts
   21/10/2021:
@@ -120,5 +122,10 @@ $cats = [
   'geoGuyane'=> [
     'shortName'=> 'Guf',
     'endpointURL'=> 'http://www.geoguyane.fr/geonetwork/srv/fre/csw',
+  ],
+  'acOddCorse'=> [
+    'shortName'=> 'Cor',
+    'dontAgg'=> true, // ne pas prendre en compte dans l'agrégation car de trop mauvaise qualité
+    'endpointURL'=> 'https://georchestra.ac-corse.fr/geoserver/ows',
   ],
 ];
