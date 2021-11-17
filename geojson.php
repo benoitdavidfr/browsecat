@@ -28,7 +28,7 @@ journal: |
     - ajout d'un champ area dans la base pour ne pas avoir à charger tous les éléments pour les trier
     - encore trop long, la requête sur les PPRN de agg excède 3'
     - faire des tables index sur les organisations et les thèmes ?
-includes: [cats.inc.php, catinpgsql.inc.php, arbo.inc.php, orginsel.inc.php]
+includes: [cats.inc.php, catinpgsql.inc.php]
 */
 //ini_set('max_execution_time', 60);
 
@@ -36,84 +36,16 @@ header('Access-Control-Allow-Origin: *');
 
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
-require_once __DIR__.'/arbo.inc.php';
-require_once __DIR__.'/orginsel.inc.php';
 
 if (!CatInPgSql::chooseServer($_SERVER['HTTP_HOST']=='localhost' ? 'local' : 'distant')) { // Choix du serveur 
   die("Erreur dans  CatInPgSql::chooseServer()!\n");
 }
 
-/*function isOrg(string $otype, string $orgname, array $record): bool { // Teste si $_GET['org'] fait partie des $_GET['type']
-  //echo "isOrg(otype=$otype, organme=$orgname)\n";
-  static $arboOrgsPMin = null;
-  if (!$arboOrgsPMin)
-    $arboOrgsPMin = new Arbo('orgpmin.yaml');
-  if ($orgname <> 'NO ORG') {
-    foreach ($record[$otype] as $org) {
-      //print_r($org);
-      if (!isset($org['organisationName'])) continue;
-      $plabel = $arboOrgsPMin->prefLabel($org['organisationName']);
-      if ($plabel == $orgname) {
-        //echo "isOrg()->true\n";
-        return true;
-      }
-    }
-    // $isOrg <=> au moins une des organisations est celle demandée
-    //echo "isOrg()->false\n";
-    return false;
-  }
-  else { // ($_GET['org'] == 'NO ORG') // cas où aucune organisation n'a d'organisationName
-    foreach ($record[$otype] as $org) {
-      if (isset($org['organisationName']))
-        echo $arboOrgsPMin->prefLabel($org['organisationName']),"<br>\n";
-      else
-        echo "organisationName non défini<br>\n";
-      if (isset($org['organisationName']) && $arboOrgsPMin->prefLabel($org['organisationName']))
-        return false;
-    }
-    return true;
-  }
-}*/
-
-// Renvoie la liste prefLabels structurée par arbo, [ {arboid} => [ {prefLabel} ]]
-/*function prefLabels(array $keywords, array $arbos): array {
-  $prefLabels = []; // liste des prefLabels des mots-clés structuré par arbo, sous forme [arboid => [prefLabel => 1]]
-  foreach ($keywords as $keyword) {
-    //echo "<pre>"; print_r($keyword); echo "</pre>\n";
-    if ($kwValue = $keyword['value'] ?? null) {
-      foreach ($arbos as $arboid => $arbo) {
-        if ($prefLabel = $arbo->prefLabel($kwValue)) {
-          $prefLabels[$arboid][$prefLabel] = 1;
-        }
-      }
-    }
-  }
-  ksort($prefLabels);
-  foreach ($prefLabels as $arboid => $labels) {
-    $prefLabels[$arboid] = array_keys($labels);
-  }
-  //echo "<pre>prefLabels(",Yaml::dump($keywords),") -> ",Yaml::dump($prefLabels),"</pre>";
-  return $prefLabels;
-}*/
-
-// Teste si $theme fait partie des mots-clés de $record
-/*function isTheme(string $arbo, string $theme, array $record): bool {
-  $arbos = [
-    'arboCovadis'=> new Arbo('arbocovadis.yaml'),
-    'annexesInspire'=> new Arbo('annexesinspire.yaml'),
-  ];
-  $prefLabels = prefLabels($record['keyword'] ?? [], ['a'=>$arbos[$arbo]]);
-  $isTheme = false;
-  foreach ($prefLabels['a'] ?? ['NON CLASSE'] as $plabel) {
-    if ($plabel == $theme)
-      return true;
-  }
-  return false;
-}*/
-
+// classe utilisée pour construire et agréger des bbox dans un Feature GeoJSON et l'afficher en JSON.
 class Feature {
-  private array $feature;
+  private array $feature; // stockage d'un Feature GeoJSON
   
+  // Génère la géométrie GeoJSON pour un bbox en fonction du gtype
   static function geometry(string $gtype, array $bbox): array { // construit la géométrie pour un bbox
     if ($bbox['westLon'] > $bbox['eastLon']) { // si erreur alors échange westLon <-> eastLon
       $westLon = $bbox['westLon'];
@@ -188,6 +120,7 @@ class Feature {
     }
   }
   
+  // Génère la multi-géométrie GeoJSON pour un ensemble de bbox en fonction du gtype
   static function multiGeometry(string $gtype, array $bboxes): array { // construit la géométrie pour plusieurs bbox
     $geometry = [
       'type'=> "Multi$gtype",
@@ -200,7 +133,7 @@ class Feature {
     return $geometry;
   }
   
-  function __construct(string $gtype, array $tuple, array $bboxes) {
+  function __construct(string $gtype, array $tuple, array $bboxes) { // crée un Feature pour un ensemble de bbox
     $this->feature = [
       'type'=> 'Feature',
       'area'=> ($bboxes[0]['eastLon']-$bboxes[0]['westLon']) * ($bboxes[0]['northLat']-$bboxes[0]['southLat']),
@@ -217,11 +150,7 @@ class Feature {
     ];
   }
   
-  function aggFeatures(array $tuple, array $bbox): void {
-    $westLon = min($bbox['westLon'], $bbox['eastLon']);
-    $southLat = min($bbox['southLat'], $bbox['northLat']);
-    $eastLon = max($bbox['westLon'], $bbox['eastLon']);
-    $northLat = max($bbox['southLat'], $bbox['northLat']);
+  function aggFeatures(array $tuple, array $bbox): void { // agrège un nouvel objet dans le même bbox
     if (isset($this->feature['properties']['id'])) {
       if ($tuple['id'] == $this->feature['properties']['id'])
         return;
@@ -239,14 +168,53 @@ class Feature {
       ."&ids=".implode(',',$this->feature['ids']);
   }
   
-  function __toString(): string {
+  function __toString(): string { // affiche le Feature en JSON
     return json_encode($this->feature,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
   }
 }
 
-function sep(): string {
+function sep(): string { // affiche rien lors du premier appel puis ",\n", permet d'afficher simplement un séparateur JSON
   static $i=0;
   return $i++ ? ",\n" : ''; // séparateur entre features sauf au début et à la fin
+}
+
+function usage(string $errorMessage) { // aide à l'utilisation du script + exemples utilisables pour tester le script
+  header('HTTP/1.1 400 Bad Request');
+  header('Content-type: text/html');
+  echo "<!DOCTYPE HTML><html><head><meta charset='UTF-8'><title>geojson.php</title></head><body><pre>\n";
+  echo "<b>$errorMessage</b>\n";
+  echo "Les paramètres de ce script sont:\n";
+  echo " - gtype : le type de géométrie (Point, LineString, Polygon) (obligatoire)\n";
+  echo " - cat : le catalogue interrogé (obligatoire)\n";
+  echo " - id : l'identifiant de la fiche pour laquelle le bbox est demandé (facultatif)\n";
+  echo " - org : le nom de l'organisme responsable des fiches pour lesquelles le bbox est demandé (facultatif)\n";
+  echo " - theme : le libellé du thème des fiches pour lesquelles le bbox est demandé (facultatif)\n";
+  echo "Exemples:\n";
+  foreach ([
+      "gtype=Polygon&cat=GeoRisques&org=Direction+G%C3%A9n%C3%A9rale+de+la+Pr%C3%A9vention+des+Risques+%28DGPR%29"
+        ."&theme=NON%20CLASSE",
+      "gtype=Polygon&cat=GeoRisques&theme=NON%20CLASSE",
+      "gtype=Polygon&cat=GeoRisques",
+      "gtype=Polygon&cat=GeoRisques&id=1c128799-b6cd-4c8a-8859-8addec012dec",
+    ] as $url) {
+      echo " - <a href='?$url'>$url</a>\n";
+  }
+  die();
+}
+
+if (!isset($_GET['gtype'])) { usage("Erreur: paramètre GET 'gtype' obligatoire"); }
+
+if (!isset($_GET['cat'])) { usage("Erreur: paramètre GET 'cat' obligatoire"); }
+
+if (!isset($cats[$_GET['cat']])) { // Erreur: catalogue incorrect 
+  header('HTTP/1.1 400 Bad Request');
+  header('Content-type: text/html');
+  echo "<!DOCTYPE HTML><html><head><meta charset='UTF-8'><title>geojson.php</title></head><body><pre>\n";
+  echo "<b>Erreur: le catalogue '$_GET[cat]' n'existe pas</b>\n";
+  echo "La liste des catalogues est:\n";
+  foreach (array_keys($cats) as $catid)
+    echo " - $catid\n";
+  die();
 }
 
 //header('Content-type: application/json');
@@ -254,7 +222,7 @@ header('Content-type: text/plain');
 echo '{"type": "FeatureCollection",',"\n";
 
 
-if (isset($_GET['id'])) {
+if (isset($_GET['id'])) { // cas simple d'affichage du bbox ou multi-bbox correspondant à une fiche 
   $sql = "select id, title, record from catalog$_GET[cat] where id='$_GET[id]'";
   echo "\"query\": \"$sql\",\n";
   echo '"features": [',"\n";
@@ -265,7 +233,7 @@ if (isset($_GET['id'])) {
     echo $feature;
   }
 }
-else {
+else { // cas d'affichage d'un ensemble de bbox avec agrégation des bbox identiques 
   $sql = "select cat.id, title, record, nobbox, area
           from catalog$_GET[cat] cat, catbbox$_GET[cat] bbox"
          .(isset($_GET['org']) ? ", catorg$_GET[cat] org" : '')
