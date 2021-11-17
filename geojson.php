@@ -3,11 +3,14 @@
 title: geojson.php - sortie GéoJSON du catalogue ou d'une partie
 name: geojson.php
 doc: |
-  Génère un Feature GeoJSON par bbox associé à une fiche de métadonnées
-  grâce à l'utilisation des table catbbox généré dans addbbox
-  Si plusieurs fiches s'appuient sur le même bbox, ces fiches sonr regroupées pour en afficher un seul.
-  Dans le cas où id est défini, la table catbbox n'a pas besoin d'être définie.
-  Permet de faire des cartes de situation avec des données incomplètes.
+  Génère un flux GeoJSON de BBox des objets du catalogue ou d'une partie.
+  Deux types de fonctionnement:
+    - si le paramètre $_GET['id'] est défini alors génération d'un Feature correspondant au BBox de la fiche
+      ou aux BBox de la fiche. Seule la table contenant le catalog est utilisée.
+      Permet de faire des cartes de situation avec des données minimum.
+    - SINON le fichier contient un Feature par BBox et avec l'utilisation des table catbbox généré dans addbbox,
+      si plusieurs fiches s'appuient sur le même bbox, ces fiches sonr regroupées pour en afficher un seul.
+      De plus, les BBox sont triés du plus grand au plus petit pour faciliter l'interaction avec eux.
 journal: |
   17/11/2021:
     - cas particulier lorsque id est défini pour afficher alors éventuellement une multiGeometry
