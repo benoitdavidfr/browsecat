@@ -129,6 +129,7 @@ phpIncludes:
   - /browsecat/orgarbo.inc.php
   - /browsecat/arbo.inc.php
   - /browsecat/tree.inc.php
+  - /browsecat/dublincore.inc.php
   - /browsecat/mdvars2.inc.php
   - /browsecat/cswserver.inc.php
   - /browsecat/httpretry.inc.php

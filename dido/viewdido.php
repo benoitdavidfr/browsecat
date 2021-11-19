@@ -1,7 +1,7 @@
 <?php
 /*PhpDoc:
-title: dcat/viewdido.php - visualisation améliorée l'export DiDo DCAT-AP de DiDo
-name: viewexport.php
+title: dido/viewdido.php - visualisation améliorée l'export DiDo DCAT-AP de DiDo
+name: viewdido.php
 doc: |
   Visualisation améliorée du fichier JSON d l'export de DiDo
 journal:

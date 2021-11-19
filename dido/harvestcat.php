@@ -1,6 +1,6 @@
 <?php
 /*PhpDoc:
-title: dido/harvestcat.php - moissonneur le catalogue DiDo, pas l'export
+title: dido/harvestcat.php - moissonne le catalogue DiDo, pas l'export
 name: harvestcat.php
 doc: |
   Erreurs constatées indiquées dans didobug.yaml

@@ -1,6 +1,6 @@
 <?php
 /*PhpDoc:
-title: dcat/viewexport.php - visualise l'export DiDo DCAT-AP de DiDo
+title: dido/viewexport.php - première version brute de visualisation de l'export DCAT-AP de DiDo
 name: viewexport.php
 doc: |
   Visualisation assez brute du fichier JSON d l'export de DiDo

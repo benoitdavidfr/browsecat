@@ -5,17 +5,20 @@ doc: |
   
    - harvestcat.php teste la lecture du catalogue lui-même et non de son export
    - viewexport.php est une première version simple de la lecture de l'export
-   - viewdido.php est une version plus sophistiquée de la lecture de l'affichage de l'export
-   - import.php est un scrip d'import de DiDo en PgSql dans une base structuré comme dans browsecat
+   - viewdido.php est une version plus sophistiquée de la lecture et de l'affichage de l'export
+   - import.php importe DiDo en PgSql dans une base structurée comme dans browsecat
    - importdido.schema.yaml définit le schéma dans lequel les fiche de MDD sont structurées dans la base
+   
+  Questions:
+    - peut-on faire converger la structure ISO avec celle DCAT pour simplifier leur exploitation ?
 journal: |
   17-19/11/2021:
     - création
 phpScripts:
-  - /browsecat/dido/harvestcat.php
+  - /browsecat/dido/import.php
   - /browsecat/dido/viewdido.php
   - /browsecat/dido/viewexport.php
-  - /browsecat/dido/import.php
+  - /browsecat/dido/harvestcat.php
 phpIncludes:
 htmlFiles:
   - /browsecat/dido/importdido.schema.yaml

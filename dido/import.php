@@ -1,6 +1,6 @@
 <?php
 /*PhpDoc:
-title: dcat/import.php - importe DiDo comme catalogue dans PgSql
+title: dido/import.php - importe DiDo comme catalogue dans PgSql
 name: import.php
 doc: |
   Le schéma des fiches est défini dans importdido.schema.yaml
