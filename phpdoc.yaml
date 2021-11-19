@@ -80,6 +80,8 @@ doc: |
     - intégrer Corse, DiDo et DataGouv
   
 journal: |
+  17-19/11/2021:
+    - ajout du module DiDo
   14/11/2021:
     - création de orgarbo.inc.php pour simplifier la gestion de l'arbo des orgs
   13/11/2021:
@@ -106,6 +108,8 @@ journal: |
     - améliorations
   11/10/2021:
     - création
+submodules:
+  - /browsecat/dido
 phpScripts:
   - /browsecat/harvest.php
   - /browsecat/cmde.php

@@ -1,0 +1,75 @@
+title: Bugs détectés dans l'export DCAT de DiDo
+mail2021-11-18: |
+  Objet:	Re: export DCAT de DiDo
+  Date:	18/11/2021 17:43
+  De:	DAVID Benoît (Chef de mission) - CGDD/SRI/ECOLAB <benoit.david@developpement-durable.gouv.fr>
+  À:	"BARRIERE Christophe (Chef de projet) - CGDD/SDSED/BUN" <Christophe.Barriere@developpement-durable.gouv.fr>
+  Cc:	"CHUCHE Nicolas (Chef de bureau) - CGDD/SDSED/BUN" <Nicolas.Chuche@developpement-durable.gouv.fr>
+
+
+  Bonjour Christophe,
+
+  J'ai pu effectuer des tests sur ton export DiDo. J'ai identifié plusieurs difficultés:
+
+    1) j'ai vu que tu as paginé la page du catalogue (https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/catalog) mais par contre la page de l'export (https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/export/jsonld) n'est pas paginée. Cela va poser un problème pour l'utiliser. Est-il possible de la paginer ?
+
+    2) Certaines URL fournies dans la propriété downloadUrl retournent une erreur HTTP 400. Exemple : https://data.statistiques.developpement-durable.gouv.fr/dido/api/v1/nomenclatures/bilanEnergie/csv?withColumnName=true&withColumnDescription=true
+
+    Je suppose que c'est la raison pour laquelle le validateur DCAT-AP (https://data.europa.eu/mqa/shacl-validator-ui/) signale cette erreur HTTP 400.
+
+    3) Certaines dates sont mal formatées, exemple '"issued": "Thu Jul 29 2021 06:02:07 GMT+0000 (Coordinated Universal Time)"' dans https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/datasets/6102445fe436671e1cec5da8
+
+    4) plus globalement, je m'étonne dans l'export d'une ressource que certaines propriétés référence un URI et d'autres la ressource développée. Par exemple dans le catalogue, le publisher est développé alors que le contactPoint ne l'est pas.
+    Il me semble qu'il faut systématiquement indiquer l'URI et ne pas fournir toute la ressource.
+
+  Cordialement
+
+  Benoit DAVID
+bugsExport:
+  pagination:
+    label: l'export n'est pas paginé
+  downloadUrl:
+    label: les downloadUrl de certaines distributions renvoient vers une erreur 400
+    example:
+      url: https://data.statistiques.developpement-durable.gouv.fr/dido/api/v1/nomenclatures/bilanEnergie/csv?withColumnName=true&withColumnDescription=true
+  datesNonISO:
+    label: les dates ne sont pas formatées en ISO 8601
+    example:
+      url: https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/datasets/6102445fe436671e1cec5da8
+      extrait:
+        "issued": "Thu Jul 29 2021 06:02:07 GMT+0000 (Coordinated Universal Time)"
+bugsUrlCatalog:
+  export:
+    label: dans l'export seul le catalogue est exposé
+    comment: toutes les ressources devraient être présentes dans l'export
+  dates:
+    label: les dates ne sont pas formatées en ISO 8601
+    example:
+      url: https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/datasets/6102445fe436671e1cec5da8
+      extrait:
+        "issued": "Thu Jul 29 2021 06:02:07 GMT+0000 (Coordinated Universal Time)"
+  notFound:
+    label: certains URL référencés retournent une erreur 404, notamment les distributions XLSX
+    example:
+      url: https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/referentiels/cog/xlsx
+  distribInvalid:
+    label: le contenu des métadonnées de certaines distributions sont incorrectes
+    example:
+      url: https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/distributions/6c79805c-def9-4695-9d9f-7d86599c4d8a/xslx?millesime=2019-10
+      content:
+        "@context": "https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/context.jsonld",
+        "@id": "./",
+        "@type": "Distribution",
+        "issued": "2021-10-18T08:28:47.995Z",
+        "license": {
+          "@id": "https://www.etalab.gouv.fr/licence-ouverte-open-licence",
+          "@type": "LicenseDocument"
+        },
+        "title": "Données annuelles de consommation de produits pétroliers par DROM - millésime 2019-10 - format xslx",
+        "accessURL": {},
+        "downloadUrl": {},
+        "mediaType": {}
+        
+  
+eof:
+  

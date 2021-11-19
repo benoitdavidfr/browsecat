@@ -1,0 +1,21 @@
+title: browsecat/dido - Test de l'export DCAT de DiDo et intégration dans browsecat
+path: /browsecat/dido
+doc: |
+  L'objectif est d'une part de tester l'export DCAT de DiDo et d'autre part de l'intégrer dans browsecat
+  
+   - harvestcat.php teste la lecture du catalogue lui-même et non de son export
+   - viewexport.php est une première version simple de la lecture de l'export
+   - viewdido.php est une version plus sophistiquée de la lecture de l'affichage de l'export
+   - import.php est un scrip d'import de DiDo en PgSql dans une base structuré comme dans browsecat
+   - importdido.schema.yaml définit le schéma dans lequel les fiche de MDD sont structurées dans la base
+journal: |
+  17-19/11/2021:
+    - création
+phpScripts:
+  - /browsecat/dido/harvestcat.php
+  - /browsecat/dido/viewdido.php
+  - /browsecat/dido/viewexport.php
+  - /browsecat/dido/import.php
+phpIncludes:
+htmlFiles:
+  - /browsecat/dido/importdido.schema.yaml

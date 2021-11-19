@@ -1,7 +1,7 @@
 <?php
 /*PhpDoc:
 title: trestant.inc.php - calcule le temps restant pour éxécuter une commande en fonction de la proportion de traitement effectuée
-name: trestant.inc..php
+name: trestant.inc.php
 doc: |
 journal: |
   13/11/2021:

@@ -9,7 +9,7 @@ journal: |
 includes:
   - ../phplib/pgsql.inc.php
 */
-require_once '../phplib/pgsql.inc.php';
+require_once __DIR__.'/../phplib/pgsql.inc.php';
 
 $mdvars = [
   // fileIdentifier (hors règlement INSPIRE)
@@ -486,21 +486,28 @@ class CatInPgSql {
     )");
   }
   
-  function storeRecord(array $record): void { // enregistre une fiche de métadonnées
+  function storeRecord(array $record, string $idProperty='fileIdentifier'): void { // enregistre une fiche de métadonnées
     //print_r($record);
     $catid = $this->catid;
-    if (!isset($record['fileIdentifier'][0])) {
-      echo "fileIdentifier non défini dans storeRecord<br>\n";
+    if (isset($record[$idProperty]) && is_array($record[$idProperty])) {
+      $id = $record[$idProperty][0];
+    }
+    elseif (isset($record[$idProperty])) {
+      $id = $record[$idProperty];
+    }
+    else {
+      echo "$idProperty non défini dans storeRecord<br>\n";
       print_r($record);
       die();
     }
-    $id = $record['fileIdentifier'][0];
     $recjson = str_replace("'", "''", json_encode($record, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
-    if (isset($record['dct:title'][0]))
-      $title = str_replace("'", "''", $record['dct:title'][0]);
-    else
-      $title = "NON DEFINI";
-    $type = str_replace("'", "''", $record['dct:type'][0]);
+    
+    $title = $record['dct:title'][0] ?? $record['title'] ?? "NON DEFINI";
+    $title = str_replace("'", "''", $title);
+    $type = $record['dct:type'][0] ?? $record['@type'] ?? "NON DEFINI";
+    if (is_array($type))
+      $type = implode(',', $type);
+    $type = str_replace("'", "''", $type);
 
     try {
       PgSql::query("insert into catalog$catid(id,record,title,type)"

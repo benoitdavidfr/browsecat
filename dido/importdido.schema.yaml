@@ -1,0 +1,270 @@
+title: Schéma des jeux de données de DiDo importés dans PgSql
+description: |
+  Les fiches de jeux de données importées dans PgSql sont restructurées et uniformisées dans import.php 
+  selon le présent schéma afin de faciliter leur exploitation.
+  Ce schéma respecte celui de DCAT en intégrant dans un objet JSON toutes les propriétés d'un jeu de données.
+  Le seul lien est celui des liens entre jeux de données.
+$id: importdido.schema.yaml
+$schema: http://json-schema.org/draft-07/schema#
+created: '2021-11-19'
+definitions:
+  dcat:catalog:
+    description: propriétés du catalogue autres que la liste des jeux de données
+    type: object
+    properties:
+      '@id':
+        type: string
+        format: uri
+      '@type':
+        type: string
+        const: Catalog
+      title:
+        type: string
+      description:
+        type: string
+      identifier:
+        type: string
+        format: uri
+      language:
+        description: URI de http://publications.europa.eu/resource/authority/language
+        type: string
+        format: uri
+        pattern: ^http://publications.europa.eu/resource/authority/language
+      publisher:
+        type: array
+        items:
+          $ref: '#/definitions/foaf:Agent'
+      contactPoint:
+        type: array
+        items:
+          $ref: '#/definitions/vcard:Kind'
+      themeTaxonomy:
+        description: la liste des URIs des thésaurus utilisés
+        type: array
+        items:
+          type: string
+          format: uri
+      homepage:
+        type: string
+        format: uri
+  dcat:dataset:
+    description: fiche de métadonnées d'un jeu de données structurée conformément au standard DCAT
+    type: object
+    additionalProperties: false
+    required: ['@id','@type',standard,title]
+    properties:
+      '@id':
+        type: string
+        format: uri
+      '@type':
+        oneOf:
+          - type: string
+            const: Dataset
+          - type: array
+            items:
+              type: string
+              enum: [Dataset,series]
+      standard:
+        type: string
+        const: DCAT
+      title:
+        type: string
+      description:
+        type: string
+      identifier:
+        type: string
+      publisher:
+        type: array
+        items:
+          $ref: '#/definitions/foaf:Agent'
+      contactPoint:
+        type: array
+        items:
+          $ref: '#/definitions/vcard:Kind'
+      accrualPeriodicity:
+        description: URI de http://publications.europa.eu/resource/authority/frequency
+        type: string
+        format: uri
+        pattern: ^http://publications.europa.eu/resource/authority/frequency/
+      created:
+        type: string
+        format: date-time
+      issued:
+        type: string
+        format: date-time
+      modified:
+        type: string
+        format: date-time
+      temporal:
+        $ref: '#/definitions/dct:PeriodOfTime'
+      keyword:
+        type: array
+        items: {type: string}
+      theme:
+        type: array
+        items:
+          $ref: '#/definitions/skos:Concept'
+      spatial:
+        description: URI de l'extension spatiale
+        type: string
+        format: uri
+      rights:
+        type: string
+      documentation:
+        type: array
+        items:
+          $ref: '#/definitions/foaf:Document'
+      hasPart:
+        description: liste des URIs des JD contenu
+        type: array
+        items:
+          type: string
+          format: uri
+      distribution:
+        type: array
+        items:
+          $ref: '#/definitions/dcat:distribution'
+  foaf:Agent:
+    description: Foaf:Agent
+    type: object
+    additionalProperties: false
+    properties:
+      '@id':
+        type: string
+        format: uri
+      '@type':
+          type: string
+          const: Agent
+      org_title:
+        type: string
+      org_name:
+        type: string
+      comment:
+        type: string
+  vcard:Kind:
+    type: object
+    additionalProperties: false
+    properties:
+      '@id':
+        type: string
+        format: uri
+      '@type':
+        type: string
+        const: Kind
+      fn:
+        type: string
+      hasURL:
+        type: string
+        format: uri
+  dct:PeriodOfTime:
+    type: object
+    additionalProperties: false
+    properties:
+      '@id':
+        type: string
+        format: uri
+      '@type':
+        type: string
+      startDate:
+        type: string
+        format: date-time
+      endDate:
+        type: string
+        format: date-time
+  skos:Concept:
+    decription: Skos:Concept
+    type: object
+    additionalProperties: false
+    properties:
+      '@id':
+        type: string
+        format: uri
+      '@type':
+        type: string
+      inScheme:
+        description: URI du thésaurus
+        type: string
+        format: uri
+      topConceptOf:
+        type: string
+        format: uri
+      prefLabel:
+        type: string
+  foaf:Document:
+    type: object
+    additionalProperties: false
+    properties:
+      '@id':
+        type: string
+        format: uri
+      '@type':
+        type: string
+        const: Document
+      title:
+        type: string
+      created:
+        type: string
+        format: date-time
+      modified:
+        type: string
+        format: date-time
+      issued:
+        type: string
+        format: date-time
+      url:
+        type: string
+        format: uri
+  dcat:distribution:
+    type: object
+    additionalProperties: false
+    properties:
+      '@id':
+        type: string
+        format: uri
+      '@type':
+        type: string
+        const: Distribution
+      title:
+        type: string
+      license:
+        decription: URI de la licence
+        type: string
+        format: uri
+      issued:
+        type: string
+        format: date-time
+      mediaType:
+        description: format du fichier comme URI de https://www.iana.org/assignments/media-types
+        type: string
+        format: uri
+        pattern: ^https://www.iana.org/assignments/media-types/
+      accessURL:
+        type: string
+        format: uri
+      downloadUrl:
+        type: string
+        format: uri
+type: object
+additionalProperties: false
+properties:
+  title:
+    description: titre du fichier
+    type: string
+  $schema:
+    description: référence au schéma
+    type: string
+  created:
+    description: date de création du fichier
+    type: string
+    format: date-time
+  catalog:
+    description: propriétés du catalogue autres que la liste des jeux de données
+    $ref: '#/definitions/dcat:catalog'
+  dataset: # as array
+    type: array
+    items:
+      $ref: '#/definitions/dcat:dataset'
+  datasetO: # comme objet
+    type: object
+    additionalProperties:
+      $ref: '#/definitions/dcat:dataset'
