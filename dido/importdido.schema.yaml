@@ -228,9 +228,15 @@ definitions:
       title:
         type: string
       license:
-        decription: URI de la licence
-        type: string
-        format: uri
+        oneOf:
+          - decription: URI de la licence
+            type: string
+            format: uri
+          - description: liste de licences non définies par un URI
+            type: string
+            enum:
+              - notspecified
+              - other-open
       created:
         type: string
         format: date-time

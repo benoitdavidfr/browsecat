@@ -5,7 +5,7 @@ name: import.php
 doc: |
   Le schéma des fiches est défini dans importdido.schema.yaml
   L'objectif de ce script est d'importer les fiches de MDD dans PgSql en les standardisant conformément à ce schéma
-  Le script écrit un fichier import.yaml
+  Le script écrit un fichier import.yaml dont la conformité au schéma peut être vérifiée.
 journal:
   20/11/2021:
     - correction erreur DiDo downloadUrl -> downloadURL

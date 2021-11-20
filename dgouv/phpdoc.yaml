@@ -1,0 +1,11 @@
+title: browsecat/dgouv - Test de l'accès à l'API data.gouv.fr et intégration dans browsecat
+path: /browsecat/dgouv
+doc: |
+journal: |
+  20/11/2021:
+    - création
+phpScripts:
+  - /browsecat/dgouv/view.php
+phpIncludes:
+htmlFiles:
+  - /browsecat/dgouv/importdido.schema.yaml
