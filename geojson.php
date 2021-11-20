@@ -12,6 +12,8 @@ doc: |
       si plusieurs fiches s'appuient sur le même bbox, ces fiches sonr regroupées pour en afficher un seul.
       De plus, les BBox sont triés du plus grand au plus petit pour faciliter l'interaction avec eux.
 journal: |
+  20/11/2021:
+    - correction d'un bug
   17/11/2021:
     - cas particulier lorsque id est défini pour afficher alors éventuellement une multiGeometry
   16/11/2021:
@@ -206,7 +208,7 @@ if (!isset($_GET['gtype'])) { usage("Erreur: paramètre GET 'gtype' obligatoire"
 
 if (!isset($_GET['cat'])) { usage("Erreur: paramètre GET 'cat' obligatoire"); }
 
-if (!isset($cats[$_GET['cat']])) { // Erreur: catalogue incorrect 
+if (!isset($cats[$_GET['cat']]) && ($_GET['cat']<>'agg')) { // Erreur: catalogue incorrect 
   header('HTTP/1.1 400 Bad Request');
   header('Content-type: text/html');
   echo "<!DOCTYPE HTML><html><head><meta charset='UTF-8'><title>geojson.php</title></head><body><pre>\n";

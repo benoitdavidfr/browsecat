@@ -4,8 +4,8 @@ title: cats.inc.php - liste des catalogues
 name: cats.inc.php
 doc: |
 journal: |
-  16/11/2021:
-    - test Corse non concluant, ca moissonne bien mais ca ne stocke rien
+  16-17/11/2021:
+    - ajout du catalogue Corse dont les MD sont en DublinCore et de très mauvaise qualité
   22-30/10/2021:
     - ajouts
   21/10/2021:
