@@ -7,6 +7,8 @@ doc: |
   L'objectif de ce script est d'importer les fiches de MDD dans PgSql en les standardisant conformément à ce schéma
   Le script écrit un fichier import.yaml
 journal:
+  20/11/2021:
+    - correction erreur DiDo downloadUrl -> downloadURL
   19/11/2021:
     - création
 */
@@ -89,7 +91,9 @@ function stdContactPoint(string|array $record, array $resources): array {
 
 function stdDistribution(array $record, array $resources): array {
   //echo Yaml::dump(['stdDistribution'=> $record]);
-  foreach (['license','accessURL','downloadUrl','mediaType'] as $property)
+  $record['downloadURL'] = $record['downloadUrl']; // erreur DiDo
+  unset($record['downloadUrl']);
+  foreach (['license','accessURL','downloadURL','mediaType'] as $property)
     if (is_array($record[$property]))
       $record[$property] = $record[$property]['@id'];
   return $record;
