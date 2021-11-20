@@ -1,6 +1,7 @@
 title: browsecat/dgouv - Test de l'accès à l'API data.gouv.fr et intégration dans browsecat
 path: /browsecat/dgouv
 doc: |
+  Import partiel conforme à ../dido/importdido.schema.yaml
 journal: |
   20/11/2021:
     - création

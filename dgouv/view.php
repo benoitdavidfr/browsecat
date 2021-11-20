@@ -4,6 +4,7 @@ name: view.php
 title: dgouv/view.php - Test de l'accès à l'API en vue de télécharger les JD du périmètre
 classes:
 doc: |
+  Export conforme au schéma ../dido/importdido.schema.yaml
 journal: |
   20/11/2021:
     - création
