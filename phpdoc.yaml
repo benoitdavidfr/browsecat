@@ -1,4 +1,4 @@
-title: browsecat - parcours de catalogues pour identifier les JD appartenant aux services du ministère
+title: browsecat - parcours de catalogues pour identifier, consulter et interroger les JD appartenant du périm. ministériel
 path: /browsecat
 doc: |
   Les objectifs sont:
@@ -76,7 +76,7 @@ doc: |
     - ajouter les MDD n'ayant pas de bbox à un bbox par défaut, ex celui de l'organisation ?
     
   A FAIRE:
-    - transformer les propriétés spatial de DataGouv (et DiDo ?) en bbox
+    - transformer les propriétés spatial de DataGouv (et DiDo) en bbox
     - ajouter des thèmes Covadis à DataGouv et DiDo
     - vérifier le fonctionnement de l'ajout de thèmes, certaines regexp semblent ne pas fonctionner (TRI ??)
     - explorer https://trouver.ternum-bfc.fr/ et la possibilité de le moissonner !
@@ -85,6 +85,8 @@ journal: |
   22/11/2021:
     - première intégration de DiDo et DataGouv, sans thèmes et sans bbox pour ces 2 catalogues
     - publication sur Alwaysdata vers 15h
+  20-22/11/2021:
+    - ajout du module dgouv
   17-19/11/2021:
     - ajout du module DiDo
   14/11/2021:
