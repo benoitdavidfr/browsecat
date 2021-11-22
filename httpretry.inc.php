@@ -38,6 +38,7 @@ class HttpRetry {
       'referer'=> referer utilisé
       'proxy'=> proxy à utiliser
       'method'=> méthode HTTP utilisée, par défaut 'GET'
+      'timeout'=> Délai maximal d'attente pour la lecture, sous la forme d'un nombre décimal (e.g. 10.5)
       'Accept'=> type MIME demandé, ex 'application/json,application/geo+json'
       'Accept-Language'=> langage demandé, ex 'en'
       'Cookie' => cookie défini

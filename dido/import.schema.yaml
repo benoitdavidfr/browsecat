@@ -1,10 +1,10 @@
-title: Schéma des jeux de données de DiDo importés dans PgSql
+title: Schéma des jeux de données importés dans PgSql de DiDo et de DataGouv
 description: |
-  Les fiches de jeux de données importées dans PgSql sont restructurées et uniformisées dans import.php 
-  selon le présent schéma afin de faciliter leur exploitation.
+  Les fiches de jeux de données importées dans PgSql sont restructurées et uniformisées dans import.php pour DiDo
+  et view.php pour DataGouv conformément au présent schéma afin de faciliter leur exploitation.
   Ce schéma respecte celui de DCAT en intégrant dans un objet JSON toutes les propriétés d'un jeu de données.
-  Le seul lien est celui des liens entre jeux de données.
-$id: importdido.schema.yaml
+  Les seuls liens entre objets JSON sont ceux entre jeux de données.
+$id: http://bdavid.alwaysdata.net/browsecat/dido/import.schema.yaml
 $schema: http://json-schema.org/draft-07/schema#
 created: '2021-11-19'
 definitions:
@@ -106,9 +106,25 @@ definitions:
         items:
           $ref: '#/definitions/skos:Concept'
       spatial:
-        description: URI de l'extension spatiale
-        type: string
-        format: uri
+        description: couverture spatiale définie par l'union d'un ensemble de zones, chacune définie par un URI
+        type: array
+        items:
+          type: string
+          format: uri
+      bbox:
+        description: couverture spatiale définie par l'union d'un ensemble de boites englobantes
+        type: array
+        items:
+          type: object
+          properties:
+            westLon:
+              type: number
+            southLat:
+              type: number
+            eastLon:
+              type: number
+            northLat:
+              type: number
       rights:
         type: string
       documentation:

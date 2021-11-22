@@ -185,7 +185,7 @@ file_put_contents(
   str_replace(["\n  -\n    ","\n      -\n        "], ["\n  - ","\n      - "],
      Yaml::dump([
       'title'=> "Liste des datasets structurés issus de DiDo",
-      '$schema'=> 'importdido',
+      '$schema'=> 'import',
       'created'=> date(DATE_ATOM),
       'catalog'=> stdCatalog($resources[$catalogUri], $resources),
       'dataset'=> $datasets,
