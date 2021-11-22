@@ -34,6 +34,7 @@ includes:
   - orgarbo.inc.php
   - orginsel.inc.php
   - mdvars2.inc.php
+  - closed.inc.php
 */
 define('VERSION', "a.php 22/11/2021 11:34");
 require_once __DIR__.'/vendor/autoload.php';
@@ -43,6 +44,8 @@ require_once __DIR__.'/catinpgsql.inc.php';
 require_once __DIR__.'/record.inc.php';
 require_once __DIR__.'/orgarbo.inc.php';
 require_once __DIR__.'/orginsel.inc.php';
+if (is_file(__DIR__.'/closed.inc.php'))
+  require_once __DIR__.'/closed.inc.php';
 
 use Symfony\Component\Yaml\Yaml;
 
@@ -52,6 +55,7 @@ $arbos = [
   'annexesInspire'=> new Arbo('annexesinspire.yaml'),
 ];
 
+echo "<!DOCTYPE HTML><html><head><meta charset='UTF-8'><title>browsecat</title></head><body>\n";
 if (!CatInPgSql::chooseServer($_SERVER['HTTP_HOST']=='localhost' ? 'local' : 'distant')) { // Choix du serveur 
   die("Erreur: paramètre serveur incorrect !\n");
 }
@@ -392,7 +396,7 @@ if ($_GET['action']=='showPg') { // affiche une fiche depuis PgSql
   }
   $record = json_decode($tuples[0]['record'], true);
   //echo "<pre>",json_encode($record, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
-  echo '<pre>',Yaml::dump($record, 2, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK),"</pre>\n";
+  echo '<pre>',Yaml::dump($record, 3, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK),"</pre>\n";
 
   if (isset($record['dcat:bbox']) && !bboxesError($record['dcat:bbox'])
     && ($center = center($record['dcat:bbox']))
@@ -967,7 +971,7 @@ if ($_GET['action']=='mddOrgTheme') { // liste les MDD avec org et theme
          .(isset($_GET['org']) ? ", catorg$_GET[cat] org" : '')
          .(isset($_GET['theme']) ? ", cattheme$_GET[cat] theme" : '')."
           where
-            type in ('dataset','series') and perimetre='Min'\n";
+            type in ('dataset','series','Dataset','Dataset,series') and perimetre='Min'\n";
   if (isset($_GET['org']))
     $sql .= "and cat.id=org.id and org.org='".str_replace("'","''", $_GET['org'])."'\n";
   if (isset($_GET['theme']))

@@ -25,6 +25,7 @@ includes:
 define('VERSION', "gere.php 13/11/2021 10:30");
 require_once __DIR__.'/cats.inc.php';
 
+echo "<!DOCTYPE HTML><html><head><meta charset='UTF-8'><title>gere</title></head><body>\n";
 if (isset($_GET['action']))
   die("Erreur: action $_GET[action] non réalisable<br>\n");
 

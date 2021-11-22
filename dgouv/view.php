@@ -272,7 +272,7 @@ if ($_GET['action']=='import') { // Génération de l'import
     return $stdDataset;
   }
   
-  if (!CatInPgSql::chooseServer($_GET['server'] ?? null)) { // Choix du serveur 
+  if ((php_sapi_name()<>'cli') && !CatInPgSql::chooseServer($_GET['server'] ?? null)) { // Choix du serveur en non CLI 
     echo "</pre>\n";
     echo "Choix du serveur:<ul>\n";
     echo "<li><a href='?action=$_GET[action]&amp;server=local'>local</a></li>\n";

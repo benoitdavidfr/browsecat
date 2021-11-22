@@ -4,9 +4,8 @@ title: record.inc.php - gère la conversion d'une fiche DCAT en fiche Inspire
 name: record.inc.php
 classes:
 doc: |
-  Le code initial est conçu pour utiliser une fiche Inspire définie par mdvars2.inc.php
-  En créant un objet Record, il peut être utilisé en lecture comme un array en créant à la volée
-  les champs Inspire à partir des champs DCAT
+  Le code initial de browsecat a été écrit pour utiliser une fiche Inspire définie comme array par mdvars2.inc.php
+  La création d'objet Record simule un array en lecture en créant à la volée les champs Inspire à partir des champs DCAT
 journal: |
   22/11/2021:
     - création
@@ -14,33 +13,26 @@ includes:
 */
 
 /*PhpDoc: classes
-title: Record - classe abstraite portant les méthode inutilisées et la méthode statique de création
+title: Record - classe utilisée pour Inspire simulant un array en lecture
 name: Record
 doc: |
 */
-abstract class Record {
+class Record implements ArrayAccess {
   protected array $record; // stockage de la fiche comme array Php structuré comme dans PgSql
   
   static function create(string $record): Record {
     $record = json_decode($record, true);
     if (!isset($record['standard']))
-      return new RecordInspire($record);
+      return new Record($record);
     else
       return new RecordDcat($record);
   }
 
+  function __construct(array $record) { $this->record = $record; }
+
   function offsetSet($offset, $value) { throw new Exception("RecordInspire::offsetSet() interdit"); }
 
   function offsetUnset($offset) { throw new Exception("RecordInspire::offsetUnset() interdit"); }
-};
-
-/*PhpDoc: classes
-title: RecordInspire - classe concrète pour Inspire ne faisant aucune conversion
-name: RecordInspire
-doc: |
-*/
-class RecordInspire extends Record implements ArrayAccess {
-  function __construct(array $record) { $this->record = $record; }
   
   function offsetExists($offset) {
     return isset($this->record[$offset]);
@@ -52,7 +44,7 @@ class RecordInspire extends Record implements ArrayAccess {
 };
 
 /*PhpDoc: classes
-title: RecordDcat - classe concrète pour DCAT effectuant certaines conversions
+title: RecordDcat - classe pour DCAT effectuant certaines conversions
 name: Record
 doc: |
 */

@@ -18,7 +18,7 @@ doc: |
     - utilise le champ area dans catalog${catid} et les tables auxiliaires catorg${catid} et cattheme${catid}
   
   Réutilisation des codes cswserver.inc.php, httpcache.inc.php et mdvars2.inc.php de geocat4
-  Réutilisation de la bibiothèque d'utilisation de PgSql'
+  Réutilisation de la bibiothèque d'utilisation de PgSql
   Réutilisation de la classe Yaml de Symfony.
   
   Bases:
@@ -75,11 +75,11 @@ doc: |
     - ne faut-il pas créer une table auxiliaire bbox ? !!! FAIT le 16/11/2021
     - ne faut-il pas ajouter le thème dans la table auxiliaire plutot que dans record ?
     - ajouter les MDD n'ayant pas de bbox à un bbox par défaut, ex celui de l'organisation ?
-    
-  A faire:
-    - intégrer Corse, DiDo et DataGouv
   
 journal: |
+  22/11/2021:
+    - première intégration de DiDo et DataGouv
+    - publication sur Alwaysdata
   17-19/11/2021:
     - ajout du module DiDo
   14/11/2021:

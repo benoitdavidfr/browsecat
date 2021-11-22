@@ -164,10 +164,10 @@ $cats = [
     'endpointURL'=> 'http://www.geoguyane.fr/geonetwork/srv/fre/csw',
     'conformsTo'=> ' http://www.opengis.net/def/serviceType/ogc/csw',
   ],
-  'acOddCorse'=> [
+  /*'acOddCorse'=> [
     'shortName'=> 'Cor',
     'dontAgg'=> true, // ne pas prendre en compte dans l'agrégation car de trop mauvaise qualité
     'endpointURL'=> 'https://georchestra.ac-corse.fr/geoserver/ows',
     'conformsTo'=> ' http://www.opengis.net/def/serviceType/ogc/csw',
-  ],
+  ],*/
 ];

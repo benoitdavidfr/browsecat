@@ -15,16 +15,22 @@ journal: |
   18/10/2021:
     - création
 includes:
+  - closed.inc.php
   - cats.inc.php
 */
 define('VERSION', "index.php 13/11/2021 10:11");
 require_once __DIR__.'/cats.inc.php';
+if (is_file(__DIR__.'/closed.inc.php'))
+  require_once __DIR__.'/closed.inc.php';
 
+echo "<!DOCTYPE HTML><html><head><meta charset='UTF-8'><title>browsecat</title></head><body>\n";
 if (isset($_GET['action']))
   die("Erreur: action $_GET[action] non réalisable<br>\n");
 
 if (!isset($_GET['cat'])) { // choix d'une action globale ou d'un catalogue
   echo "<h2>POC d'accès aux données</h2>\n";
+  if (is_file(__DIR__.'/news.inc.php') && ($_SERVER['HTTP_HOST']<>'localhostxx'))
+    require_once __DIR__.'/news.inc.php';
   echo "<h3>Actions globales ou utilisation du catalogue agrégé</h3><ul>\n";
   echo "<li><a href='a.php?cat=agg&action=nbMdParOrgTheme&type=responsibleParty&arbo=arboCovadis'>",
     "Dénombrement des MDD par responsibleParty et arboCovadis</a></li>\n";

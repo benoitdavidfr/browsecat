@@ -280,22 +280,23 @@ if ($cmde == 'addbbox') { // ajout de la table catbbox
     return abs(($bbox['eastLon'] - $bbox['westLon']) * ($bbox['northLat'] - $bbox['southLat']));
   }
   
-  if (0)
-  foreach (array_keys($cats) as $catid) { // suppression des anciennes structures
-    foreach ([
-        "alter table catalog$catid
-          drop column if exists area, drop column if exists westLon, drop column if exists southLat,
-          drop column if exists eastLon, drop column if exists northLat",
-        "drop index if exists catalog${catid}_area_idx",
-      ] as $sql) {
-        try {
-          PgSql::query($sql);
+  if (0) { // Migration des tables catalog avec bbox aux tables catbbox
+    foreach (array_keys($cats) as $catid2) { // suppression des anciennes structures
+      foreach ([
+          "alter table catalog$catid2
+            drop column if exists area, drop column if exists westLon, drop column if exists southLat,
+            drop column if exists eastLon, drop column if exists northLat",
+          "drop index if exists catalog${catid2}_area_idx",
+        ] as $sql) {
+          try {
+            PgSql::query($sql);
+          }
+          catch (Exception $e) {
+            echo '<b>',$e->getMessage()," sur $sql</b>\n\n";
+            die();
+          }
         }
-        catch (Exception $e) {
-          echo '<b>',$e->getMessage()," sur $sql</b>\n\n";
-          die();
-        }
-      }
+    }
   }
   
   // résolution décamétrique des coordonnées => 4 chiffres après la virgule -> numeric(7,4)
@@ -400,7 +401,7 @@ if ($cmde == 'crauxtabl') { // créer les 2 tables auxilaires par catalogue
           where type in ('dataset','series','Dataset','Dataset,series')
             and perimetre='Min'";
   foreach (PgSql::query($sql) as $tuple) {
-    echo "$tuple[title]\n";
+    //echo "$tuple[title]\n";
     //$record = json_decode($tuple['record'], true);
     $record = Record::create($tuple['record']);
 
@@ -427,7 +428,7 @@ if ($cmde == 'crauxtabl') { // créer les 2 tables auxilaires par catalogue
       if (!($plabel = $arboOrgsPMin->prefLabel($party))) continue;
       if (isset($responsibleParties[$plabel])) continue;
       $responsibleParties[$plabel] = 1;
-      echo "  stdOrgname=$orgname\n";
+      //echo "  plabel=$plabel\n";
       $plabel = str_replace("'", "''", $plabel);
       $sql = "insert into catorg$catid(id, org) values ('$tuple[id]', '$plabel')";
       //echo "  $sql\n";
