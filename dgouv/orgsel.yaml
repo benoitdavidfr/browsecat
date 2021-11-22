@@ -1,0 +1,42 @@
+title: sélection des organisations du périmètre ministériel dans data.gouv.fr, en supprimant celles créées par geo.data.gouv
+orgs:
+  - DDT de l'Isère
+  - DDTM Finistère
+  - DDTM Ille-et-Vilaine
+  - Direction Départementale des Territoires d'Eure-et-Loir
+  - Direction Départementale des Territoires de l'Ariège
+  - Direction Départementale des Territoires de l'Essonne
+  - Direction Départementale des Territoires de la Marne
+  - Direction Départementale des Territoires de la Meuse
+  - Direction Départementale des Territoires de Meurthe-et-Moselle
+  - Direction Départementale des Territoires de Saône-et-Loire
+  - DIRECTION DEPARTEMENTALE DES TERRITOIRES DE SAONE-ET-LOIRE (71)
+  - Direction Départementale des Territoires de Seine-et-Marne
+  - Direction Départementale des Territoires des Hautes-Alpes
+  - Direction Départementale des Territoires du Bas-Rhin (67)
+  - Direction Départementale des Territoires du Doubs
+  - Direction Départementale des Territoires du Haut-Rhin (68)
+  - Direction Départementale des Territoires du Rhône
+  - Direction Départementale des Territoires et de la Mer de l'Hérault
+  - Direction Départementale des Territoires et de la Mer de Loire-Atlantique
+  - Direction Régionale de l'Environnement de l'Aménagement et du Logement des Hauts de France
+  - Direction régionale de l'Environnement, de l'Aménagement et du Logement de Normandie
+  - Direction Régionale et Interdépartementale de l'Équipement et de l'Aménagement d'Île-de-France
+  - Direction Régionale et Interdépartementale de l'Hébergement et du Logement
+  - DREAL Auvergne-Rhône-Alpes
+  - DREAL Bourgogne-Franche-Comté
+  - DREAL Bretagne
+  - DREAL Nouvelle Aquitaine
+  - DREAL Pays de la Loire
+  - DREAL Provence-Alpes-Côte d'Azur
+  - DRIEA, Sit@del 2
+  - Direction Générale de l'Aviation Civile
+  - Direction Régionale de l'Environnement de l'Aménagement et du Logement des Hauts de France
+  - Direction Régionale et Interdépartementale de l'Hébergement et du Logement
+  - Direction Régionale et Interdépartementale de l'Équipement et de l'Aménagement d'Île-de-France
+  - Direction interrégionale de la mer Manche Est - mer du Nord
+  - Direction régionale de l'Environnement, de l'Aménagement et du Logement de Normandie
+  - Laboratoire Central de Surveillance de la Qualité de l'Air
+  - Ministère de la Cohésion des territoires
+  - Ministère de la Transition écologique
+  - Service central d’hydrométéorologie et d’appui à la prévision des inondations

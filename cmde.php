@@ -20,12 +20,14 @@ journal: |
 includes:
   - cats.inc.php
   - catinpgsql.inc.php
+  - record.inc.php
   - orginsel.inc.php
   - orgarbo.inc.php
 */
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
+require_once __DIR__.'/record.inc.php';
 require_once __DIR__.'/orginsel.inc.php';
 require_once __DIR__.'/orgarbo.inc.php';
 
@@ -321,10 +323,11 @@ if ($cmde == 'addbbox') { // ajout de la table catbbox
       }
   }
 
-  $sql = "select id, title, record from catalog$catid where type in ('dataset','series')";
+  $sql = "select id, title, record from catalog$catid where type in ('dataset','series','Dataset','Dataset,series')";
   foreach (PgSql::query($sql) as $tuple) {
     //echo "$tuple[title]\n";
-    $record = json_decode($tuple['record'], true);
+    //$record = json_decode($tuple['record'], true);
+    $record = Record::create($tuple['record']);
     //print_r($record['dcat:bbox']);
     foreach ($record['dcat:bbox'] ?? [] as $nobbox => $bbox) {
       if ($area = area($bbox)) {
@@ -393,11 +396,15 @@ if ($cmde == 'crauxtabl') { // créer les 2 tables auxilaires par catalogue
     theme text not null -- nom du theme
   )");
 
-  $sql = "select id, title, record from catalog$catid where type in ('dataset','series') and perimetre='Min'";
+  $sql = "select id, title, record from catalog$catid
+          where type in ('dataset','series','Dataset','Dataset,series')
+            and perimetre='Min'";
   foreach (PgSql::query($sql) as $tuple) {
-    //echo "$tuple[title]\n";
-    $record = json_decode($tuple['record'], true);
+    echo "$tuple[title]\n";
+    //$record = json_decode($tuple['record'], true);
+    $record = Record::create($tuple['record']);
 
+    // Traitement des thèmes
     $prefLabels = prefLabels($record['keyword'] ?? [], [$arbo=> $arbos[$arbo]]);
     //echo "id=$tuple[id], prefLabels="; print_r($prefLabels);
 
@@ -414,12 +421,13 @@ if ($cmde == 'crauxtabl') { // créer les 2 tables auxilaires par catalogue
       PgSql::query($sql);
     }
     
+    // Traiteemnt eds organisations
     $responsibleParties = []; // liste des parties pour éviter les doublons, [{$orgname}=> 1]
     foreach ($record['responsibleParty'] ?? [] as $party) {
       if (!($plabel = $arboOrgsPMin->prefLabel($party))) continue;
       if (isset($responsibleParties[$plabel])) continue;
       $responsibleParties[$plabel] = 1;
-      //echo "  stdOrgname=$orgname\n";
+      echo "  stdOrgname=$orgname\n";
       $plabel = str_replace("'", "''", $plabel);
       $sql = "insert into catorg$catid(id, org) values ('$tuple[id]', '$plabel')";
       //echo "  $sql\n";

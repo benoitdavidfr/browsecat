@@ -51,7 +51,7 @@ definitions:
     description: fiche de métadonnées d'un jeu de données structurée conformément au standard DCAT
     type: object
     additionalProperties: false
-    required: ['@id','@type',standard,title]
+    required: ['@id','@type',standard,title,publisher,contactPoint]
     properties:
       '@id':
         type: string
@@ -77,10 +77,12 @@ definitions:
       publisher:
         type: array
         items:
+          minItems: 1
           $ref: '#/definitions/foaf:Agent'
       contactPoint:
         type: array
         items:
+          minItems: 1
           $ref: '#/definitions/vcard:Kind'
       accrualPeriodicity:
         description: URI de http://publications.europa.eu/resource/authority/frequency

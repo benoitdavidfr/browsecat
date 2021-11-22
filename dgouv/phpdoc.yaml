@@ -3,10 +3,10 @@ path: /browsecat/dgouv
 doc: |
   Import partiel conforme à ../dido/importdido.schema.yaml
 journal: |
-  20/11/2021:
+  20-22/11/2021:
     - création
 phpScripts:
   - /browsecat/dgouv/view.php
 phpIncludes:
 htmlFiles:
-  - /browsecat/dgouv/importdido.schema.yaml
+  - /browsecat/dgouv/spatial-dgouv.yaml

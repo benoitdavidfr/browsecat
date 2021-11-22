@@ -8,6 +8,8 @@ doc: |
   Les mdContacts de ces MDD ne sont parfois pas des organisations du pôle.
 
 journal: |
+  22/11/2021:
+    - adaptation de certaines actions pour traiter aussi le format DCAT en utilisant les classes Record*
   15-16/11/2021:
     - ajout carte de situation
   14/11/2021:
@@ -28,15 +30,17 @@ includes:
   - cswserver.inc.php
   - cats.inc.php
   - catinpgsql.inc.php
+  - record.inc.php
   - orgarbo.inc.php
   - orginsel.inc.php
   - mdvars2.inc.php
 */
-define('VERSION', "a.php 16/11/2021 8:00");
+define('VERSION', "a.php 22/11/2021 11:34");
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/cswserver.inc.php';
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
+require_once __DIR__.'/record.inc.php';
 require_once __DIR__.'/orgarbo.inc.php';
 require_once __DIR__.'/orginsel.inc.php';
 
@@ -475,37 +479,33 @@ if ($_GET['action']=='orgsHorsSel') { // liste les organisations hors sélection
 
 if ($_GET['action']=='orgsHorsArbo') { // liste les organisations $_GET[type] hors de l'arbo des organisations 
   if (!is_file("orgpmin.yaml")) {
-    echo "Arbo non trouvée<br>\n";
+    echo "ArboPMin non trouvée<br>\n";
     $arboOrgs = null;
   }
   else
-    $arboOrgs = new Arbo('orgpmin.yaml');
+    $arboOrgs = new OrgArbo('orgpmin.yaml');
   $orgNames = []; // liste des organisations hors Arbo sous la forme [{lower}=> {name}]
-  $sql = "select id,title,record from catalog$_GET[cat] where type in('dataset','series')"
+  $sql = "select id,title,record from catalog$_GET[cat]\n"
+    ."where type in('dataset','series','Dataset','Dataset,series')"
     .(($_GET['type']=='mdContact') ? " and perimetre='Min'" : '');
+  //echo "<pre>$sql</pre>\n";
   foreach (PgSql::query($sql) as $tuple) {
     //echo "$tuple[title]<br>\n";
-    $record = json_decode($tuple['record'], true);
+    $record = Record::create($tuple['record']);
     //echo "<pre>"; print_r($record); //die();
+    //echo "<pre>"; print_r($record['responsibleParty']); //die();
     foreach ($record[$_GET['type']] ?? [] as $org) {
+      //echo "<pre>org="; print_r($org);
       if (!($orgname = $org['organisationName'] ?? null)) continue;
+      //echo "orgname=$orgname<br>\n";
       if (!$arboOrgs) { // pas d'arbo
         $orgNames[strtolower($orgname)] = $orgname;
       }
-      elseif (!($plabel = $arboOrgs->prefLabel($orgname))) { // name absent de l'arbo
+      elseif (!($plabel = $arboOrgs->prefLabel($org))) { // name absent de l'arbo
         $orgNames[strtolower($orgname)] = $orgname;
       }
-      elseif ($plabel == 'IMPRECIS') { // cas particulier des noms imprécis
-        //echo "<a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$orgname imprécis</a><br>\n";
-        $orgname .= ' | '.($org['electronicMailAddress'] ?? "NO electronicMailAddress");
-        //echo "-> orgname2=$orgname<br>\n";
-        if (!($plabel = $arboOrgs->prefLabel($orgname))) {
-          //echo "-> plabel null<br>\n";
-          $orgNames[strtolower($orgname)] = $orgname;
-        }
-        else {
-          //echo "plabel=$plabel<br>\n";
-        }
+      else {
+        //echo "plabel=$plabel<br>\n";
       }
     }
   }
@@ -640,9 +640,10 @@ if ($_GET['action']=='mdContacts') { // Liste les mdContacts des MDD du périmè
 
 if ($_GET['action']=='qualibbox') { // Analyse de la qualité des BBox  
   echo "<h2>Analyse de la qualité des BBox</h2>\n";
-  $sql = "select ".($_GET['cat']=='agg' ? 'cat,':'')."id,title,record
+  $sql = "select ".($_GET['cat']=='agg' ? 'cat':"'$_GET[cat]'")." cat,id,title,record
     from catalog$_GET[cat]
-    where type in ('dataset','series') and perimetre='Min'";
+    where type in ('dataset','series','Dataset','Dataset,series') and perimetre='Min'";
+  echo "<pre>$sql</pre>\n";
   $nbMdd = 0;
   $bboxesKo = 0;
   $errors = [];
@@ -664,6 +665,8 @@ if ($_GET['action']=='qualibbox') { // Analyse de la qualité des BBox
     $nbPerCat[$tuple['cat']] = 1 + ($nbPerCat[$tuple['cat']] ?? 0);
   }
   echo "</ul>\n";
+  if (!$nbMdd)
+    die("Aucune MDD trouvée\n");
   printf("%d incorrects soit %.0f %% sur %d<br>\n", $bboxesKo, $bboxesKo/$nbMdd*100, $nbMdd);
   echo '<pre>',Yaml::dump(['$errors'=> $errors]),"</pre>\n";
   foreach ($errorsPerCat as $catid => $nberr) {
@@ -677,7 +680,7 @@ if ($_GET['action']=='nbMdParTheme') { // Dénombrement des MDD par thème
   $nbMdParTheme = []; // [{arboid} => [{prefLabel} => nb]]
   $nbMd = 0;
   $sql = "select id,title, record from catalog$_GET[cat]
-          where type in ('dataset','series') and perimetre='Min'";
+          where type in ('dataset','series','Dataset','Dataset,series') and perimetre='Min'";
   //echo "<pre>";
   foreach (PgSql::query($sql) as $tuple) {
     $record = json_decode($tuple['record'], true);
@@ -782,13 +785,14 @@ if ($_GET['action']=='nbMdParOrg') { // Dénombrement des MDD par organisation d
   $nbMdParOrg = []; // [{orgName} => nb]
   $nbMd = 0;
   $sql = "select id, title, record from catalog$_GET[cat]
-          where type in ('dataset','series') and perimetre='Min'";
+          where type in ('dataset','series','Dataset','Dataset,series') and perimetre='Min'";
   //echo "<pre>";
   foreach (PgSql::query($sql) as $tuple) {
-    $record = json_decode($tuple['record'], true);
+    //$record = json_decode($tuple['record'], true);
+    $record = Record::create($tuple['record']);
     //echo "record = "; print_r($record);
     foreach ($record[$_GET['type']] as $org) {
-      //print_r($org);
+      //echo '<pre>org='; print_r($org); echo "</pre>\n";
       if (!isset($org['organisationName']))
         $nbMdParOrg['UNDEF'] = 1 + ($nbMdParOrg['UNDEF'] ?? 0);
       elseif ($orgShortName = $arboOrgsPMin->short($org['organisationName'])) {
@@ -798,18 +802,17 @@ if ($_GET['action']=='nbMdParOrg') { // Dénombrement des MDD par organisation d
     }
     $nbMd++;
   }
-
+  //print_r($nbMdParOrg);
+  
   echo "<table border=1>\n";
-  foreach($arboOrgsPMin->children('') as $id1 => $niv1) {
-    //echo "$id1-> ",$niv1->short(),"<br>\n";
-    foreach($niv1->children() as $id2 => $niv2) {
-      $short = $niv2->short();
-      if ($nb = $nbMdParOrg[$short]?? 0) {
-        printf("<tr><td>%s</td><td align='right'>%d</td><td align='right'>%.0f %%</td></tr>\n", $short, $nb, $nb/$nbMd*100);
-      }
+  foreach ($arboOrgsPMin->nodes() as $idorg => $org) {
+    if (!$org->prefLabel()) continue; // Noeud ingtermédiare ne correspondant pas à un concept
+    $short = $org->short();
+    if ($nb = $nbMdParOrg[$short]?? 0) {
+      printf("<tr><td>%s</td><td align='right'>%d</td><td align='right'>%.0f %%</td></tr>\n", $short, $nb, $nb/$nbMd*100);
     }
   }
-  $nb = $nbMdParOrg['UNDEF']?? 0;
+  $nb = $nbMdParOrg['UNDEF'] ?? 0;
   if ($nb)
     printf("<tr><td>UNDEF</td><td align='right'>%d</td><td align='right'>%.0f %%</td></tr>\n", $nb, $nb/$nbMd*100);
   echo "</table>\n";
@@ -861,10 +864,11 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
   
   // Dénombrement
   $sql = "select id, title, record from catalog$_GET[cat]
-          where type in ('dataset','series') and perimetre='Min'";
+          where type in ('dataset','series','Dataset','Dataset,series') and perimetre='Min'";
   //echo "<pre>";
   foreach (PgSql::query($sql) as $tuple) {
-    $record = json_decode($tuple['record'], true);
+    //$record = json_decode($tuple['record'], true);
+    $record = Record::create($tuple['record']);
     //echo "record = "; print_r($record);
     $shortNames = []; // liste des noms courts, [{shortName} => 1]
     foreach ($record[$_GET['type']] as $org) {

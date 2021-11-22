@@ -1,4 +1,5 @@
 <?php
+die("Script remplacé par cmde.php\n");
 /*PhpDoc:
 title: ajouttheme.php - ajout de thèmes
 name: ajouttheme.php

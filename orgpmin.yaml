@@ -10,6 +10,9 @@ description: |
 
   Une pseudo-organisation dénommée 'IMPRECIS' définit en synonymes des libellés d'organisation insuffisamment précis
   pour être significatif. L'ajout au libellé de l'adresse électronique permet souvent de préciser l'organisation concernée.
+journal:
+  22/11/2021:
+    - intégration DiDo et data.gouv
 $schema: org
 
 keyIsPrefLabel: false
@@ -81,6 +84,7 @@ children:
       MTE:
         prefLabels: {fr: Ministère de la Transition Ecologique (MTE)}
         altLabels:
+          - Ministère de la Transition écologique
           - MEDDE
           - MEDDTL
           - Ministère de l'Environnement, d el'Energie et de la Mer
@@ -125,8 +129,9 @@ children:
           COVADIS:
             prefLabels: {fr: COVADIS}
           SDES:
-            prefLabels: {'fr': SDES}
+            prefLabels: {'fr': Service des Données et des Ètudes Statistiques (SDES) du Ministère de la transition écologique (MTE)}
             altLabels:
+              - Bureau des statistiques de la demande d'énergie
               - MTES/CGDD/SDES
               - Ministère de l'Environnement, de l'Energie et de la Mer - Service de l'observation et des statistiques (SOeS)
               - Ministère de la Transition Ecologique et Solidaire - CGDD/SOeS/SDES
@@ -219,6 +224,8 @@ children:
               - Service Central d'Hydrométéorologie et d'Appui à la Prévision des Inondations -  Contact - Ingénieur SIG
               - SCHAPI
               - Banque Hydro | hydro@developpement-durable.gouv.fr
+          LCSQA:
+            prefLabels: {fr: Laboratoire Central de Surveillance de la Qualité de l'Air}
       SG:
         prefLabels: {fr: Secrétariat Général du pôle ministériel MTE-MCTRCT-MM}
         children:
@@ -493,12 +500,14 @@ children:
         short: DDTM 34 (Hérault)
         prefLabels: {fr: DDTM 34 (Direction Départementale des Territoires et de la Mer de l'Hérault)}
         altLabels:
+          - Direction Départementale des Territoires et de la Mer de l'Hérault
           - DDTM de l'Hérault -service web
       DDT35:
         short: DDTM 35 (Ille-et-Vilaine)
         prefLabels: {fr: DDTM 35 (Direction Départementale des Territoires et de la Mer d'Ille-et-Vilaine)}
         altLabels:
           - Direction départementale des Territoires et de la Mer d'Ille-et-Vilaine
+          - DDTM Ille-et-Vilaine
           - DDTM 35
           - DDTM35/METSSI (Direction Départementale des Territoires et de la Mer d'Ille-et-Vilaine/Mission de l'Expertise Territoriale et de la Stratégie du Système d'Information)
           - Direction Départementale des Affaires Maritimes d'Ille-et-Vilaine
@@ -732,6 +741,7 @@ children:
         altLabels:
           - DDT du Bas-Rhin
           - Direction Départementale des Territoires du Bas-Rhin
+          - Direction Départementale des Territoires du Bas-Rhin (67)
           - Direction Départementale des Territoires du Bas-Rhin)
       DDT68:
         short: DDT 68 (Haut-Rhin)
@@ -760,6 +770,7 @@ children:
         short: DDT 71 (Saône-et-Loire)
         prefLabels: {fr: DDT 71 (Direction Départementale des Territoires de Saône-et-Loire)}
         altLabels:
+          - DIRECTION DEPARTEMENTALE DES TERRITOIRES DE SAONE-ET-LOIRE (71)
           - DDT 71
           - DDT de Saône-et-Loire
           - DDT71
@@ -1110,6 +1121,7 @@ children:
           fr: DRIEAT Île-de-France (Direction régionale et interdépartementale de l'environnement, de l'aménagement et des transports)
         altLabels:
           - DRIEA-IF Siège
+          - DRIEA, Sit@del 2
           - Direction régionale et interdépartementale de l'équipement et de l'aménagement Île-de-France - Unité départementale de Paris
           - DRIEA-IF/UTEA92
           - DRIEA-IF/UTEA94
@@ -1127,6 +1139,7 @@ children:
         short: DREAL Normandie
         prefLabels: {fr: "DREAL Normandie (Direction Régionale de l'Environnement, de l'Aménagement et du Logement Normandie)"}
         altLabels:
+          - Direction régionale de l'Environnement, de l'Aménagement et du Logement de Normandie
           - DREAL Normandie
           - DREAL de Normandie
           - DREAL Normandie - Site de Caen

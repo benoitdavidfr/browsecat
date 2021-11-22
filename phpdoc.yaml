@@ -122,6 +122,7 @@ phpScripts:
 phpIncludes:
   - /browsecat/cats.inc.php
   - /browsecat/catinpgsql.inc.php
+  - /browsecat/record.inc.php
   - /browsecat/localhost.inc.php
   - /browsecat/orginsel.inc.php
   - /browsecat/trestant.inc.php

@@ -15,17 +15,26 @@ journal: |
 includes:
   - ../../phplib/accents.inc.php
   - ../httpcache.inc.php
+  - ../catinpgsql.inc.php
 */
 require_once __DIR__.'/../vendor/autoload.php';
 require_once __DIR__.'/../../phplib/accents.inc.php';
 require_once __DIR__.'/../httpcache.inc.php';
+require_once __DIR__.'/../catinpgsql.inc.php';
 
 use Symfony\Component\Yaml\Yaml;
 
 $API = 'https://www.data.gouv.fr/api/1'; // URL racine de l'API
 
 if (php_sapi_name()=='cli') { // en CLI -> import
-  $_GET['action'] = 'import';
+  if (!CatInPgSql::chooseServer($argv[1] ?? null)) { // Choix du serveur 
+    echo "Erreur: paramètre serveur incorrect !\n";
+    echo "usage: php $argv[0] {serveur}\n";
+    echo " où:\n";
+    echo " - {serveur} vaut local pour la base locale ou distant pour la base distante\n";
+    die();
+  }
+  $_GET['action'] = 'import'; // en CLI on réalise l'import
 }
 else { // PAS CLI
   echo "<!DOCTYPE HTML><html><head><meta charset='UTF-8'><title>dgouv/view</title></head><body>\n";
@@ -263,6 +272,17 @@ if ($_GET['action']=='import') { // Génération de l'import
     return $stdDataset;
   }
   
+  if (!CatInPgSql::chooseServer($_GET['server'] ?? null)) { // Choix du serveur 
+    echo "</pre>\n";
+    echo "Choix du serveur:<ul>\n";
+    echo "<li><a href='?action=$_GET[action]&amp;server=local'>local</a></li>\n";
+    echo "<li><a href='?action=$_GET[action]&amp;server=distant'>distant</a></li>\n";
+    die("</ul>\n");
+  }
+
+  $cat = new CatInPgSql('dgouv');
+  $cat->create(); // (re)crée la table
+  
   if (!is_file('orgsel.yaml')) {
     die("Erreur le fichier des organisations orgsel.yaml doit être créé\n");
   }
@@ -295,8 +315,12 @@ if ($_GET['action']=='import') { // Génération de l'import
       $stdDataset = stdDataset($dataset);
       echo "  $i: $stdDataset[title]\n";
       $stdDatasets[] = $stdDataset;
+      $cat->storeRecord($stdDataset, '@id');
     }
   }
+
+  PgSql::query("update catalogdgouv set perimetre='Min'");
+
   file_put_contents(
     'import.yaml',
     str_replace(["\n  -\n    ","\n      -\n        "], ["\n  - ","\n      - "],

@@ -7,6 +7,9 @@ doc: |
   L'objectif de ce script est d'importer les fiches de MDD dans PgSql en les standardisant conformément à ce schéma
   Le script écrit un fichier import.yaml dont la conformité au schéma peut être vérifiée.
 journal:
+  22/11/2021:
+    - ajout de la définition du périmètre
+    - ajout d'un publisher et d'un contactPoint par défaut (bug DiDo)
   20/11/2021:
     - correction erreur DiDo downloadUrl -> downloadURL
   19/11/2021:
@@ -42,7 +45,7 @@ else { // gestion du dialogue pour définir les paramètres en mode web
 }
 
 $cat = new CatInPgSql('dido');
-$cat->create(); // recrée une nlle table
+$cat->create(); // (re)crée la table
 
 
 function readDiDo(string $pageUrl): array { // lecture des ressources DiDo et les retourne
@@ -78,15 +81,35 @@ function readDiDo(string $pageUrl): array { // lecture des ressources DiDo et le
 function dateFromEngToIso(string $str): string { return date(DATE_ATOM, strtotime(substr($str, 0, 33))); }
 
 function stdPublisher(string|array $record, array $resources): array {
-  if (is_string($record))
-    $record = $resources[$record];
-  return $record;
+  $default = [
+    '@id'=> 'https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/organizations/main',
+    '@type'=> 'Agent',
+    'org_title'=> 'Service des Données et des Ètudes Statistiques (SDES) du Ministère de la transition écologique (MTE)',
+    'org_name'=> 'SDES',
+    'comment'=> 'Le SDES est le service statistique du ministère de la transition écologique. Il fait partie du Commissariat Général au Développement Durable (CGDD)',
+  ];
+    
+  if (!$record)
+    return $default;
+  elseif (is_string($record))
+    return $resources[$record];
+  else
+    return $record;
 }
 
 function stdContactPoint(string|array $record, array $resources): array {
-  if (is_string($record))
-    $record = $resources[$record];
-  return $record;
+  $default = [
+    '@id'=> 'https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/contactPoint',
+    '@type'=> 'Kind',
+    'fn'=> 'Point de contact DiDo',
+    'hasURL'=> 'https://statistiques.developpement-durable.gouv.fr/contact',
+  ];
+  if (!$record)
+    return $default;
+  elseif (is_string($record))
+    return $resources[$record];
+  else
+    return $record;
 }
 
 function stdDistribution(array $record, array $resources): array {
@@ -120,10 +143,8 @@ function stdDocumentation(array $record): array {
 
 function stdDataset(array $record, int $noDtadaset, array $resources): array {
   //echo Yaml::dump(['stdDataset'=> $dataset]);
-  if (isset($record['publisher']))
-    $record['publisher'] = [stdPublisher($record['publisher'], $resources)];
-  if (isset($record['contactPoint']))
-    $record['contactPoint'] = [stdContactPoint($record['contactPoint'], $resources)];
+  $record['publisher'] = [stdPublisher($record['publisher'] ?? [], $resources)];
+  $record['contactPoint'] = [stdContactPoint($record['contactPoint'] ?? [], $resources)];
   
   foreach (['created','issued','modified'] as $property)
     if (isset($record[$property]) && preg_match('!Coordinated Universal Time!', $record[$property]))
@@ -133,6 +154,12 @@ function stdDataset(array $record, int $noDtadaset, array $resources): array {
   foreach (['accrualPeriodicity','spatial'] as $property)
     if (isset($record[$property]) && is_array($record[$property]))
       $record[$property] = $record[$property]['@id'];
+  
+  // transporme spatial en array
+  if (isset($record['spatial']))
+    $record['spatial'] = [$record['spatial']];
+  
+  // standise la prop. theme
   foreach ($record['theme'] ?? [] as $i => $theme) {
     $record['theme'][$i] = stdConcept($theme, $resources);
   }
@@ -175,11 +202,14 @@ foreach ($resources[$catalogUri]['dataset'] as $dataset) {
   if (is_string($dataset))
     $dataset = $resources[$dataset];
   echo "- $dataset[title]\n";
-  //$datasets[md5($dataset['title'])] = stdDataset($dataset, count($datasets), $resources);
-  $dataset = stdDataset($dataset, count($datasets), $resources);
-  $datasets[] = $dataset;
-  $cat->storeRecord($dataset, '@id');
+  $stdDataset = stdDataset($dataset, count($datasets), $resources);
+  //$datasets[md5($stdDataset['title'])] = $stdDataset;
+  $datasets[] = $stdDataset;
+  $cat->storeRecord($stdDataset, '@id');
 }
+
+PgSql::query("update catalogdido set perimetre='Min'");
+
 file_put_contents(
   'import.yaml',
   str_replace(["\n  -\n    ","\n      -\n        "], ["\n  - ","\n      - "],
