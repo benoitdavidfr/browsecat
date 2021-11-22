@@ -1,4 +1,41 @@
 title: Bugs détectés dans l'export DCAT de DiDo
+complément2021-11-22:
+  liste:
+    - label: la propriété downloadUrl devrait être downloadURL
+      example: https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/distributions/0ded317c-b17c-4384-8ddc-a0f6c6a96571/csv?millesime=2021-10
+    - label: de nombreux dataset n'ont ni publisher, ni contactPoint
+      example: https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/datafiles/0ded317c-b17c-4384-8ddc-a0f6c6a96571
+    - label: le libellé du publisher (org_title) et du contacPoint doit pouvoir être compris dans un contexte hors Ministère, par exemple "Bureau des statistiques de la demande d'énergie" et "Point de contact DiDo"
+    - example: http://localhost/browsecat/dido/?uri=https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/datasets/6102445fe436671e1cec5da8
+  mail: |
+    Objet:	Re: export DCAT de DiDo
+    Date:	22/11/2021 17:25
+    De:	DAVID Benoît (Chef de mission) - CGDD/SRI/ECOLAB <benoit.david@developpement-durable.gouv.fr>
+    À:	"BARRIERE Christophe (Chef de projet) - CGDD/SDSED/BUN" <Christophe.Barriere@developpement-durable.gouv.fr>
+    Cc:	"CHUCHE Nicolas (Chef de bureau) - CGDD/SDSED/BUN" <Nicolas.Chuche@developpement-durable.gouv.fr>
+
+
+    Bonjour Christophe,
+
+    Je complète mon mail de jeudi dernier avec de nouvelles erreurs:
+
+    1) la propriété 'downloadUrl' devrait être 'downloadURL'
+          example: https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/distributions/0ded317c-b17c-4384-8ddc-a0f6c6a96571/csv?millesime=2021-10
+
+    2) de nombreux dataset n'ont ni publisher, ni contactPoint, cela me semble une erreur
+          example: https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/datafiles/0ded317c-b17c-4384-8ddc-a0f6c6a96571
+
+    3) le libellé du publisher (org_title) et du contacPoint (fn) doivent pouvoir être compris dans un contexte hors Ministère, par exemple "Bureau des statistiques de la demande d'énergie" et "Point de contact DiDo"
+        example: http://localhost/browsecat/dido/?uri=https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/datasets/6102445fe436671e1cec5da8
+ 
+
+    Il serait préférable que nous utilisions un gestionnaire de tickets pour ces échanges. En utilises-tu un ?
+
+    Cordialement
+
+    Benoit DAVID
+
+  
 mail2021-11-18: |
   Objet:	Re: export DCAT de DiDo
   Date:	18/11/2021 17:43

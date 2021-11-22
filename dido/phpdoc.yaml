@@ -23,4 +23,4 @@ phpScripts:
   - /browsecat/dido/harvestcat.php
 phpIncludes:
 htmlFiles:
-  - /browsecat/dido/importdido.schema.yaml
+  - /browsecat/dido/import.schema.yaml

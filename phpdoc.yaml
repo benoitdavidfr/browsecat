@@ -72,14 +72,19 @@ doc: |
     - N10 X DDT82
   
   Questions/idées:
-    - ne faut-il pas créer une table auxiliaire bbox ? !!! FAIT le 16/11/2021
     - ne faut-il pas ajouter le thème dans la table auxiliaire plutot que dans record ?
     - ajouter les MDD n'ayant pas de bbox à un bbox par défaut, ex celui de l'organisation ?
+    
+  A FAIRE:
+    - transformer les propriétés spatial de DataGouv (et DiDo ?) en bbox
+    - ajouter des thèmes Covadis à DataGouv et DiDo
+    - vérifier le fonctionnement de l'ajout de thèmes, certaines regexp semblent ne pas fonctionner (TRI ??)
+    - explorer https://trouver.ternum-bfc.fr/ et la possibilité de le moissonner !
   
 journal: |
   22/11/2021:
-    - première intégration de DiDo et DataGouv
-    - publication sur Alwaysdata
+    - première intégration de DiDo et DataGouv, sans thèmes et sans bbox pour ces 2 catalogues
+    - publication sur Alwaysdata vers 15h
   17-19/11/2021:
     - ajout du module DiDo
   14/11/2021:
@@ -110,6 +115,8 @@ journal: |
     - création
 submodules:
   - /browsecat/dido
+  - /browsecat/dgouv
+  - /browsecat/ternum-bfc
 phpScripts:
   - /browsecat/harvest.php
   - /browsecat/cmde.php
@@ -124,6 +131,8 @@ phpIncludes:
   - /browsecat/catinpgsql.inc.php
   - /browsecat/record.inc.php
   - /browsecat/localhost.inc.php
+  - /browsecat/closed.inc.php
+  - /browsecat/news.inc.php
   - /browsecat/orginsel.inc.php
   - /browsecat/trestant.inc.php
   #- /browsecat/annexes.inc.php

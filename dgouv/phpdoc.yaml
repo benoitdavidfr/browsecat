@@ -9,4 +9,5 @@ phpScripts:
   - /browsecat/dgouv/view.php
 phpIncludes:
 htmlFiles:
+  - /browsecat/dgouv/orgsel.yaml
   - /browsecat/dgouv/spatial-dgouv.yaml
