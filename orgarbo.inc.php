@@ -30,10 +30,20 @@ class OrgArbo {
     $path = $this->arbo->labelIn($org['organisationName']);
     if ($path <> ['IMPRECIS'])
       return $path;
-    if (!isset($org['electronicMailAddress']))
-      return [];
+    $nomPrecise = $org['organisationName'].' | '.($org['electronicMailAddress'] ?? 'noElectronicMailAddress');
+    return $this->arbo->labelIn($nomPrecise);
+  }
+  
+  // si imprecis alors renvoie le label augmenté qui doit être ajouté
+  // permet d'identifier si un org a un nom imprécis,
+  function imprecis(array $org): ?string {
+    $path = $this->arbo->labelIn($org['organisationName'] ?? '');
+    if ($path == ['IMPRECIS']) {
+      $nomPrecise = $org['organisationName'].' | '.($org['electronicMailAddress'] ?? 'noElectronicMailAddress');
+      return $nomPrecise;
+    }
     else
-      return $this->arbo->labelIn("$org[organisationName] | $org[electronicMailAddress]");
+      return null;
   }
   
   function prefLabel(array $org, string $lang='fr'): ?string { // retrouve le prefLabel à partir de l'org
@@ -82,6 +92,8 @@ elseif ($_GET['action']=='testops') { // Test orgIn/prefLabel/short
 - { organisationName: 'DDT 12 (Direction Départementale des Territoires de l''Aveyron)', role: owner, electronicMailAddress: ddt-mact@aveyron.gouv.fr }
 - { organisationName: ADL, role: pointOfContact, electronicMailAddress: nicolas.kusmierek@pas-de-calais.gouv.fr }
 - { organisationName: ADL }
+- { organisationName: DEAL,  electronicMailAddress: infogeo.deal-guyane@developpement-durable.gouv.fr }
+- { organisationName: DEAL }
 - { }
 EOT;
 
@@ -94,6 +106,7 @@ EOT;
         'orgIn'=> $arboOrgsPMin->orgIn($org),
         'prefLabel'=> $arboOrgsPMin->prefLabel($org),
         'short'=> $arboOrgsPMin->short($org),
+        'imprecis'=> $arboOrgsPMin->imprecis($org),
       ]],
       3);
   }

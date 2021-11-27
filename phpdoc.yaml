@@ -78,7 +78,6 @@ doc: |
   A FAIRE:
     - transformer les propriétés spatial de DataGouv (et DiDo) en bbox
     - ajouter des thèmes Covadis à DataGouv et DiDo
-    - vérifier le fonctionnement de l'ajout de thèmes, certaines regexp semblent ne pas fonctionner (TRI ??)
     - explorer https://trouver.ternum-bfc.fr/ et la possibilité de le moissonner !
   
 journal: |

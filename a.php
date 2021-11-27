@@ -36,7 +36,7 @@ includes:
   - mdvars2.inc.php
   - closed.inc.php
 */
-define('VERSION', "a.php 22/11/2021 11:34");
+define('VERSION', "a.php 27/11/2021 10:42");
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/cswserver.inc.php';
 require_once __DIR__.'/cats.inc.php';
@@ -108,31 +108,6 @@ function kwInArbos(array $keywords, array $arbos, array $options=[]): array {
   }
   ksort($inArbos);
   return array_keys($inArbos);
-}
-
-// calcule le nbre de mots-clés des MDD du périmètre du catalogue $catid appartenant à une des arbos définis dans $arbos
-// retourne une liste constituée:
-//  - Pour chaque arbo, nbre de MDD du périmètre dont au moins un mot-clé appartient à l'arbo
-//  - Nbre total de MDD du périmètre
-// Si $options contient 'showKeywords' alors la liste des mots-clés est affichée
-function listkws(string $catid, array $arbos, array $options): array {
-  $nbExplique = []; // Pour chaque thème, nbre de MDD du périmètre dont au moins un mot-clé appartient au thème
-  $nbTotal = 0; // Nbre total de MDD ayant une organisation dans la sélection
-  
-  foreach (PgSql::query("select record from catalog$catid where type in ('dataset','series')") as $tuple) {
-    $record = json_decode($tuple['record'], true);
-    //echo "<pre>"; print_r($record); echo "</pre>\n";
-    if (!orgInSel($catid, $record)) // si aucune organisation appartient à la sélection alors on saute
-      continue;
-    $kwInThemes = kwInArbos($record['keyword'] ?? [], $arbos, $options);
-    foreach ($kwInThemes as $theme)
-      $nbExplique[$theme] = 1 + ($nbExplique[$theme] ?? 0);
-    if ($kwInThemes)
-      $nbExplique['tousThemes'] = 1 + ($nbExplique['tousThemes'] ?? 0);
-    $nbTotal++;
-  }
-  ksort($nbExplique);
-  return [$nbExplique, $nbTotal];
 }
 
 if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
@@ -500,13 +475,23 @@ if ($_GET['action']=='orgsHorsArbo') { // liste les organisations $_GET[type] ho
     //echo "<pre>"; print_r($record['responsibleParty']); //die();
     foreach ($record[$_GET['type']] ?? [] as $org) {
       //echo "<pre>org="; print_r($org);
-      if (!($orgname = $org['organisationName'] ?? null)) continue;
+      if (!($orgname = $org['organisationName'] ?? null))
+        continue;
+      //if ($orgname <> 'DEAL') continue; // TEST
+      //echo "title: $tuple[title]<br>\n";
       //echo "orgname=$orgname<br>\n";
       if (!$arboOrgs) { // pas d'arbo
         $orgNames[strtolower($orgname)] = $orgname;
       }
-      elseif (!($plabel = $arboOrgs->prefLabel($org))) { // name absent de l'arbo
-        $orgNames[strtolower($orgname)] = $orgname;
+      elseif (!($plabel = $arboOrgs->prefLabel($org))) { // org absent de l'arbo
+        //echo "org absent de arbo<br>\n";
+        if ($imprecis = $arboOrgs->imprecis($org)) {
+          //echo "imprecis: $imprecis<br>\n";
+          $orgNames[strtolower($imprecis)] = $imprecis;
+        }
+        else {
+          $orgNames[strtolower($orgname)] = $orgname;
+        }
       }
       else {
         //echo "plabel=$plabel<br>\n";
@@ -586,6 +571,32 @@ if ($_GET['action']=='setPerimetre') { // met à jour le périmetre dans la tabl
 }
 
 if ($_GET['action']=='listkws') { // Liste les mots-clés des MDD dont une org est dans la sélection
+  // calcule le nbre de mots-clés des MDD du périmètre du catalogue $catid appartenant à une des arbos définis dans $arbos
+  // retourne une liste constituée:
+  //  - Pour chaque arbo, nbre de MDD du périmètre dont au moins un mot-clé appartient à l'arbo
+  //  - Nbre total de MDD du périmètre
+  // Si $options contient 'showKeywords' alors la liste des mots-clés est affichée
+  function listkws(string $catid, array $arbos, array $options): array {
+    $nbExplique = []; // Pour chaque thème, nbre de MDD du périmètre dont au moins un mot-clé appartient au thème
+    $nbTotal = 0; // Nbre total de MDD ayant une organisation dans la sélection
+    
+    $sql = "select record from catalog$catid where type in ('dataset','series','Dataset','Dataset,series')";
+    foreach (PgSql::query($sql) as $tuple) {
+      $record = Record::create($tuple['record']);
+      if (!orgInSel($catid, $record)) // si aucune organisation appartient à la sélection alors on saute
+        continue;
+      //echo "<pre>"; print_r($record); echo "</pre>\n";
+      $kwInThemes = kwInArbos($record['keyword'] ?? [], $arbos, $options);
+      foreach ($kwInThemes as $theme)
+        $nbExplique[$theme] = 1 + ($nbExplique[$theme] ?? 0);
+      if ($kwInThemes)
+        $nbExplique['tousThemes'] = 1 + ($nbExplique['tousThemes'] ?? 0);
+      $nbTotal++;
+    }
+    ksort($nbExplique);
+    return [$nbExplique, $nbTotal];
+  }
+
   list ($nbExplique, $nbTotal) = listkws($_GET['cat'], $arbos, ['showKeywords']);
   echo "--<br>\n";
   foreach ($nbExplique as $theme => $nb)

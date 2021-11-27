@@ -38,6 +38,7 @@ children:
       - DDE
       - DDT/SPAE/NSER
       - DDTM/SEF/BECV
+      - DEAL
       - Délégation à la Mer et au Littoral
       - Délégation à l'action foncière et immobilière
       - Données STAP 65 / Report DDT 65
@@ -942,11 +943,10 @@ children:
   Outre-mer:
     children:
       Deal:
-        prefLabels: {fr: DEAL}
+        prefLabels: {fr: DEAL générique}
         altLabels:
-          - Direction de l'Environnement, de l'Aménagement et du Logement (DEAL)
+          - DEAL | noElectronicMailAddress
         hiddenLabels:
-          - Direction de l'Aménagement, de l'Environnement et du Logement (DEA
       DMer:
         prefLabels: {fr: Direction de la Mer}
       DealGP:
@@ -959,11 +959,13 @@ children:
         prefLabels: {fr: DGTM Guyane}
         altLabels:
           - DGTM
+          - DGTM Guyane
         children:
           DealGF:
             prefLabels: {fr: DEAL Guyane}
             altLabels:
               - Direction de l'Environnement, de l'Aménagement et du Logement de Guyane (DEAL)
+              - DEAL | infogeo.deal-guyane@developpement-durable.gouv.fr
               - DIREN Guyane
       DealMQ:
         prefLabels: {fr: "DEAL (Direction de l'environnement, de l'Aménagement et du Logement) Martinique"}

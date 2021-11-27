@@ -44,6 +44,7 @@ else { // PAS CLI
     echo "<li><a href='?action=datasets'>Affiche les JDD par organisation sélectionnée</a></li>\n";
     echo "<li><a href='?action=import'>Importe les JDD pertinents dans PgSql</a></li>\n";
     echo "<li><a href='?action=spatial'>Explore l'aspect d'indexation géographique de l'API</a></li>\n";
+    echo "<li><a href='?action=geodata'>Explore les données importées par geo.data.gouv</a></li>\n";
     echo "</ul>\n";
     echo "Exemples:<ul>\n";
     echo "<li><a href='?action=showYaml",
@@ -370,5 +371,45 @@ if ($_GET['action']=='children') { // liste des objets de la couche avec liens v
   foreach ($coverage['features'] as $no => $feature) {
     echo "<li><a href='$API/spatial/zone/$feature[id]/children/'>",$feature['properties']['name']," ($feature[id])</li>\n";
   }
+  die();
+}
+
+if ($_GET['action']=='geodata') { // Explore les données importées par geo.data.gouv
+  echo "<h2>Liste des données importées par geo.data.gouv</h2>\n";
+  if (!is_file('orgsel.yaml')) {
+    die("Erreur le fichier des organisations orgsel.yaml doit être créé\n");
+  }
+  $nbre = 0;
+  $orgnames = Yaml::parsefile('orgsel.yaml')['orgs'];
+  foreach ($orgnames as $i => $orgname)
+    $orgnames[$i] = stdname($orgname);
+  
+  // recherche de la liste des URIs des orgs
+  $dgouv = new HttpCache('dgouv');
+  $url = "$API/organizations/";
+  $orguris = []; // lite des URIs des orgs
+  while ($url) {
+    $page = json_decode($dgouv->request($url), true);
+    foreach ($page['data'] as $org) {
+      if (in_array(stdname($org['name']), $orgnames)) {
+        $orguris[] = $org['uri'];
+      }
+    }
+    $url = $page['next_page'] ?? null;
+  }
+  //echo Yaml::dump($orguris);
+  
+  $stdDatasets = [];
+  foreach ($orguris as $orguri) {
+    $datasets = json_decode($dgouv->request("${orguri}datasets"), true);
+    echo "$orguri:\n";
+    foreach ($datasets['data'] as $i => $dataset) {
+      if (!isset($dataset['extras']['inspire:identifier'])) // s'il n'a pas été moissonné alors je l'élimine 
+        continue;
+      echo "  $i: $dataset[title]\n";
+      $nbre++;
+    }
+  }
+  echo "$nbre JdD importés par geo.data.gouv.fr<br>\n";
   die();
 }

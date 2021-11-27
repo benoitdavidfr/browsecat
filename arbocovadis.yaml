@@ -954,6 +954,10 @@ children:
           - Directive sur les émissions industrielles
   RESEAU_ENERGIE_DIVERS:
     short: M
+    note: Ajout de ce qui concerne l'énergie et pas uniquement les réseaux
+    altLabels:
+      - energie
+      - consommation-d-energie
     children:
       N_AMENAGEMENT_NUMERIQUE_DES_TERRITOIRES:
         short: M1
@@ -964,6 +968,8 @@ children:
         short: M2
         altLabels:
           - Réseau Énergie Divers/Autre
+          - chaleur
+          - froid
         regexps:
           - Réseaux? de chaleur
       N_ELECTRICITE:
@@ -971,6 +977,7 @@ children:
         definition: Réseau de transport d'énergie
         altLabels:
           - Réseau Énergie Divers/Électricité
+          - electricite
         regexps:
           - Transport d'électricité
           - haute tension
@@ -986,6 +993,8 @@ children:
         definition: Pipe-line, etc
         altLabels:
           - Réseau Énergie Divers/Hydrocarbure
+          - gaz-naturel
+          - produit-petrolier
         regexps:
           - dépôts? pétroliers?
           - stockage GPL
@@ -1042,7 +1051,7 @@ children:
           - RISQUE/N_INONDATION
           - risque inondation
         regexps:
-          - territoires? à risque d’inondation
+          - territoires? à risque d'inondation
           - ' TRI '
           - Atlas des Zones Inondables
           - Zones inondables connues

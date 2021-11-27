@@ -142,14 +142,14 @@ function stdDocumentation(array $record): array {
 }
 
 function stdDataset(array $record, int $noDtadaset, array $resources): array {
-  //echo Yaml::dump(['stdDataset'=> $dataset]);
+  //echo Yaml::dump(['stdDataset()'=> $record]);
   $record['publisher'] = [stdPublisher($record['publisher'] ?? [], $resources)];
   $record['contactPoint'] = [stdContactPoint($record['contactPoint'] ?? [], $resources)];
   
   foreach (['created','issued','modified'] as $property)
     if (isset($record[$property]) && preg_match('!Coordinated Universal Time!', $record[$property]))
       $record[$property] = dateFromEngToIso($record[$property]);
-    
+  
   // remplace un objet par son @id
   foreach (['accrualPeriodicity','spatial'] as $property)
     if (isset($record[$property]) && is_array($record[$property]))
@@ -159,7 +159,7 @@ function stdDataset(array $record, int $noDtadaset, array $resources): array {
   if (isset($record['spatial']))
     $record['spatial'] = [$record['spatial']];
   
-  // standise la prop. theme
+  // standardise la prop. theme
   foreach ($record['theme'] ?? [] as $i => $theme) {
     $record['theme'][$i] = stdConcept($theme, $resources);
   }
@@ -180,7 +180,9 @@ function stdDataset(array $record, int $noDtadaset, array $resources): array {
   }
   foreach ($record['distribution'] ?? [] as $i => $distribution)
     $record['distribution'][$i] = stdDistribution($distribution, $resources);
-  return array_merge(['title'=> $record['title'], 'standard'=> 'DCAT'], $record);
+  $stdDataset = array_merge(['title'=> $record['title'], 'standard'=> 'DCAT'], $record);
+  //echo Yaml::dump(['$stdDataset'=> $stdDataset]);
+  return $stdDataset;
 }
 
 function stdCatalog(array $record, array $resources): array {

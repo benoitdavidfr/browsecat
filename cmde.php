@@ -5,6 +5,8 @@ name: cmde.php
 doc: |
   Certaines commandes étant longues, je les exécute pour la base OVH sur localhost
 journal: |
+  25/11/2021:
+    - correction du bug sur les TRI dans GeoRisques
   16/11/2021:
     - chgt de mécanisme pour addarea avec une table catbbox et renomage de la commande en addbbox
   15/11/2021:
@@ -189,12 +191,13 @@ if ($cmde == 'ajoutheme') { // pour ajouter des thèmes
 
   $nbMdd = 0;
   $nbAjouts = 0;
+  $noMatches = [];
   $sql = "select id,title, record from catalog$catid
           where type in ('dataset','series') and perimetre='Min'";
   foreach (PgSql::query($sql) as $tuple) {
     $record = json_decode($tuple['record'], true);
     // Supprime les keyword précédemmnt ajoutés
-    $keywordsDeleted = false;
+    $keywordsDeleted = false; // marque pour savoir si j'ai supprimé ou non des mots-clés sur cette fiche
     foreach ($record['keyword'] ?? [] as $i => $keyword) {
       if ('http://localhost/browsecat/ajouttheme.php/arbocovadis' == ($keyword['thesaurusId'] ?? '')) {
         unset($record['keyword'][$i]);
@@ -203,7 +206,8 @@ if ($cmde == 'ajoutheme') { // pour ajouter des thèmes
     }
     if ($record['keyword'] ?? [])
       $record['keyword'] = array_values($record['keyword']);
-    if ($prefLabels = prefLabels($record['keyword'] ?? [], ['a'=>$arboCovadis])) {
+    // S'il existe déjà des mots-clés de l'arborescence Covadis alors je ne cherche pas à en ajouter
+    if ($prefLabels = prefLabels($record['keyword'] ?? [], ['a'=> $arboCovadis])) {
       if ($keywordsDeleted)
         $cat->updateRecord($tuple['id'], $record);
       continue;
@@ -211,7 +215,7 @@ if ($cmde == 'ajoutheme') { // pour ajouter des thèmes
     //echo " - $tuple[title]\n";
     $keywords = []; // mots-clés à ajouter [{label}=> 1]
     foreach ($regexps as $regexp => $match) {
-      if (preg_match("!$regexp!i", Arbo::simplif($tuple['title']))) {
+      if (preg_match("!$regexp!i", Arbo::std($tuple['title']))) {
         $keywords[$match['theme']] = 1;
         $regexps[$regexp]['nbre']++;
       }
@@ -231,7 +235,7 @@ if ($cmde == 'ajoutheme') { // pour ajouter des thèmes
       $nbAjouts++;
     }
     else {
-      $noMatches[] = $tuple['title'];
+      $noMatches[] = Arbo::std($tuple['title']);
     }
     $nbMdd++;
   }

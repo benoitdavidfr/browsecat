@@ -49,7 +49,7 @@ name: Record
 doc: |
 */
 class RecordDcat extends Record implements ArrayAccess {
-  const EXT = ['responsibleParty']; // liste des propriétés ajoutées
+  const EXT = ['responsibleParty', 'keyword']; // liste des propriétés ajoutées
   function __construct(array $record) { $this->record = $record; }
   
   function offsetExists($offset) {
@@ -76,5 +76,12 @@ class RecordDcat extends Record implements ArrayAccess {
       'role'=> 'publisher',
       'electronicMailAddress'=> $electronicMailAddress,
     ]];
+  }
+  
+  function get_keyword(): array {
+    $kws = [];
+    foreach ($this->record['keyword'] ?? [] as $kw)
+      $kws[] = ['value'=> $kw];
+    return $kws;
   }
 };
