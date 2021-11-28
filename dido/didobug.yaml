@@ -4,7 +4,8 @@ complément2021-11-27:
     - label: la propriété isPartOf n'est pas exportée dans l'export DCAT
       example:
         - https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/datafiles/91256d4d-037a-4df8-b6e2-12b6ab87e3a1
-    - label: de nombreuses fiches n'ont ni thème ni mot-clé, est-ce les sous-fiches ?
+    - label: les référentiels et les fiches des JdD enfants n'ont ni thème ni mot-clé
+      example:
         - https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/datafiles/91256d4d-037a-4df8-b6e2-12b6ab87e3a1
 complément2021-11-22:
   liste:

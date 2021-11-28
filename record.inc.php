@@ -29,10 +29,16 @@ class Record implements ArrayAccess {
   }
 
   function __construct(array $record) { $this->record = $record; }
+  function asArray(): array { return $this->record; }
+  
+  function offsetSet($offset, $value) {
+    if ($offset == 'keyword')
+      $record['keyword'] = $value;
+    else
+      throw new Exception("Record::offsetSet(offset=$offset) interdit");
+  }
 
-  function offsetSet($offset, $value) { throw new Exception("RecordInspire::offsetSet() interdit"); }
-
-  function offsetUnset($offset) { throw new Exception("RecordInspire::offsetUnset() interdit"); }
+  function offsetUnset($offset) { throw new Exception("Record::offsetUnset() interdit"); }
   
   function offsetExists($offset) {
     return isset($this->record[$offset]);
@@ -54,6 +60,13 @@ class RecordDcat extends Record implements ArrayAccess {
   
   function offsetExists($offset) {
     return isset($this->record[$offset]) || in_array($offset, self::EXT);
+  }
+
+  function offsetSet($offset, $value) {
+    if ($offset == 'keyword')
+      $this->set_keyword($value);
+    else
+      throw new Exception("RecordDcat::offsetSet(offset=$offset) interdit");
   }
 
   function offsetGet($offset) {
@@ -78,10 +91,36 @@ class RecordDcat extends Record implements ArrayAccess {
     ]];
   }
   
-  function get_keyword(): array {
+  function get_keyword(): array { // convertit les keyword et theme DCAT en keyword ISO
     $kws = [];
     foreach ($this->record['keyword'] ?? [] as $kw)
       $kws[] = ['value'=> $kw];
+    foreach ($this->record['theme'] ?? [] as $theme) {
+      if (!isset($theme['prefLabel']))
+        throw new Exception("prefLabel absent dans theme pour @id='".$theme['@id']."'");
+      $kws[] = array_merge(
+        ['@id'=> $theme['@id']],
+        ['value'=> $theme['prefLabel']],
+        isset($theme['inScheme']) ? ['thesaurusId'=> $theme['inScheme']] : []
+      );
+    }
     return $kws;
+  }
+  
+  function set_keyword(array $kws) { // décompose les keyword ISO en keyword et theme DCAT
+    $this->record['keyword'] = [];
+    $this->record['theme'] = [];
+    foreach ($kws as $kw) {
+      if (isset($kw['thesaurusId'])) {
+        $this->record['theme'][] = [
+          '@id'=> $kw['thesaurusId'].'/'.urlencode($kw['value']),
+          'prefLabel'=> $kw['value'],
+          'inScheme'=> $kw['thesaurusId'],
+        ];
+      }
+      else {
+        $this->record['keyword'][] = $kw['value'];
+      }
+    }
   }
 };

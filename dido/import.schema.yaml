@@ -194,12 +194,14 @@ definitions:
     decription: Skos:Concept
     type: object
     additionalProperties: false
+    required: ['@id']
     properties:
       '@id':
         type: string
         format: uri
       '@type':
         type: string
+        const: Concept
       inScheme:
         description: URI du thésaurus
         type: string

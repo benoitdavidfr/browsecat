@@ -3,8 +3,10 @@
 title: dido/index.php - visualisation améliorée l'export DiDo DCAT-AP de DiDo
 name: index.php
 doc: |
-  Visualisation améliorée du fichier JSON d l'export de DiDo
+  Visualisation améliorée du fichier JSON de l'export de DiDo
 journal:
+  27/11/2021:
+    - affichage hiérarchique des JdD avec mouse-over avec les mots-clés et les thèmes
   19/11/2021:
     - améliorations
   18/11/2021:
@@ -25,7 +27,8 @@ $catalogUri = 'https://data.statistiques.developpement-durable.gouv.fr/dido/api/
 // à '2021-07-29T06:02:07+00:00'
 //function dateFromEngToIso(string $str): string { return date(DATE_ATOM, strtotime(substr($str, 0, 33))); }
 
-function readDiDo(string $pageUrl): array { // lecture des ressources DiDo et les retourne
+// lit les ressources DiDo et les retourne sous la forme [{uri}=> {resource}]
+function readDiDo(string $pageUrl): array {
   $httpCache = new HttpCache('dido');
 
   $context = null;
@@ -53,18 +56,104 @@ function readDiDo(string $pageUrl): array { // lecture des ressources DiDo et le
   return $resources;
 }
 
+// le par. est-il une liste ? cad un array dont les clés sont la liste des n-1 premiers entiers positifs, [] est une liste
+function is_list($list): bool { return is_array($list) && (array_keys($list) == array_keys(array_keys($list))); }
+
+if (0) { // Test de is_list()  
+  echo "Test is_list<br>\n";
+  foreach ([[], [1, 2, 3], ['a'=>'a','b'=>'b'], ['a','b'=>'c'], [1=>'a',0=>'b'],[1=>'a','b']] as $list) {
+    echo json_encode($list), (is_list($list) ? ' is_list' : ' is NOT list') , "<br>\n";
+  }
+  die("FIN test is_list<br><br>\n");
+}
+
+function themes(array $themes): array { // construit la liste de thèmes 
+  //echo Yaml::dump($themes);
+  $result = [];
+  foreach ($themes as $k => $theme) {
+    if (is_string($theme))
+      $result[] = $theme;
+    else
+      $result[] = $theme['prefLabel'];
+  }
+  //echo Yaml::dump(['$result'=> $result]);
+  return $result; 
+}
+
+function buildTree(string $catalogUri, array $resources): array {
+  // intialisation de $datasetTree à partir de $resources et $catalogUri
+  // [{uri}=> {dataset}] & {dataset} ::= ['title'=>{title}, 'hasPart'=> [{uri}=> {dataset}]]
+  $datasetTree = ['Référentiels'=> ['title'=> "Référentiels", 'hasPart'=> []]];
+  foreach($resources[$catalogUri]['dataset'] as $dataset) {
+    if (!is_array($dataset))
+      $dataset = $resources[$dataset];
+    if (preg_match('!^(Référentiel|Nomenclature) - !', $dataset['title'])) {
+      $datasetTree['Référentiels']['hasPart'][$dataset['@id']] = [
+        'title'=> $dataset['title'],
+        'keyword'=> $dataset['keyword'] ?? [],
+        'theme'=> themes($dataset['theme'] ?? []),
+      ];
+    }
+    else {
+      $datasetTree[$dataset['@id']] = [
+        'title' => $dataset['title'],
+        'keyword'=> $dataset['keyword'] ?? [],
+        'theme'=> themes($dataset['theme'] ?? []),
+      ];
+      if (isset($dataset['hasPart'])) {
+        $hasPart = $dataset['hasPart'];
+        foreach (is_list($hasPart) ? $hasPart : [$hasPart] as $part)
+          $datasetTree[$dataset['@id']]['hasPart'][$part['@id']] = [
+            'title'=> $part['title'],
+            'keyword'=> $part['keyword'] ?? [],
+            'theme'=> themes($part['theme'] ?? []),
+          ];
+      }
+    }
+  }
+  // puis suppression à la racine des JdD enfants 
+  foreach ($datasetTree as $dsid => $dataset) {
+    foreach ($dataset['hasPart'] ?? [] as $partUri => $hasPart) {
+      unset($datasetTree[$partUri]);
+    }
+  }
+  return $datasetTree;
+}
+
+function showTree(array $tree): void { // affichage récursif de l'arbre construit par buildTree
+  echo "<ul>\n";
+  foreach ($tree as $uri => $node) {
+    $hasPart = $node['hasPart'] ?? [];
+    unset($node['hasPart']);
+    $text = Yaml::dump($node);
+    $text = str_replace(['"'],['\"'], $text);
+    echo "<li title=\"$text\"><a href='?uri=$uri'>$node[title]</a>",
+          //"<br>keyword: ",implode(', ', $node['keyword'] ?? []),
+          //"<br>theme: ",implode(', ', $node['theme'] ?? []),
+          "</li>\n";
+    if ($hasPart)
+      showTree($hasPart);
+  }
+  echo "</ul>\n";
+}
+
 function show(string $uri, array $resources): void {
   switch($resources[$uri]['@type']) {
     case 'Catalog': {
-      echo "<h2>Liste des données de DiDo</h2><ul>\n";
+      echo "<h2>Liste des données de DiDo</h2>\n";
       //echo '<pre>',Yaml::dump(readDiDo($exportUrl)[$catalogUri]);
+      /*echo "<ul>\n";
       foreach($resources[$uri]['dataset'] as $dataset) {
         //echo '<pre>',Yaml::dump($dataset),"</pre>\n";
         if (is_string($dataset))
           $dataset = $resources[$dataset];
         echo "<li><a href='?uri=",$dataset['@id'],"'>$dataset[title]</a></li>\n";
       }
-      echo "</ul>\n";
+      echo "</ul>\n";*/
+      
+      //echo "<h2>asTree</h2>\n";
+      //echo '<pre>',Yaml::dump(['$datasetTree'=> buildTree($uri, $resources)], 6, 2),"</pre>\n";
+      showTree(buildTree($uri, $resources));
       return;
     }
     
@@ -110,11 +199,13 @@ if (!isset($resources[$uri])) {
 else
   show($uri, $resources);
 
-echo "<h2>Tests</h2><ul>\n";
-foreach ([
-  "series"=>
-'https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/datasets/6102445fe436671e1cec5da8',
-  ] as $label => $uri) {
-    echo "<li><a href='?uri=$uri'>$label</a></li>\n";
+if (!isset($_GET['uri'])) {
+  echo "<h2>Tests</h2><ul>\n";
+  foreach ([
+    "series"=>
+  'https://data.statistiques.developpement-durable.gouv.fr/dido/api/harvesting/dcat-ap/id/datasets/6102445fe436671e1cec5da8',
+    ] as $label => $uri) {
+      echo "<li><a href='?uri=$uri'>$label</a></li>\n";
+  }
 }
 die();

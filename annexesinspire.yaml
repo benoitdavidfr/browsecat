@@ -115,6 +115,10 @@ children:
     prefLabels:
       fr: Santé et sécurité des personnes
       en: Human health and safety
+    altLabels:
+      - sante-et-securite-des-personnes
+    hiddenLabels:
+      - sante-et-securite-des-sante-et-securite-des-personnes
   us:
     prefLabels:
       fr: Services d'utilité publique et services publics
@@ -127,6 +131,8 @@ children:
     prefLabels:
       fr: Lieux de production et sites industriels
       en: Production and industrial facilities
+    altLabels:
+      - lieux-de-production-et-sites-industriels
   af:
     prefLabels:
       fr: Installations agricoles et aquacoles
@@ -150,6 +156,9 @@ children:
     prefLabels:
       fr: Zones à risque naturel
       en: Natural risk zones
+    altLabels:
+      - zone-a-risque-naturel
+      - zones-a-risque-naturel
     hiddenLabels:
       - zone de risque naturel
   ac-mf:

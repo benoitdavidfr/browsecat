@@ -1,0 +1,153 @@
+title: Thésaurus géographique
+$id: http://bdavid.alwaysdata.net/browsecat/geozones.yaml
+description: |
+  Arborescence des mots-clés utilisés pour décrire l'extension géographique.
+  Inspiré de https://github.com/etalab/geozones
+journal: |
+  28/11/2021:
+    - création
+$schema:
+  $id: http://bdavid.alwaysdata.net/browsecat/arbocovadis.yaml#/$schema
+  definitions:
+    labels:
+      description: liste d'étiquettes associées au noeud
+      type: array
+      items:
+        description: étiquette
+        type: string
+    tree:
+      description: enfants définis chacun par un id, des propriétés et des enfants
+      type: object
+      additionalProperties: false
+      patternProperties:
+        '^[-A-Za-z_:]+$':
+          description: contenu du noeud
+          oneOf:
+            - description: noeud vide
+              type: 'null'
+            - description: noeud avec propriétés ou enfants
+              type: object
+              additionalProperties: false
+              properties:
+                short:
+                  description: nom court
+                  type: string
+                definition:
+                  description: définition du concept
+                  type: string
+                note:
+                  description: commentaire complémentaire
+                  type: string
+                altLabels:
+                  description: liste de synonymes associées au noeud
+                  $ref: '#/definitions/labels'
+                hiddenLabels:
+                  description: liste d'étiquettes cachées associées au noeud, orthographe, graphie, ...
+                  $ref: '#/definitions/labels'
+                regexps:
+                  description: |
+                    liste d'expressions régulières utilisées pour classer une fiche à partir de ses champs textuels
+                  $ref: '#/definitions/labels'
+                children:
+                  description: sous-arborescence structuré avec un identifiant par noeud de niveau supérieur
+                  $ref: '#/definitions/tree'
+      
+  type: object
+  additionalProperties: false
+  properties:
+    title:
+      description: titre du catalogue
+      type: string
+    $id:
+      description: identifiant du fichier
+      type: string
+    description:
+      description: commentaire sur le catalogue
+      type: string
+    journal:
+      description: historique des modifications
+      type: string
+    $schema:
+      description: schema JSON du document
+      $ref: http://json-schema.org/draft-07/schema#
+    keyIsPrefLabel:
+      description: indique que la clé ne constitue pas le prefLabel
+      const: false
+    children:
+      description: contenu de l'arborescence structuré avec un identifiant par noeud de premier niveau
+      $ref: '#/definitions/tree'
+    source:
+      description: texte temporaire
+      type: string
+    eof:
+      description: marque de fin de fichier
+      const: null
+
+keyIsPrefLabel: false
+children:
+  country-group:
+    note: extensions supra-nationales (monde, UE, ...)
+    children:
+      europe:
+        altLabels:
+          - europe
+  country:
+  country-subset:
+  fr:region:
+    children:
+      bourgogne-franche-comte:
+        altLabels:
+          - bourgogne-franche-comte
+      hauts-de-france:
+        altLabels:
+          - hauts-de-france
+      normandie:
+        altLabels:
+          - normandie
+  fr:epci:
+  fr:departement:
+    children:
+      bas-rhin:
+        altLabels:
+          - bas-rhin
+      calvados:
+        altLabels:
+          - calvados
+      doubs:
+        altLabels:
+          - doubs
+      herault:
+        altLabels:
+          - herault
+      manche:
+        altLabels:
+          - manche
+      nord:
+        altLabels:
+          - nord
+      orne:
+        altLabels:
+          - orne
+      pas-de-calais:
+        altLabels:
+          - pas-de-calais
+      rhone:
+        altLabels:
+          - rhone
+      seine-maritime:
+        altLabels:
+          - seine-maritime
+      somme:
+        altLabels:
+          - somme
+  fr:collectivite:
+  fr:arrondissement:
+  fr:commune:
+  fr:canton:
+  fr:iris:
+  fr:divers:
+    children:
+      vallee-de-seine:
+        altLabels:
+          - vallee-de-seine
+eof:

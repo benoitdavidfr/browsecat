@@ -49,10 +49,13 @@ if (is_file(__DIR__.'/closed.inc.php'))
 
 use Symfony\Component\Yaml\Yaml;
 
-// Liste des arborescences auxquelles les mots-clés peuvent appartenir
+//echo "<pre>";
+
+// Liste des arborescences dans lesquelles les mots-clés sont recherchés 
 $arbos = [
   'arboCovadis'=> new Arbo('arbocovadis.yaml'),
   'annexesInspire'=> new Arbo('annexesinspire.yaml'),
+  'geozones'=> new Arbo('geozones.yaml'),
 ];
 
 echo "<!DOCTYPE HTML><html><head><meta charset='UTF-8'><title>browsecat</title></head><body>\n";
@@ -605,10 +608,13 @@ if ($_GET['action']=='listkws') { // Liste les mots-clés des MDD dont une org e
 }
 
 if (in_array($_GET['action'], ['ldwkw','ldnkw'])) { // MDD dont au moins un / aucun mot-clé correspond à un des thèmes
-  foreach (PgSql::query("select id,title,record from catalog$_GET[cat] where type in ('dataset','series')") as $record) {
+  $sql = "select id,title,record from catalog$_GET[cat] where type in ('dataset','series','Dataset','Dataset,series')";
+  foreach (PgSql::query($sql) as $record) {
     $id = $record['id'];
     $title = $record['title'];
-    $record = json_decode($record['record'], true);
+    //$record = json_decode($record['record'], true);
+    $record = Record::create($record['record']);
+    //echo '<pre>$record='; print_r($record); echo "</pre>\n";
     if (!orgInSel($_GET['cat'], $record)) // si aucune organisation appartient à la sélection alors on saute
       continue;
     if (kwInArbos($record['keyword'] ?? [], $arbos)) {
@@ -886,7 +892,7 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
     $record = Record::create($tuple['record']);
     //echo "record = "; print_r($record);
     $shortNames = []; // liste des noms courts, [{shortName} => 1]
-    foreach ($record[$_GET['type']] as $org) {
+    foreach ($record[$_GET['type']] ?? [] as $org) {
       //print_r($org);
       if (!($shortName = $arboOrgsPMin->short($org))) continue;
       $shortNames[$shortName] = 1;

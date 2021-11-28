@@ -519,11 +519,15 @@ class CatInPgSql {
     }
   }
   
-  function updateRecord(string $id, array $record) {
+  function updateRecord(string $id, array|Record $record) {
     $catid = $this->catid;
-    $recjson = str_replace("'", "''", json_encode($record, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+    if (is_array($record))
+      $recjson = json_encode($record, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+    else
+      $recjson = json_encode($record->asArray(), JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+    $recjson = str_replace("'", "''", $recjson);
     $sql = "update catalog$catid set record='$recjson' where id='$id'";
-    //echo "$sql\n";
+    echo "$sql\n";
     PgSql::query($sql);
   }
 };

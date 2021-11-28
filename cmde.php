@@ -188,14 +188,15 @@ if ($cmde == 'ajoutheme') { // pour ajouter des thèmes
     foreach ($theme->regexps() as $regexp)
       $regexps[Arbo::simplif($regexp)] = ['theme'=> (string)$theme, 'nbre'=> 0];
   }
+  //echo Yaml::dump($regexps);
 
   $nbMdd = 0;
   $nbAjouts = 0;
   $noMatches = [];
   $sql = "select id,title, record from catalog$catid
-          where type in ('dataset','series') and perimetre='Min'";
+          where type in ('dataset','series','Dataset','Dataset,series') and perimetre='Min'";
   foreach (PgSql::query($sql) as $tuple) {
-    $record = json_decode($tuple['record'], true);
+    $record = Record::create($tuple['record']);
     // Supprime les keyword précédemmnt ajoutés
     $keywordsDeleted = false; // marque pour savoir si j'ai supprimé ou non des mots-clés sur cette fiche
     foreach ($record['keyword'] ?? [] as $i => $keyword) {
@@ -222,14 +223,16 @@ if ($cmde == 'ajoutheme') { // pour ajouter des thèmes
     }
     if ($keywords || $keywordsDeleted) {
       //echo "   + ",implode(', ', array_keys($keywords)),"\n";
+      $record_keyword = [];
       foreach (array_keys($keywords) as $kw)
-        $record['keyword'][] = [
+        $record_keyword[] = [
           'value'=> $kw,
           'thesaurusTitle'=>"ajouttheme.php/arbocovadis",
           'thesaurusDate'=> date('Y-m-d'),
           'thesaurusDateType'=> 'publication',
           'thesaurusId'=> 'http://localhost/browsecat/ajouttheme.php/arbocovadis',
         ];
+      $record['keyword'] = array_merge($record['keyword'] ?? [], $record_keyword);
       //print_r($record);
       $cat->updateRecord($tuple['id'], $record);
       $nbAjouts++;

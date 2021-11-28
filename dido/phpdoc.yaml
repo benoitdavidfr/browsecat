@@ -9,8 +9,6 @@ doc: |
    - import.php importe DiDo en PgSql dans une base structurée comme dans browsecat
    - importdido.schema.yaml définit le schéma dans lequel les fiche de MDD sont structurées dans la base
    
-  Questions:
-    - peut-on faire converger la structure ISO avec celle DCAT pour simplifier leur exploitation ?
 journal: |
   20/11/2021:
     - renommage viewdido.php en index.php

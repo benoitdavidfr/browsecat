@@ -17,6 +17,8 @@ doc: |
     - des altLabels et des hiddenLabels
   Le prefLabel fr peut être défini par le chemin des clés.
 journal: |
+  28/11/2021:
+    - ajout possibilité entrée de premier niveau vide
   7/11/2021:
     - ajout regexps
   6/11/2021:
@@ -96,8 +98,10 @@ class Arbo extends Tree { // Arborescence de thèmes, chacun défini comme un Co
     $yaml = Yaml::parseFile($filename);
     $this->keyIsPrefLabel = $yaml['keyIsPrefLabel'];
     foreach ($yaml['children'] as $id => $child) {
-      $this->labels[self::simplif($id)] = [$id];
-      $this->children[$id] = $this->build($child, [$id]);
+      if ($child) {
+        $this->labels[self::simplif($id)] = [$id];
+        $this->children[$id] = $this->build($child, [$id]);
+      }
     }
   }
 
@@ -177,7 +181,7 @@ elseif (0) {
   $arbo = new Arbo('arbocovadis.yaml');
   $arbo->show();
 }
-else {
+elseif (0) {
   //$orgs = new Arbo('arbotest.yaml');
   $orgs = new Arbo('orgpmin.yaml');
   //print_r($orgs);
@@ -186,5 +190,8 @@ else {
     echo "<tr><td>$spath</td><td>",$node->short(),"</td><td>",$node->prefLabel() ?? "NO PREFLABEL","</td></tr>\n";
   }
   echo "</table>\n";
+}
+else {
+  $geozones = new Arbo('geozones.yaml');
 }
 die("<br><br>\n");
