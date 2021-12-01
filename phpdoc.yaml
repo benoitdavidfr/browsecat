@@ -78,12 +78,13 @@ doc: |
     - ajouter les MDD n'ayant pas de bbox à un bbox par défaut, ex celui de l'organisation ?
     
   A FAIRE:
-    - l'ajout de theme ne marche pas sur les fiches DCAT (28/11/2021)
     - transformer les propriétés spatial de DataGouv (et DiDo) en bbox
     - ajouter des thèmes Covadis à DataGouv et DiDo
     - explorer https://trouver.ternum-bfc.fr/ et la possibilité de le moissonner !
   
 journal: |
+  1/12/2021:
+    - ajout de thèmes sur dgouv
   22/11/2021:
     - première intégration de DiDo et DataGouv, sans thèmes et sans bbox pour ces 2 catalogues
     - publication sur Alwaysdata vers 15h
