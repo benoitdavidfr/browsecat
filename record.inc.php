@@ -52,6 +52,30 @@ class Record implements ArrayAccess {
 };
 
 /*PhpDoc: classes
+title: KnownThemes - Définition d'étiquettes de certains concepts utilisés dans les thèmes
+name: KnownThemes
+doc: |
+*/
+class KnownThemes {
+  const PREFLABELS = [
+    'http://publications.europa.eu/resource/authority/data-theme/AGRI'=> "Agriculture, pêche, sylviculture et alimentation",
+    'http://publications.europa.eu/resource/authority/data-theme/EDUC'=> "Éducation, culture et sport",
+    'http://publications.europa.eu/resource/authority/data-theme/ECON'=> "Économie et finances",
+    'http://publications.europa.eu/resource/authority/data-theme/ENER'=> "Énergie",
+    'http://publications.europa.eu/resource/authority/data-theme/ENVI'=> "Environnement",
+    'http://publications.europa.eu/resource/authority/data-theme/GOVE'=> "Gouvernement et secteur public",
+    'http://publications.europa.eu/resource/authority/data-theme/HEAL'=> "Santé",
+    'http://publications.europa.eu/resource/authority/data-theme/INTR'=> "Questions internationales",
+    'http://publications.europa.eu/resource/authority/data-theme/JUST'=> "Justice, système juridique et sécurité publique",
+    'http://publications.europa.eu/resource/authority/data-theme/OP_DATPRO'=> "Données provisoires",
+    'http://publications.europa.eu/resource/authority/data-theme/REGI'=> "Régions et villes",
+    'http://publications.europa.eu/resource/authority/data-theme/SOCI'=> "Population et société",
+    'http://publications.europa.eu/resource/authority/data-theme/TECH'=> "Science et technologie",
+    'http://publications.europa.eu/resource/authority/data-theme/TRAN'=> "Transports",
+  ];
+};
+
+/*PhpDoc: classes
 title: RecordDcat - classe pour DCAT effectuant certaines conversions
 name: Record
 doc: |
@@ -105,11 +129,13 @@ class RecordDcat extends Record implements ArrayAccess {
     foreach ($this->record['keyword'] ?? [] as $kw)
       $kws[] = ['value'=> $kw];
     foreach ($this->record['theme'] ?? [] as $theme) {
-      if (!isset($theme['prefLabel']))
-        throw new Exception("prefLabel absent dans theme pour @id='".$theme['@id']."'");
+      if (!($prefLabel = $theme['prefLabel'] ?? null)) {
+        if (!($prefLabel = KnownThemes::PREFLABELS[$theme['@id']] ?? null))
+          throw new Exception("prefLabel absent dans theme pour @id='".$theme['@id']."'");
+      }
       $kws[] = array_merge(
         ['@id'=> $theme['@id']],
-        ['value'=> $theme['prefLabel']],
+        ['value'=> $prefLabel],
         isset($theme['inScheme']) ? ['thesaurusId'=> $theme['inScheme']] : []
       );
     }
