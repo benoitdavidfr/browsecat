@@ -296,6 +296,7 @@ children:
           - Plan de déplacement urbain
           - loi littoral
           - Loi Montagne
+          - Zone de montagne au titre de la loi du 9 janvier 1985
   CULTURE_SOCIETE_SERVICE:
     short: D
     children:
@@ -1429,6 +1430,7 @@ children:
       N_ROUTIER:
         short: R7
         definition: Infrastructure routière yc ouvrages d'art
+        note: yc lieux de covoiturage
         altLabels:
           - Transports Infrastructure/Routier
           - routes-nationales
@@ -1454,4 +1456,5 @@ children:
           - déviations
           - Points délicats sur la RN
           - Aires de pesée des véhicules routiers
+          - Lieux de covoiturage
 eof:

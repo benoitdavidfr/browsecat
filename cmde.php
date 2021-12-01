@@ -199,40 +199,49 @@ if ($cmde == 'ajoutheme') { // pour ajouter des thèmes
     $record = Record::create($tuple['record']);
     // Supprime les keyword précédemmnt ajoutés
     $keywordsDeleted = false; // marque pour savoir si j'ai supprimé ou non des mots-clés sur cette fiche
-    foreach ($record['keyword'] ?? [] as $i => $keyword) {
-      if ('http://localhost/browsecat/ajouttheme.php/arbocovadis' == ($keyword['thesaurusId'] ?? '')) {
-        unset($record['keyword'][$i]);
-        $keywordsDeleted = true;
+    $keywords = $record['keyword'] ?? [];
+    foreach ($keywords as $i => $keyword) {
+      if (in_array($keyword['thesaurusId'] ?? '', [
+          'http://localhost/browsecat/ajouttheme.php/arbocovadis',
+          'http://bdavid.alwaysdata.net/browsecat/arbocovadis.yaml',
+        ])) {
+          unset($keywords[$i]);
+          $keywordsDeleted = true;
       }
     }
-    if ($record['keyword'] ?? [])
-      $record['keyword'] = array_values($record['keyword']);
+    if ($keywords)
+      $keywords = array_values($keywords);
     // S'il existe déjà des mots-clés de l'arborescence Covadis alors je ne cherche pas à en ajouter
-    if ($prefLabels = prefLabels($record['keyword'] ?? [], ['a'=> $arboCovadis])) {
-      if ($keywordsDeleted)
+    if ($prefLabels = prefLabels($keywords, ['a'=> $arboCovadis])) {
+      if ($keywordsDeleted) { // si des mots-clés ont été supprimés alors je met à jour la fiche
+        if ($keywords)
+          $record['keyword'] = $keywords;
+        else
+          unset($record['keyword']);
         $cat->updateRecord($tuple['id'], $record);
+      }
       continue;
     }
+    
     //echo " - $tuple[title]\n";
-    $keywords = []; // mots-clés à ajouter [{label}=> 1]
+    $addedKeywords = []; // mots-clés à ajouter [{label}=> 1]
     foreach ($regexps as $regexp => $match) {
-      if (preg_match("!$regexp!i", Arbo::std($tuple['title']))) {
-        $keywords[$match['theme']] = 1;
+      if (preg_match("!$regexp!i", Arbo::simplif($tuple['title']))) {
+        $addedKeywords[$match['theme']] = 1;
         $regexps[$regexp]['nbre']++;
       }
     }
-    if ($keywords || $keywordsDeleted) {
+    if ($addedKeywords || $keywordsDeleted) {
       //echo "   + ",implode(', ', array_keys($keywords)),"\n";
-      $record_keyword = [];
-      foreach (array_keys($keywords) as $kw)
-        $record_keyword[] = [
+      foreach (array_keys($addedKeywords) as $kw)
+        $keywords[] = [
           'value'=> $kw,
           'thesaurusTitle'=>"ajouttheme.php/arbocovadis",
           'thesaurusDate'=> date('Y-m-d'),
           'thesaurusDateType'=> 'publication',
-          'thesaurusId'=> 'http://localhost/browsecat/ajouttheme.php/arbocovadis',
+          'thesaurusId'=> 'http://bdavid.alwaysdata.net/browsecat/arbocovadis.yaml',
         ];
-      $record['keyword'] = array_merge($record['keyword'] ?? [], $record_keyword);
+      $record['keyword'] = $keywords;
       //print_r($record);
       $cat->updateRecord($tuple['id'], $record);
       $nbAjouts++;

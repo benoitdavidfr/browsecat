@@ -17,6 +17,8 @@ title: Record - classe utilisée pour Inspire simulant un array en lecture
 name: Record
 doc: |
 */
+use Symfony\Component\Yaml\Yaml;
+
 class Record implements ArrayAccess {
   protected array $record; // stockage de la fiche comme array Php structuré comme dans PgSql
   
@@ -31,6 +33,10 @@ class Record implements ArrayAccess {
   function __construct(array $record) { $this->record = $record; }
   function asArray(): array { return $this->record; }
   
+  function offsetExists($offset) {
+    return isset($this->record[$offset]);
+  }
+
   function offsetSet($offset, $value) {
     if ($offset == 'keyword')
       $record['keyword'] = $value;
@@ -38,12 +44,8 @@ class Record implements ArrayAccess {
       throw new Exception("Record::offsetSet(offset=$offset) interdit");
   }
 
-  function offsetUnset($offset) { throw new Exception("Record::offsetUnset() interdit"); }
+  function offsetUnset($offset) { throw new Exception("Record::offsetUnset(offset=$offset) interdit"); }
   
-  function offsetExists($offset) {
-    return isset($this->record[$offset]);
-  }
-
   function offsetGet($offset) {
     return isset($this->record[$offset]) ? $this->record[$offset] : null;
   }
@@ -67,6 +69,13 @@ class RecordDcat extends Record implements ArrayAccess {
       $this->set_keyword($value);
     else
       throw new Exception("RecordDcat::offsetSet(offset=$offset) interdit");
+  }
+
+  function offsetUnset($offset) {
+    if ($offset == 'keyword')
+      $this->unset_keyword();
+    else
+      throw new Exception("Record::offsetUnset(offset=$offset) interdit");
   }
 
   function offsetGet($offset) {
@@ -104,6 +113,7 @@ class RecordDcat extends Record implements ArrayAccess {
         isset($theme['inScheme']) ? ['thesaurusId'=> $theme['inScheme']] : []
       );
     }
+    //echo Yaml::dump(['get_keyword()'=> $kws]);
     return $kws;
   }
   
@@ -122,5 +132,10 @@ class RecordDcat extends Record implements ArrayAccess {
         $this->record['keyword'][] = $kw['value'];
       }
     }
+  }
+  
+  function unset_keyword() {
+    unset($this->record['keyword']);
+    unset($this->record['theme']);
   }
 };

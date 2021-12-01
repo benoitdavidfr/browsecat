@@ -527,7 +527,7 @@ class CatInPgSql {
       $recjson = json_encode($record->asArray(), JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
     $recjson = str_replace("'", "''", $recjson);
     $sql = "update catalog$catid set record='$recjson' where id='$id'";
-    echo "$sql\n";
+    //echo "$sql\n";
     PgSql::query($sql);
   }
 };
