@@ -7,18 +7,19 @@ doc: |
   Le code initial de browsecat a été écrit pour utiliser une fiche Inspire définie comme array par mdvars2.inc.php
   La création d'objet Record simule un array en lecture en créant à la volée les champs Inspire à partir des champs DCAT
 journal: |
+  1/12/2021:
+    - ajout de la gestion des mises à jour sur le champ keyword
   22/11/2021:
     - création
 includes:
 */
+use Symfony\Component\Yaml\Yaml;
 
 /*PhpDoc: classes
-title: Record - classe utilisée pour Inspire simulant un array en lecture
+title: Record - classe utilisée pour Inspire simulant un array en lecture et en écriture pour le champ keyword
 name: Record
 doc: |
 */
-use Symfony\Component\Yaml\Yaml;
-
 class Record implements ArrayAccess {
   protected array $record; // stockage de la fiche comme array Php structuré comme dans PgSql
   
@@ -33,30 +34,33 @@ class Record implements ArrayAccess {
   function __construct(array $record) { $this->record = $record; }
   function asArray(): array { return $this->record; }
   
-  function offsetExists($offset) {
-    return isset($this->record[$offset]);
-  }
-
-  function offsetSet($offset, $value) {
-    if ($offset == 'keyword')
-      $record['keyword'] = $value;
-    else
-      throw new Exception("Record::offsetSet(offset=$offset) interdit");
-  }
-
-  function offsetUnset($offset) { throw new Exception("Record::offsetUnset(offset=$offset) interdit"); }
+  function offsetExists($offset) { return isset($this->record[$offset]) && $this->record[$offset]; }
   
   function offsetGet($offset) {
     return isset($this->record[$offset]) ? $this->record[$offset] : null;
   }
+
+  function offsetSet($offset, $value) {
+    if ($offset == 'keyword')
+      $this->record['keyword'] = $value;
+    else
+      throw new Exception("Record::offsetSet(offset=$offset) interdit");
+  }
+
+  function offsetUnset($offset) {
+    if ($offset == 'keyword')
+      unset($this->record['keyword']);
+    else
+      throw new Exception("Record::offsetUnset(offset=$offset) interdit");
+  }
 };
 
-/*PhpDoc: classes
-title: KnownThemes - Définition d'étiquettes de certains concepts utilisés dans les thèmes
-name: KnownThemes
-doc: |
-*/
 class KnownThemes {
+  /*PhpDoc: classes
+  title: KnownThemes - Définition d'étiquettes de certains concepts utilisés dans les thèmes
+  name: KnownThemes
+  doc: |
+  */
   const PREFLABELS = [
     'http://publications.europa.eu/resource/authority/data-theme/AGRI'=> "Agriculture, pêche, sylviculture et alimentation",
     'http://publications.europa.eu/resource/authority/data-theme/EDUC'=> "Éducation, culture et sport",
@@ -86,20 +90,6 @@ class RecordDcat extends Record implements ArrayAccess {
   
   function offsetExists($offset) {
     return isset($this->record[$offset]) || in_array($offset, self::EXT);
-  }
-
-  function offsetSet($offset, $value) {
-    if ($offset == 'keyword')
-      $this->set_keyword($value);
-    else
-      throw new Exception("RecordDcat::offsetSet(offset=$offset) interdit");
-  }
-
-  function offsetUnset($offset) {
-    if ($offset == 'keyword')
-      $this->unset_keyword();
-    else
-      throw new Exception("Record::offsetUnset(offset=$offset) interdit");
   }
 
   function offsetGet($offset) {
@@ -143,13 +133,20 @@ class RecordDcat extends Record implements ArrayAccess {
     return $kws;
   }
   
+  function offsetSet($offset, $value) {
+    if ($offset == 'keyword')
+      $this->set_keyword($value);
+    else
+      throw new Exception("RecordDcat::offsetSet(offset=$offset) interdit");
+  }
+
   function set_keyword(array $kws) { // décompose les keyword ISO en keyword et theme DCAT
     $this->record['keyword'] = [];
     $this->record['theme'] = [];
     foreach ($kws as $kw) {
       if (isset($kw['thesaurusId'])) {
         $this->record['theme'][] = [
-          '@id'=> $kw['thesaurusId'].'/'.urlencode($kw['value']),
+          '@id'=> $kw['thesaurusId'].'#'.urlencode($kw['value']),
           'prefLabel'=> $kw['value'],
           'inScheme'=> $kw['thesaurusId'],
         ];
@@ -160,6 +157,13 @@ class RecordDcat extends Record implements ArrayAccess {
     }
   }
   
+  function offsetUnset($offset) {
+    if ($offset == 'keyword')
+      $this->unset_keyword();
+    else
+      throw new Exception("Record::offsetUnset(offset=$offset) interdit");
+  }
+
   function unset_keyword() {
     unset($this->record['keyword']);
     unset($this->record['theme']);

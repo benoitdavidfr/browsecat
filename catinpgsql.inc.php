@@ -4,12 +4,16 @@ title: catinsql.inc.php - gestion d'un catalogue dans PgSql
 name: catinpgsql.inc.php
 doc: |
 journal: |
+  5/12/2021:
+    - ajout parentIdentifier dans la table
   27/10/2021:
     - création
 includes:
   - ../phplib/pgsql.inc.php
 */
 require_once __DIR__.'/../phplib/pgsql.inc.php';
+
+use Symfony\Component\Yaml\Yaml;
 
 $mdvars = [
   // fileIdentifier (hors règlement INSPIRE)
@@ -482,6 +486,7 @@ class CatInPgSql {
       record json, -- enregistrement de la fiche en JSON
       title text, -- 1.1. Intitulé de la ressource
       type varchar(256), -- 1.3. Type de la ressource
+      parentId varchar(256), -- id. d'un parent éventuel
       perimetre varchar(256) -- 'Min','Op','Autres' ; null si non défini
     )");
   }
@@ -508,10 +513,12 @@ class CatInPgSql {
     if (is_array($type))
       $type = implode(',', $type);
     $type = str_replace("'", "''", $type);
-
+    $parentId = ($record['parentIdentifier'] ?? null) ? "'".$record['parentIdentifier'][0]."'" : 'null';
+    $sql = "insert into catalog$catid(id,record,title,type,parentId)"
+          ." values('$id','$recjson','$title','$type',$parentId)";
+    //echo "$sql\n";
     try {
-      PgSql::query("insert into catalog$catid(id,record,title,type)"
-        ." values('$id','$recjson','$title','$type')");
+      PgSql::query($sql);
     }
     catch (Exception $e) {
       echo "Erreur dans storeRecord: ", $e->getMessage(),"<br>\n";

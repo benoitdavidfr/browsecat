@@ -8,6 +8,8 @@ doc: |
   La requête est identifiée par le MD5 de l'url de requête
   Le cache est stocké dans un répertoire avec un sous-répertoire défini par les 3 premiers caractères du MD5
 journal: |
+  8/12/2021:
+    - ajout de méthode HttpCache::temporal()
   31/10/2021:
     - utilisation de HttpRetry pour gérer des relances en cas d'erreur
   8/1/2021:
@@ -31,8 +33,10 @@ class HttpCache {
   
   function __construct(?string $dirPath=null, array $httpOptions=[]) {
     $this->dirPath = $dirPath;
-    if ($dirPath && !file_exists($dirPath))
+    if ($dirPath && !file_exists($dirPath)) {
+      //echo "dirPath='$dirPath' est défini mais n'existe pas\n";
       mkdir($dirPath);
+    }
     $this->httpOptions = $httpOptions;
   }
   
@@ -66,14 +70,50 @@ class HttpCache {
     file_put_contents($path, $return['body']);
     return $return['body'];
   }
+  
+  function temporal(): array {
+    if (!$this->dirPath)
+      return [];
+    $temporal = [];
+    if (!$dh = opendir($this->dirPath))
+      die("Ouverture de $this->dirPath impossible");
+    while (($dirname = readdir($dh)) !== false) {
+      if (in_array($dirname, ['.','..']))
+        continue;
+      if (!$dh2 = opendir($this->dirPath."/$dirname"))
+        die("Ouverture de $this->dirPath/$dirname impossible");
+      while (($filename = readdir($dh2)) !== false) {
+        if (in_array($filename, ['.','..']))
+          continue;
+        $time = filemtime($this->dirPath."/$dirname/$filename");
+        //echo "time=$time\n";
+        if (!isset($temporal['start']) || ($time < $temporal['start']))
+          $temporal['start'] = $time;
+        if (!isset($temporal['end']) || ($time > $temporal['end']))
+          $temporal['end'] = $time;
+      }
+      closedir($dh2);
+    }
+    closedir($dh);
+    $temporal['start'] = date('Y-m-d\Th:m', $temporal['start']);
+    $temporal['end'] = date('Y-m-d\Th:m', $temporal['end']);
+    //print_r($temporal);
+    return $temporal;
+  }
 };
 
 
 if ((__FILE__ <> realpath($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME'])) && (($argv[0] ?? '') <> basename(__FILE__))) return;
+
 echo "<!DOCTYPE HTML><html>\n<head><meta charset='UTF-8'><title>httpcache.inc.php</title></head><body><pre>\n";
 
 
-$httpCache = new HttpCache(__DIR__.'/testcache');
+/*$httpCache = new HttpCache(__DIR__.'/testcache');
 $url = 'https://sextant.ifremer.fr/geonetwork/srv/eng/csw?SERVICE=CSW&REQUEST=GetCapabilities';
 echo str_replace('<', '{', $httpCache->request($url, 'xml'));
+die("Ok\n");*/
+
+// Test de HttpCache::temporal()
+$httpCache = new HttpCache(__DIR__.'/catalogs/geoide/byid');
+print_r($httpCache->temporal());
 die("Ok\n");

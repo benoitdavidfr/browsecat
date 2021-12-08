@@ -10,6 +10,9 @@ doc: |
   N'enregistre rien pour les FeatureCatalog.
   Stocke les MD de données et de service converties en JSON dans une base PgSql sur le serveur choisi
 journal: |
+  5/12/2021:
+    - ajout parentIdentifier dans la table
+    - ajout d'une info sur le catalogue source et la date de moissonnage
   16-17/11/2021:
     - gestion à minima du catalogue Corse dont les MD sont en DublinCore
   13/11/2021:
@@ -34,6 +37,7 @@ includes:
   - orginsel.inc.php
   - trestant.inc.php
 */
+require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/cswserver.inc.php';
 require_once __DIR__.'/mdvars2.inc.php';
 require_once __DIR__.'/dublincore.inc.php';
@@ -42,9 +46,11 @@ require_once __DIR__.'/catinpgsql.inc.php';
 require_once __DIR__.'/orginsel.inc.php';
 require_once __DIR__.'/trestant.inc.php';
 
+use Symfony\Component\Yaml\Yaml;
 
-if (php_sapi_name()<>'cli')
-  die("Uniquement en CLI\n");
+if (php_sapi_name()<>'cli') { // Erreur: Uniquement en CLI
+  die("Erreur: Uniquement en CLI\n");
+}
 else { // gestion du dialogue pour définir les paramètres 
   function usage(array $argv, array $cats) {
     echo "usage: php $argv[0] {serveur} {cat}|all [{firstRecord} [{maxRecordNum}]]\n";
@@ -60,9 +66,10 @@ else { // gestion du dialogue pour définir les paramètres
 
   if (!($catid = $argv[2] ?? null)) usage($argv, $cats);
 
-  if ($catid == 'all') { // génère les cmdes pour remoissonner tous les catalogues
-    foreach (array_keys($cats) as $catid) {
-      echo "php $argv[0] $catid\n";
+  if ($catid == 'all') { // génère les cmdes pour remoissonner tous les catalogues CSW sauf le géocatalogue
+    foreach ($cats as $catid => $cat) {
+      if (($cat['conformsTo'] == 'http://www.opengis.net/def/serviceType/ogc/csw') && ($catid <> 'geocatalogue'))
+        echo "php $argv[0] $argv[1] $catid\n";
     }
     die();
   }
@@ -89,7 +96,6 @@ echo "Moissonnage de $catid et chargement dans PostgreSql $server\n";
 $cat = new CatInPgSql($catid);
 if ($firstRecord == 1) {
   $cat->create(); // recrée une nlle table
-  touch("catalogs/$catid/start");
 }
 $nextRecord = $firstRecord;
 $numberOfRecordsMatched = null;
@@ -110,8 +116,8 @@ while ($nextRecord) {
   if (!$getRecords->searchResults()->csw_BriefRecord) { // erreurs dans SigLoire le 28/10/2021
     //print_r($getRecords);
     echo "** Erreur de getRecords(), aucun enregistrement retourné, ligne ",__LINE__,"<br>\n";
-    $nextRecord = $getRecords->nextRecord();
-    $numberOfRecordsMatched = $getRecords->numberOfRecordsMatched();
+    //$nextRecord = $getRecords->nextRecord();
+    //$numberOfRecordsMatched = $getRecords->numberOfRecordsMatched();
     echo "nextRecord=$nextRecord, numberOfRecordsMatched=$numberOfRecordsMatched\n";
     if (($nextRecord == 0) || ($nextRecord >= $numberOfRecordsMatched)) break;
     $nextRecord += 20;
@@ -128,6 +134,7 @@ while ($nextRecord) {
     elseif (in_array($dc_type, ['dataset','series','service'])) { // dans le cas data ou service, j'utilise ISO19139
       try {
         $isoRecord = $cswServer->getRecordById($mdid);
+        $harvestTime = filemtime($cswServer->getRecordByIdPath($mdid));
       }
       catch (Exception $e) {
         echo "Erreur: dans CswServer::getRecordById($mdid)\n";
@@ -154,6 +161,7 @@ while ($nextRecord) {
     }
     else { // Sinon, récupération de l'enregistrement en DublinCore
       $dcRecord = $cswServer->getRecordById($mdid, 'dc', 'full');
+      $harvestTime = filemtime($cswServer->getRecordByIdPath($mdid, 'dc', 'full'));
       //print_r($dcRecord);
       try {
         $mdrecord = DublinCore::extract($mdid, $dcRecord);
@@ -171,7 +179,8 @@ while ($nextRecord) {
         echo "briefRecord="; print_r($briefRecord);
         echo "dcRecord="; print_r($dcRecord);
         $cswServer->delRecordById($mdid);
-        $isoRecord = $cswServer->getRecordById($mdid);
+        $isoRecord = $cswServer->getRecordById($mdid, 'dc', 'full');
+        $harvestTime = filemtime($cswServer->getRecordByIdPath($mdid, 'dc', 'full'));
         $mdrecord = DublinCore::extract($mdid, $isoRecord);
         if (!$mdrecord) {
           echo "2ème erreur: enregistrement ISO non défini pour $mdid\n";
@@ -179,6 +188,12 @@ while ($nextRecord) {
         }
       }
     }
+    // ajout d'une info sur le catalogue source et la date de moissonnage
+    $mdrecord['harvest'] = [
+      'srceCat' => [$catid => $cats[$catid]],
+      'harvestTime' => date(DATE_ATOM, $harvestTime),
+    ];
+    //echo Yaml::dump($mdrecord); die();
     $cat->storeRecord($mdrecord);
   }
   $nextRecord = $getRecords->nextRecord();
@@ -186,4 +201,3 @@ while ($nextRecord) {
   echo "nextRecord=$nextRecord, numberOfRecordsMatched=$numberOfRecordsMatched\n";
   if ($nextRecord >= $numberOfRecordsMatched) break;
 }
-touch("catalogs/$catid/end");

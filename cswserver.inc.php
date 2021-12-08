@@ -166,6 +166,10 @@ class CswServer {
     $path = $this->getRecordByIdPath($id, $output, $elementSetName);
     unlink($path);
   }
+
+  function temporal(): array {
+    return $this->cacheGetRecById->temporal();
+  }
 };
 
 

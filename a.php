@@ -58,7 +58,7 @@ $arbos = [
   'geozones'=> new Arbo('geozones.yaml'),
 ];
 
-echo "<!DOCTYPE HTML><html><head><meta charset='UTF-8'><title>browsecat</title></head><body>\n";
+//echo "<!DOCTYPE HTML><html><head><meta charset='UTF-8'><title>browsecat</title></head><body>\n";
 if (!CatInPgSql::chooseServer($_SERVER['HTTP_HOST']=='localhost' ? 'local' : 'distant')) { // Choix du serveur 
   die("Erreur: paramètre serveur incorrect !\n");
 }
@@ -280,15 +280,18 @@ if ($_GET['action']=='listmd') { // Toutes les MD de type dataset ou series
 
 if ($_GET['action']=='listdata') { // Toutes les MD de type dataset ou series
   echo "<ul>\n";
-  foreach (PgSql::query("select id,title from catalog$_GET[cat] where type in ('dataset','series')") as $record) {
+  $sql = "select id,title from catalog$_GET[cat] where type in ('dataset','series','Dataset','Dataset,series')";
+  foreach (PgSql::query($sql) as $record) {
     echo "<li><a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$record[id]'>$record[title]</a></li>\n";
+    //echo "<pre>",Yaml::dump($record),"</pre>";
   }
   die("</ul>\n");
 }
 
 if ($_GET['action']=='listdataYaml') { // Toutes les MD de type dataset ou series en Yaml
   echo "<pre>\n";
-  foreach (PgSql::query("select record from catalog$_GET[cat] where type in ('dataset','series')") as $tuple) {
+  $sql = "select record from catalog$_GET[cat] where type in ('dataset','series','Dataset','Dataset,series')";
+  foreach (PgSql::query($sql) as $tuple) {
     $record = json_decode($tuple['record'], true);
     echo Yaml::dump([$record], 3, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
   }
@@ -374,7 +377,10 @@ if ($_GET['action']=='showPg') { // affiche une fiche depuis PgSql
   }
   $record = json_decode($tuples[0]['record'], true);
   //echo "<pre>",json_encode($record, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
-  echo '<pre>',Yaml::dump($record, 3, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK),"</pre>\n";
+  //echo '<pre>',Yaml::dump($record, 3, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK),"</pre>\n";
+  $yaml =  Yaml::dump($record, 3, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+  $yaml = preg_replace('!-\n +!', '- ', $yaml);
+  echo "<pre>$yaml</pre>\n";
 
   if (isset($record['dcat:bbox']) && !bboxesError($record['dcat:bbox'])
     && ($center = center($record['dcat:bbox']))
@@ -406,7 +412,7 @@ if ($_GET['action']=='showUsingIds') { // affiche une liste de fiches définie p
 }
 
 if ($_GET['action']=='showIsoXml') { // affiche une fiche ISO en XML depuis CSW
-  $cswServer = new CswServer($cats[$_GET['cat']]['endpointURL'], $_GET['cat']);
+  $cswServer = new CswServer($cats[$_GET['cat']]['endpointURL'], "catalogs/$_GET[cat]");
   $isoRecord = $cswServer->getRecordById($_GET['id']);
   header('Content-type: text/xml');
   echo $isoRecord;
@@ -414,7 +420,7 @@ if ($_GET['action']=='showIsoXml') { // affiche une fiche ISO en XML depuis CSW
 }
 
 if ($_GET['action']=='showDcXml') { // affiche une fiche DC en XML depuis CSW
-  $cswServer = new CswServer($cats[$_GET['cat']]['endpointURL'], $_GET['cat']);
+  $cswServer = new CswServer($cats[$_GET['cat']]['endpointURL'], "catalogs/$_GET[cat]");
   $isoRecord = $cswServer->getRecordById($_GET['id'], 'dc', 'full');
   header('Content-type: text/xml');
   echo $isoRecord;
@@ -422,7 +428,7 @@ if ($_GET['action']=='showDcXml') { // affiche une fiche DC en XML depuis CSW
 }
 
 if ($_GET['action']=='showPath') { // affiche les chemins de stockage en buffer
-  $cswServer = new CswServer($cats[$_GET['cat']]['endpointURL'], $_GET['cat']);
+  $cswServer = new CswServer($cats[$_GET['cat']]['endpointURL'], "catalogs/$_GET[cat]");
   echo "ISO: ", $cswServer->getRecordByIdPath($_GET['id']), "<br>\n";
   echo "DC: ", $cswServer->getRecordByIdPath($_GET['id'],'dc','full'), "<br>\n";
   die();
@@ -430,7 +436,7 @@ if ($_GET['action']=='showPath') { // affiche les chemins de stockage en buffer
 
 if ($_GET['action']=='extract') { // réalise la transformation ISO->JSON sur la fiche
   require_once __DIR__.'/mdvars2.inc.php';
-  $cswServer = new CswServer($cats[$_GET['cat']]['endpointURL'], $_GET['cat']);
+  $cswServer = new CswServer($cats[$_GET['cat']]['endpointURL'], "catalogs/$_GET[cat]");
   $isoRecord = $cswServer->getRecordById($_GET['id']);
   $mdrecord = Mdvars::extract($_GET['id'], $isoRecord);
   echo '<pre>',Yaml::dump($mdrecord);

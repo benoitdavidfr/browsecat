@@ -7,6 +7,8 @@ functions:
 doc: |
   Script repris de geocat3 et adapté pour geocat4.
 journal: |
+  8/12/2021:
+    - ajout champ spatial
   17/11/2021:
     - renommage de la classe en Iso19139
   20/2/2021:
@@ -325,6 +327,20 @@ class Iso19139 {
         ],
       ],
       'multiplicity' => [ 'data' => '1..*', 'service' => '0..*' ],
+    ],
+    // ajout en test le 8/12/2021, ok pour Géo-IDE
+    'spatial' => [
+      'title-fr' => "Extension spatiale",
+      'title-en' => "Spatial extension",
+      'xpath' => '//gmd:identificationInfo/*/gmd:extent/gmd:EX_Extent',
+      'svars'=> [
+        'description'=> [
+          'xpath'=> '//gmd:EX_Extent/gmd:description/gco:CharacterString'
+        ],
+        'geographicIdentifier'=> [
+          'xpath'=> '//gmd:EX_Extent/gmd:geographicElement/*/gmd:geographicIdentifier/*/gmd:code/gco:CharacterString',
+        ],
+      ],
     ],
   
     // 5. RÉFÉRENCE TEMPORELLE

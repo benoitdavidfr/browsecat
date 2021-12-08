@@ -83,6 +83,8 @@ doc: |
     - explorer https://trouver.ternum-bfc.fr/ et la possibilité de le moissonner !
   
 journal: |
+  5/12/2021:
+    - ajout des modules diff et hierarchical
   1/12/2021:
     - ajout de thèmes sur dgouv
   22/11/2021:
@@ -122,11 +124,13 @@ submodules:
   - /browsecat/dido
   - /browsecat/dgouv
   - /browsecat/ternum-bfc
+  - /browsecat/diff
+  - /browsecat/hierarchical
 phpScripts:
   - /browsecat/harvest.php
   - /browsecat/cmde.php
   - /browsecat/gere.php
-  - /browsecat/ajouttheme.php
+  #- /browsecat/ajouttheme.php
   - /browsecat/map.php
   - /browsecat/geojson.php
   - /browsecat/index.php
