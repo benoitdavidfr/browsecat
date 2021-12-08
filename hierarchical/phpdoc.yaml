@@ -1,0 +1,9 @@
+title: browsecat/hierarchical - test structuration hiérarchique entre jeux de données
+path: /browsecat/hierarchical
+doc: |
+  
+journal: |
+  5/12/2021:
+    - création
+phpScripts:
+  - /browsecat/hierarchical/index.php
