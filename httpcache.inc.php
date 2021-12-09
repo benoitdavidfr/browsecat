@@ -8,6 +8,8 @@ doc: |
   La requête est identifiée par le MD5 de l'url de requête
   Le cache est stocké dans un répertoire avec un sous-répertoire défini par les 3 premiers caractères du MD5
 journal: |
+  9/12/2021:
+    - simplification de méthode HttpCache::temporal()
   8/12/2021:
     - ajout de méthode HttpCache::temporal()
   31/10/2021:
@@ -40,7 +42,7 @@ class HttpCache {
     $this->httpOptions = $httpOptions;
   }
   
-  // construit le chemin du fichier du cache, retourne null ssi aucun cache n'est défini
+  // construit le chemin d'un fichier du cache, retourne null ssi aucun cache n'est défini
   function path(string $md5, string $ext): ?string {
     if (!$this->dirPath)
       return null;
@@ -71,6 +73,14 @@ class HttpCache {
     return $return['body'];
   }
   
+  // 
+  /*PhpDoc: methods
+  name: temporal
+  title: "function temporal(): array - retourne l'intervalle temporel de la moisson"
+  doc: |
+    L'intervalle temporel est défini par la date de moisson la plus ancienne et la plus récente
+    L'algo utilise la date de dernière modification des répertoires.
+  */
   function temporal(): array {
     if (!$this->dirPath)
       return [];
@@ -80,19 +90,11 @@ class HttpCache {
     while (($dirname = readdir($dh)) !== false) {
       if (in_array($dirname, ['.','..']))
         continue;
-      if (!$dh2 = opendir($this->dirPath."/$dirname"))
-        die("Ouverture de $this->dirPath/$dirname impossible");
-      while (($filename = readdir($dh2)) !== false) {
-        if (in_array($filename, ['.','..']))
-          continue;
-        $time = filemtime($this->dirPath."/$dirname/$filename");
-        //echo "time=$time\n";
-        if (!isset($temporal['start']) || ($time < $temporal['start']))
-          $temporal['start'] = $time;
-        if (!isset($temporal['end']) || ($time > $temporal['end']))
-          $temporal['end'] = $time;
-      }
-      closedir($dh2);
+      $time = filemtime($this->dirPath."/$dirname");
+      if (!isset($temporal['start']) || ($time < $temporal['start']))
+        $temporal['start'] = $time;
+      if (!isset($temporal['end']) || ($time > $temporal['end']))
+        $temporal['end'] = $time;
     }
     closedir($dh);
     $temporal['start'] = date('Y-m-d\Th:m', $temporal['start']);

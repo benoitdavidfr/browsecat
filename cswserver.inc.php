@@ -167,6 +167,7 @@ class CswServer {
     unlink($path);
   }
 
+  // retourne l'intervalle temporel de la moisson en utilisant le cache cacheGetRecById
   function temporal(): array {
     return $this->cacheGetRecById->temporal();
   }

@@ -9,6 +9,7 @@ journal: |
 */
 
 // retourne le temps restant, $proportion est la proportion effectuée du traitement
+// Sans argument, initialise la date et heure de démarrage
 function tempsRestant(float $proportion=0): ?string {
   static $start = 0;
   if ($proportion == 0) {
