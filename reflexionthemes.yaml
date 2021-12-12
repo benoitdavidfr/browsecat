@@ -1,0 +1,130 @@
+title: réflexion sur les thèmes
+abstract:
+  La navigation par thème me semble une fonctionnalité indispensable.
+  Cela consiste à pouvoir utiliser pour sélectionner les MDD l'appartenance à un thème
+  formalisé par la définition pour ces MDD de ce thème comme mot-clé.
+  
+  Dans le périmètre ministériel, pour définir ces thèmes, on peut utiliser l'arborescence Covadis et les annexs Inspire.
+  On pourrait aussi demander aux acteurs ministériels de renseigner un tel mot-clé.
+  
+  Pour tester cette possibilité, j'estime le pourcentage de MDD possédant au moins un mot-clé
+  correspondant soit à un concept de l'arborescence, soit à une annexe Inspire.
+  
+conclusions:
+  1) Sur le périmètre ministériel, il est intéressant d'utiliser comme thèmes les annexes Inspire (88%)
+    et l'aborescence Covadis (79%) en les complétant comme je l'ai fait. Total 97%
+  2) comment définir le périmètre ministériel ?
+    On définit les organisations du périmètre comme les services AC/SD de l'un des 3 ministères + les DDT.
+    Les données du périmètre sont-elles
+     - celles dont au moins un responsibleParty est une organisation du périmètre ou
+     - celles dont au moins un mdContact est une organisation du périmètre
+    La première définition est plus logique mais pose des questions sur l'organisation de ces MD dans CKAN
+    car l'organisation chapeau devrait plutôt être un mdContact.
+    Cela voudrait dire que pour le périmètre ministériel, il faut définir des organisations comme l'Ifremer
+    qui est mdContact de données dont l'un des responsibleParty est dans le périmètre ministériel.
+  3) pour la première définition, outre Géo-IDE et les les PF régionales, les catalogues intéressants sont
+    - GéoRisques (50)
+    - Sextant (501-28=473)
+    - GeoLittoral (77)
+    - GpU (231)
+    - EauFrance (70-49=21)
+    - Céréma (8)
+    - Shom (3)
+  Finalement Sextant est intéressant non par les MDD déclarées par les organisations du périmètre mais par les MDD
+  déclarées par d'autres ayant comme resposibleParty une organisation du périmètre ministériel.
+  
+estimations:
+  title: pourcentage des MDD du périmètre dont au moins un mot-clé appartient à un des thèmes
+  abstract: |
+    Les thèmes sont l'arborescence Covadis et la liste des thèmes Inspire
+  cats:
+    agg:
+      annexesInspire: 25387 / 28883 = 88 %
+      arboCovadis: 22748 / 28883 = 79 %
+      tousThemes: 27933 / 28883 = 97 %
+    geocatalogue:
+    geoide:
+      annexesInspire: 20218 / 22777 = 89 %
+      arboCovadis: 21839 / 22777 = 96 %
+      tousThemes: 22695 / 22777 = 100 %
+    eauFrance:
+      annexesInspire: 69 / 70 = 99 %
+      tousThemes: 69 / 70 = 99 %
+    sandreAtlas:
+      annexesInspire: 70 / 70 = 100 %
+      tousThemes: 70 / 70 = 100 %
+    Sextant:
+      annexesInspire: 460 / 500 = 92 %
+      arboCovadis: 1 / 500 = 0 %
+      tousThemes: 460 / 500 = 92 %
+    GeoRisques:
+      annexesInspire: 1 / 36 = 3 %
+      tousThemes: 1 / 36 = 3 %
+    cerema:
+      annexesInspire: 17 / 17 = 100 %
+      tousThemes: 17 / 17 = 100 %
+    ign:
+      annexesInspire: 17 / 19 = 89 %
+      tousThemes: 17 / 19 = 89 %
+    ignInspire:
+    shom:
+    GpU:
+      annexesInspire: 232 / 235 = 99 %
+      arboCovadis: 18 / 235 = 8 %
+      tousThemes: 232 / 235 = 99 %
+    geolittoral:
+      annexesInspire: 72 / 74 = 97 %
+      tousThemes: 72 / 74 = 97 %
+    onf:
+    drealNormandie:
+      annexesInspire: 284 / 563 = 50 %
+      arboCovadis: 20 / 563 = 4 %
+      tousThemes: 287 / 563 = 51 %
+    drealCentreVdL:
+      annexesInspire: 144 / 169 = 85 %
+      arboCovadis: 1 / 169 = 1 %
+      tousThemes: 144 / 169 = 85 %
+    dealReunion:
+      annexesInspire: 7 / 60 = 12 %
+      tousThemes: 7 / 60 = 12 %
+    DatAra:
+      annexesInspire: 1040 / 1247 = 83 %
+      arboCovadis: 219 / 1247 = 18 %
+      tousThemes: 1065 / 1247 = 85 %
+    geoBretagne:
+      annexesInspire: 551 / 629 = 88 %
+      arboCovadis: 232 / 629 = 37 %
+      tousThemes: 595 / 629 = 95 %
+    pictoOccitanie:
+      annexesInspire: 5915 / 6111 = 97 %
+      arboCovadis: 5561 / 6111 = 91 %
+      tousThemes: 6107 / 6111 = 100 %
+    sigLoire:
+      annexesInspire: 570 / 628 = 91 %
+      arboCovadis: 146 / 628 = 23 %
+      tousThemes: 574 / 628 = 91 %
+    geo2France:
+      annexesInspire: 108 / 139 = 78 %
+      arboCovadis: 66 / 139 = 47 %
+      tousThemes: 133 / 139 = 96 %
+    sigena:
+      annexesInspire: 3096 / 3639 = 85 %
+      arboCovadis: 2957 / 3639 = 81 %
+      tousThemes: 3503 / 3639 = 96 %
+    ideoBFC:
+      annexesInspire: 730 / 805 = 91 %
+      arboCovadis: 680 / 805 = 84 %
+      tousThemes: 789 / 805 = 98 %
+    karuGeo:
+      annexesInspire: 115 / 122 = 94 %
+      arboCovadis: 5 / 122 = 4 %
+      tousThemes: 115 / 122 = 94 %
+    geoMartinique:
+      annexesInspire: 24 / 33 = 73 %
+      arboCovadis: 2 / 33 = 6 %
+      tousThemes: 24 / 33 = 73 %
+    geoGuyane:
+      annexesInspire: 351 / 352 = 100 %
+      arboCovadis: 4 / 352 = 1 %
+      tousThemes: 351 / 352 = 100 %
+eof:
