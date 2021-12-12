@@ -1,130 +1,931 @@
-title: réflexion sur les thèmes
-abstract:
-  La navigation par thème me semble une fonctionnalité indispensable.
-  Cela consiste à pouvoir utiliser pour sélectionner les MDD l'appartenance à un thème
-  formalisé par la définition pour ces MDD de ce thème comme mot-clé.
-  
-  Dans le périmètre ministériel, pour définir ces thèmes, on peut utiliser l'arborescence Covadis et les annexs Inspire.
-  On pourrait aussi demander aux acteurs ministériels de renseigner un tel mot-clé.
-  
-  Pour tester cette possibilité, j'estime le pourcentage de MDD possédant au moins un mot-clé
-  correspondant soit à un concept de l'arborescence, soit à une annexe Inspire.
-  
-conclusions:
-  1) Sur le périmètre ministériel, il est intéressant d'utiliser comme thèmes les annexes Inspire (88%)
-    et l'aborescence Covadis (79%) en les complétant comme je l'ai fait. Total 97%
-  2) comment définir le périmètre ministériel ?
-    On définit les organisations du périmètre comme les services AC/SD de l'un des 3 ministères + les DDT.
-    Les données du périmètre sont-elles
-     - celles dont au moins un responsibleParty est une organisation du périmètre ou
-     - celles dont au moins un mdContact est une organisation du périmètre
-    La première définition est plus logique mais pose des questions sur l'organisation de ces MD dans CKAN
-    car l'organisation chapeau devrait plutôt être un mdContact.
-    Cela voudrait dire que pour le périmètre ministériel, il faut définir des organisations comme l'Ifremer
-    qui est mdContact de données dont l'un des responsibleParty est dans le périmètre ministériel.
-  3) pour la première définition, outre Géo-IDE et les les PF régionales, les catalogues intéressants sont
-    - GéoRisques (50)
-    - Sextant (501-28=473)
-    - GeoLittoral (77)
-    - GpU (231)
-    - EauFrance (70-49=21)
-    - Céréma (8)
-    - Shom (3)
-  Finalement Sextant est intéressant non par les MDD déclarées par les organisations du périmètre mais par les MDD
-  déclarées par d'autres ayant comme resposibleParty une organisation du périmètre ministériel.
-  
-estimations:
-  title: pourcentage des MDD du périmètre dont au moins un mot-clé appartient à un des thèmes
-  abstract: |
-    Les thèmes sont l'arborescence Covadis et la liste des thèmes Inspire
-  cats:
-    agg:
-      annexesInspire: 25387 / 28883 = 88 %
-      arboCovadis: 22748 / 28883 = 79 %
-      tousThemes: 27933 / 28883 = 97 %
-    geocatalogue:
-    geoide:
-      annexesInspire: 20218 / 22777 = 89 %
-      arboCovadis: 21839 / 22777 = 96 %
-      tousThemes: 22695 / 22777 = 100 %
-    eauFrance:
-      annexesInspire: 69 / 70 = 99 %
-      tousThemes: 69 / 70 = 99 %
-    sandreAtlas:
-      annexesInspire: 70 / 70 = 100 %
-      tousThemes: 70 / 70 = 100 %
-    Sextant:
-      annexesInspire: 460 / 500 = 92 %
-      arboCovadis: 1 / 500 = 0 %
-      tousThemes: 460 / 500 = 92 %
-    GeoRisques:
-      annexesInspire: 1 / 36 = 3 %
-      tousThemes: 1 / 36 = 3 %
-    cerema:
-      annexesInspire: 17 / 17 = 100 %
-      tousThemes: 17 / 17 = 100 %
-    ign:
-      annexesInspire: 17 / 19 = 89 %
-      tousThemes: 17 / 19 = 89 %
-    ignInspire:
-    shom:
-    GpU:
-      annexesInspire: 232 / 235 = 99 %
-      arboCovadis: 18 / 235 = 8 %
-      tousThemes: 232 / 235 = 99 %
-    geolittoral:
-      annexesInspire: 72 / 74 = 97 %
-      tousThemes: 72 / 74 = 97 %
-    onf:
-    drealNormandie:
-      annexesInspire: 284 / 563 = 50 %
-      arboCovadis: 20 / 563 = 4 %
-      tousThemes: 287 / 563 = 51 %
-    drealCentreVdL:
-      annexesInspire: 144 / 169 = 85 %
-      arboCovadis: 1 / 169 = 1 %
-      tousThemes: 144 / 169 = 85 %
-    dealReunion:
-      annexesInspire: 7 / 60 = 12 %
-      tousThemes: 7 / 60 = 12 %
-    DatAra:
-      annexesInspire: 1040 / 1247 = 83 %
-      arboCovadis: 219 / 1247 = 18 %
-      tousThemes: 1065 / 1247 = 85 %
-    geoBretagne:
-      annexesInspire: 551 / 629 = 88 %
-      arboCovadis: 232 / 629 = 37 %
-      tousThemes: 595 / 629 = 95 %
-    pictoOccitanie:
-      annexesInspire: 5915 / 6111 = 97 %
-      arboCovadis: 5561 / 6111 = 91 %
-      tousThemes: 6107 / 6111 = 100 %
-    sigLoire:
-      annexesInspire: 570 / 628 = 91 %
-      arboCovadis: 146 / 628 = 23 %
-      tousThemes: 574 / 628 = 91 %
-    geo2France:
-      annexesInspire: 108 / 139 = 78 %
-      arboCovadis: 66 / 139 = 47 %
-      tousThemes: 133 / 139 = 96 %
-    sigena:
-      annexesInspire: 3096 / 3639 = 85 %
-      arboCovadis: 2957 / 3639 = 81 %
-      tousThemes: 3503 / 3639 = 96 %
-    ideoBFC:
-      annexesInspire: 730 / 805 = 91 %
-      arboCovadis: 680 / 805 = 84 %
-      tousThemes: 789 / 805 = 98 %
-    karuGeo:
-      annexesInspire: 115 / 122 = 94 %
-      arboCovadis: 5 / 122 = 4 %
-      tousThemes: 115 / 122 = 94 %
-    geoMartinique:
-      annexesInspire: 24 / 33 = 73 %
-      arboCovadis: 2 / 33 = 6 %
-      tousThemes: 24 / 33 = 73 %
-    geoGuyane:
-      annexesInspire: 351 / 352 = 100 %
-      arboCovadis: 4 / 352 = 1 %
-      tousThemes: 351 / 352 = 100 %
+title: Liste des thèmes et sous-thèmes du guichet dérivée de l'arborescence Covadis
+$id: http://bdavid.alwaysdata.net/browsecat/arbocovadis/themes.yaml
+description: |
+  Transformation de l'arborescence Covadis selon les principes suivants:
+    - les clés sont en miniscules pour être plus faciles à utiliser en CKAN
+    - le prefLabel fr est plus parlant et n'intègre pas la hiérarchie (pas de /)
+    - lorsque le nom Covadis ne peut pas être déduit du nom CKAN alors un champ covadis est précisé
+    - le preflabel Covadis avec le / en altLabels
+journal: |
+  10-12/12/2021:
+    - création à partir du fichier de l'arborescence Covadis
+$schema:
+  $id: http://bdavid.alwaysdata.net/browsecat/arbocovadis.yaml#/$schema
+  definitions:
+    labels:
+      description: liste d'étiquettes associées au noeud
+      type: array
+      items:
+        description: étiquette
+        type: string
+    tree:
+      description: enfants définis chacun par une clé, des propriétés et ses propres enfants
+      type: object
+      additionalProperties: false
+      patternProperties:
+        '^[-a-z]+$':
+          description: contenu du noeud avec propriétés et/ou enfants
+          type: object
+          additionalProperties: false
+          required: [prefLabels]
+          properties:
+            covadis:
+              description: nom Covadis s'il ne peut être déduit des clés ou null s'il n'y a pas de correspondance Covadis
+              type: [string, 'null']
+            definition:
+              description: explication souvent issue du document source
+              type: string
+            note:
+              description: commentaire complémentaire
+              type: string
+            prefLabels:
+              description: étiquette préférentielle associée au noeud avec sa langue codée sur 2 caractères
+              type: object
+              additionalProperties: false
+              required: [fr]
+              patternProperties:
+                '^(fr)$':
+                  type: string
+            altLabels:
+              description: liste de synonymes associées au noeud
+              $ref: '#/definitions/labels'
+            children:
+              description: sous-arborescence structuré avec un identifiant par noeud de niveau supérieur
+              $ref: '#/definitions/tree'
+      
+  type: object
+  additionalProperties: false
+  properties:
+    title:
+      description: titre du document
+      type: string
+    $id:
+      description: identification du document
+      type: string
+    description:
+      description: commentaire sur le document
+      type: string
+    journal:
+      description: historique des principales modifications
+      type: string
+    $schema:
+      description: schema JSON du document
+      $ref: http://json-schema.org/draft-07/schema#
+    keyIsPrefLabel:
+      description: indique que la clé ne constitue pas le prefLabel
+      const: false
+    children:
+      description: contenu de l'arborescence structuré avec un identifiant par noeud de premier niveau
+      $ref: '#/definitions/tree'
+    source:
+      description: texte temporaire
+      type: string
+    eof:
+      description: marque de fin de fichier
+      const: null
+
+keyIsPrefLabel: false
+children:
+  agriculture:
+    prefLabels:
+      fr: Agriculture
+    children:
+      agri-environnement:
+        definition: CAD, CTE, zones en excédent structurel, îlots et plans d'épandage
+        prefLabels:
+          fr: Agri-environnement
+        altLabels:
+          - Agriculture/Agri-environnement
+      agro-alimentaire:
+        definition: Industrie de transformation,
+        prefLabels:
+          fr: Agro-alimentaire
+        altLabels:
+          - Agriculture/Agro-alimentaire
+      exploitation-elevage:
+        definition: Unités pastorales, bâtiments élevage
+        prefLabels:
+          fr: Exploitation et élevage
+        altLabels:
+          - Agriculture/Exploitation Élevage
+      parcellaire-agricole:
+        definition: Ilot RPG, parcelle OGM….
+        prefLabels:
+          fr: Parcellaire agricole
+        altLabels:
+          - Agriculture/Parcellaire agricole
+      sante-animale:
+        definition: Foyers maladie, zones protection, quarantaine, …
+        prefLabels:
+          fr: Santé animale
+        altLabels:
+          - Agriculture/Santé animale
+      sante-vegetale:
+        definition: Pépinières, vergers, vignes, VDQS, foyers maladie -
+        prefLabels:
+          fr: Santé végétale
+        altLabels:
+          - Agriculture/Santé végétale
+      zonages-agricoles:
+        definition: |
+          Zones montagne, piémont, défavorisée, petites régions agricoles, régions fourragères,
+          zones de déprise agricole, AOC,…
+        prefLabels:
+          fr: Zonages agricoles
+        altLabels:
+          - Agriculture/Zonages agricoles
+  air-climat:
+    prefLabels:
+      fr: Air et climat
+    children:
+      changement-climatique:
+        prefLabels:
+          fr: Changement climatique
+        altLabels:
+          - Air Climat/Changement climatique
+      meteorologie:
+        covadis: METEO
+        prefLabels:
+          fr: Météorologie
+        altLabels:
+          - Air Climat/Météo
+      qualite-de-l-air-pollution:
+        covadis: QUALITE_POLLUTION
+        prefLabels:
+          fr: Qualité de l’air et pollution
+        altLabels:
+          - Air Climat/Qualité Pollution
+  amenagement-urbanisme:
+    prefLabels:
+      fr: Aménagement et urbanisme
+    children:
+      assiettes-des-servitudes:
+        covadis: ASSIETTE_SERVITUDE:
+        prefLabels:
+          fr: Assiettes des servitudes
+        altLabels:
+          - Aménagement Urbanisme/Assiette Servitude
+      politique-europeenne-d-amenagement:
+        definition: Interreg, anciens zonages 2, 5b, leader, urban, ...
+        prefLabels:
+          fr: Politique européenne d'aménagement
+        altLabels:
+          - Aménagement Urbanisme/Politique européenne
+      zonages-d-amenagement:
+        covadis: N_ZONAGES_AMENAGEMENT:
+        definition: PAYS, PNR, ZRR, OIN, EPF, Massifs de montagne, Contrats d'agglomération, ...
+        note: plus Contrat de relance et de transition écologique (CRTE)
+        prefLabels:
+          fr: Zonages d'aménagement
+        altLabels:
+          - Aménagement Urbanisme/Zonages Aménagement
+      zonages-d-etudes:
+        covadis: N_ZONAGES_ETUDE:
+        definition: Zonages INSEE (aires urbaines - unités urbaines - IRIS) et autres
+        prefLabels:
+          fr: Zonages d'études
+        altLabels:
+          - Aménagement Urbanisme/Zonages Étude
+      zonages-de-planification:
+        covadis: N_ZONAGES_PLANIFICATION:
+        definition: PLU, SCOT, SERVITUDES, DTA, PDU, PTU, LITTORAL, MONTAGNE, ...
+        prefLabels:
+          fr: Zonages de planification
+        altLabels:
+          - Aménagement Urbanisme/Zonages Planification
+  culture-societe-services:
+    covadis: CULTURE_SOCIETE_SERVICE
+    prefLabels:
+      fr: Culture, société et services
+    children:
+      autres-etablissements:
+        covadis: N_ERP_AUTRE:
+        definition: Autres établissements recevant du public non repris dans les autres sous-thèmes
+        note: plus cimetières
+        prefLabels:
+          fr: Autres établissements recevant du public
+        altLabels:
+          - Culture Société Service/ERP Autre
+      enseignement:
+        definition: Établissements scolaires et universitaires
+        prefLabels:
+          fr: Enseignement
+        altLabels:
+          - Culture Société Service/Enseignement
+      equipements-sportifs-culturels:
+        covadis: N_EQUIPEMENT_SPORTIF_OU_CULTUREL:
+        definition: Stades, gymnases, musées, cinéma …	
+        prefLabels:
+          fr: Équipements sportifs et culturels
+        altLabels:
+          - Culture Société Service/Équipement sportif ou culturel
+      patrimoine-culturel:
+        definition: Monuments historiques….
+        prefLabels:
+          fr: Patrimoine culturel
+        altLabels:
+          - Culture Société Service/Patrimoine culturel
+      sante-social:
+        definition: Établissements hospitaliers
+        prefLabels:
+          fr: Santé et social
+        altLabels:
+          - Culture Société Service/Santé Social
+      tourisme:
+        definition: Camping, gîtes…
+        prefLabels:
+          fr: Tourisme
+        altLabels:
+          - Culture Société Service/Tourisme
+  deplacements:
+    covadis: TRANSPORTS_DEPLACEMENT
+    prefLabels:
+      fr: Déplacements
+    children:
+      securite-routiere:
+        definition: Accidentologie, points noirs, etc
+        prefLabels:
+          fr: Sécurité routière
+        altLabels:
+          - Transports Déplacements/Sécurité routière
+      trafic:
+        definition: Trafic routier, schéma directeur d'exploitation de la route
+        prefLabels:
+          fr: Trafic
+        altLabels:
+          - Transports Déplacements/Trafic
+      transport-collectif:
+        covadis: N_TR_COLLECTIF
+        definition: Autorités organisatrices, lignes, arrêts, ...
+        note: y compris politique de déplacements sauf PDU -> /AMENAGEMENT_URBANISME/N_ZONAGES_PLANIFICATION
+        prefLabels:
+          fr: Transport collectif
+        altLabels:
+          - Transports Déplacements/Transport collectif
+      transport-de-marchandises:
+        covadis: N_TR_MARCHANDISE
+        definition: Fret routier, ferré, fluvial, maritime
+        prefLabels:
+          fr: Transport de marchandise
+        altLabels:
+          - Transports Déplacements/Transport de marchandise
+      transport-de-matieres-dangereuses:
+        covadis: N_TRANSPORT_DE_MATIERE_DANGEREUSE
+        definition: Itinéraires, trafics, volumes, canalisations, ...
+        prefLabels:
+          fr: Transport de matières dangereuses
+        altLabels:
+          - Transports Déplacements/Transport de matière dangereuse
+      transport-exceptionnel:
+        covadis: N_TR_EXCEPTIONNEL
+        definition: Itinéraires, trafics, volumes
+        prefLabels:
+          fr: Transport exceptionnel
+        altLabels:
+          - Transports Déplacements/Transport exceptionnel
+  developpement-durable-economie-socio-economie:
+    covadis: SOCIO_ECONOMIE
+    prefLabels:
+      fr: Développement durable, économie et socio-économie
+    children:
+      developpement-durable:
+        covadis: null
+        note: notamment ODD
+        prefLabels:
+          fr: Développement durable
+      economie:
+        covadis: null
+        note: y compris zonage économique, ...
+        prefLabels:
+          fr: Economie
+      evaluation-environnementale:
+        covadis: null
+        note: y compris évaluation environnementale, avis d'AE, ...
+        prefLabels:
+          fr: Evaluation environnementale
+      socio-economie:
+        covadis: null
+        prefLabels:
+          fr: Socio-économie
+  donnees-generiques:
+    covadis: DONNEE_GENERIQUE:
+    note: données de référence non métier et données d'habillage
+    prefLabels:
+      fr: Données génériques
+    children:
+      action-publique:
+        definition: Services administratifs (Etat, collectivités locales), circonscriptions d'intervention
+        prefLabels:
+          fr: Action publique
+        altLabels:
+          - Donnée générique/Action publique
+      decoupage-administratif:
+        covadis: N_ADMINISTRATIF:
+        definition: |
+          Limites administratives issues d'un traitement sur couches natives, dont contours "simplifiés" pour illustration
+          de carte
+        note: y compris limites non issues d'un traitement
+        prefLabels:
+          fr: Découpage administratif
+        altLabels:
+          - Donnée générique/Administratif
+      decoupage-electoral:
+        prefLabels:
+          fr: Découpage électoral
+        altLabels:
+          - Donnée générique/Découpage électoral
+      demographie:
+        definition: Données démographiques, recensement
+        prefLabels:
+          fr: Démographie
+        altLabels:
+          - Donnée générique/Démographie
+      habillage-de-cartes:
+        covadis: N_HABILLAGE:
+        definition: Etiquettes pour habillage de cartes
+        prefLabels:
+          fr: Habillage de cartes
+        altLabels:
+          - Donnée générique/Habillage
+      intercommunalite:
+        definition: EPCI, syndicats et zonages associés
+        prefLabels:
+          fr: Intercommunalité
+        altLabels:
+          - Donnée générique/Intercommunalité
+      milieu-physique:
+        definition: Géologie, pédologie, données climatiques…
+        prefLabels:
+          fr: Milieu physique
+        altLabels:
+          - Donnée générique/Milieu physique
+      topographie-terrestre:
+        covadis:
+        note: |
+          ajout le 7/11/2021 pour classer les référentiels topographiques (IGN, MNT, ortho-photos, ...) hors MER_LITTORAL
+        prefLabels:
+          fr: Topographie terrestre
+  eau:
+    prefLabels:
+      fr: Eau
+    children:
+      alimentation-en-eau-potable:
+        covadis: N_AEP:
+        definition: Réseaux, station de pompage et de traitement, réservoirs
+        prefLabels:
+          fr: Alimentation en eau potable
+        altLabels:
+          - Eau/AEP
+      assainissement:
+        definition: STEP et leur point de rejet, réseau assainissement, stations de pompage, …	
+        prefLabels:
+          fr: Assainissement
+        altLabels:
+          - Eau/Assainissement
+      autres-utilisations-de-l-eau:
+        covadis: N_UTILISATION_AUTRE:
+        definition: Irrigation,  prélèvements, rejets, pollution….
+        prefLabels:
+          fr: Autres utilisations de l'eau
+        altLabels:
+          - Eau/Utilisation Autre
+      masses-d-eau:
+        covadis: N_MASSE_EAU:
+        definition: Masses d'eau DCE et autres masses d'eau (surface, cours d'eau, plan d'eau, souterraine..)
+        note: plus connaissance des zones humides
+        prefLabels:
+          fr: Masses d'eau
+        altLabels:
+          - Eau/Masse d'eau
+      ouvrages-eau:
+        covadis: N_OUVRAGE:
+        definition: |
+          plans d'eau, réservoirs, ORSFP, pisciculture, déversoirs d'orage, bassins d'orage, moulins,
+          usines hydroélectriques, bassins d'infiltration, bassins d'évaporation, digues, obstacles à l'écoulement
+        prefLabels:
+          fr: Ouvrages du domaine de l'eau
+        altLabels:
+          - Eau/Ouvrage
+      peche-en-eau-douce:
+        covadis: N_PECHE
+        definition: Réserve de pêche, police de la pêche,… (en eau douce)
+        prefLabels:
+          fr: Pêche en eau douce
+        altLabels:
+          - Eau/Pêche
+      surveillance-des-cours-d-eau:
+        covadis: N_SURVEILLANCE
+        definition: points de mesure, effractions constatées, ...
+        prefLabels:
+          fr: Surveillance des cours d'eau
+        altLabels:
+          - Eau/Surveillance
+      travaux-et-entretien-des-cours-d-eau:
+        covadis: N_TRAVAUX_ACTION
+        definition: Travaux sur linéaire, curage-dragage, drainages
+        prefLabels:
+          fr: Travaux et entretien des cours d'eau
+        altLabels:
+          - Eau/Travaux Action
+      zonages-eau:
+        definition: |
+          Zonage réglementaire : zones sensibles eutrophisation, zones vulnérables nitrates, zones sensibles pollution
+          pesticides, zones PMPOA, imperméabilisation, zones drainées, contrats de rivière, SAGE
+        prefLabels:
+          fr: Eau/Zonages Eau
+        altLabels:
+          - Eau/Zonages Eau
+  energie-reseaux-divers:
+    note: Ajout de ce qui concerne l'énergie et pas uniquement les réseaux
+    prefLabels:
+      fr: Énergie et réseaux divers
+    children:
+      amenagement-numerique-du-territoire:
+        covadis: N_AMENAGEMENT_NUMERIQUE_DES_TERRITOIRES
+        definition: Desserte, niveau de service
+        prefLabels:
+          fr: Aménagement numérique des territoires
+        altLabels:
+          - Réseau Énergie Divers/Aménagement numérique des territoires
+      autres-reseaux-et-autres-energies:
+        covadis: N_AUTRE
+        prefLabels:
+          fr: Autres réseaux et autres énergies
+        altLabels:
+          - Réseau Énergie Divers/Autre
+      electricite:
+        prefLabels:
+          fr: Énergie électrique
+        altLabels:
+          - Réseau Énergie Divers/Électricité
+      hydrocarbures:
+        covadis: N_HYDROCARBURE
+        definition: Pipe-line, etc
+        prefLabels:
+          fr: Hydrocarbures
+        altLabels:
+          - Réseau Énergie Divers/Hydrocarbure
+      telecommunications:
+        covadis: N_TELECOMMUNICATION
+        definition: Infra (pylône, fibre optique, )
+        prefLabels:
+          fr: Télécommunication
+        altLabels:
+          - Réseau Énergie Divers/Télécommunication
+  foncier-sol:
+    prefLabels:
+      fr: Foncier et sol
+    children:
+      foncier-agricole:
+        definition: Divisions, regroupements, changement propriétaires
+        prefLabels:
+          fr: Foncier agricole
+        altLabels:
+          - Foncier Sol/Foncier agricole
+      mutations-foncieres:
+        covadis: N_MUTATION_FONCIERE:
+        definition: Remembrement, travaux connexes
+        prefLabels:
+          fr: Mutations foncières
+        altLabels:
+          - Foncier Sol/Mutation foncière
+      occupation-du-sol:
+        covadis: N_OCCUPATION_SOL:
+        note: Y compris Corine Land Cover
+        prefLabels:
+          fr: Occupation du sol
+        altLabels:
+          - Foncier Sol/Occupation du sol
+      proprietes-foncieres:
+        covadis: N_PROPRIETE_FONCIERE:
+        definition: Propriétés bâties et non bâties
+        note: y compris cadastre, domaine public
+        prefLabels:
+          fr: Propriétés foncières
+        altLabels:
+          - Foncier Sol/Propriété foncière
+  foret:
+    prefLabels:
+      fr: Forêt
+    children:
+      defense-de-la-foret-contre-les-incendies:
+        covadis: N_DFCI
+        definition: Chemins d'accès, zonages, …
+        prefLabels:
+          fr: Défense de la forêt contre les incendies
+        altLabels:
+          - Forêt/DFCI
+      description-des-forets:
+        covadis: N_DESCRIPTION
+        definition: Espaces spécifiques, voirie et équipements hors DFCI
+        prefLabels:
+          fr: Description des forêts
+        altLabels:
+          - Forêt/Description
+      gestion-des-forets:
+        covadis: N_GESTION:
+        definition: PSG, réglementation des boisements, forêts de protection
+        prefLabels:
+          fr: Gestion des forêts
+        altLabels:
+          - Forêt/Gestion
+      reglements-forestiers:
+        covadis: N_REGLEMENT:
+        definition: |
+          Dossiers et descriptif : massifs boisés, forêts, forêts soumises, exploitations forestières, chemins
+          d'exploitation, parcelles de pépinières, …
+        prefLabels:
+          fr: Réglements forestiers
+        altLabels:
+          - Forêt/Règlement
+      transformation-de-la-foret:
+        covadis: N_TRANSFORMATION:
+        definition: Industries associés ou dérivées
+        prefLabels:
+          fr: Transformation de la forêt
+        altLabels:
+          - Forêt/Transformation
+  habitat-politique-de-la-ville:
+    prefLabels:
+      fr: Habitat et politique de la ville
+    children:
+      accession-a-la-propriete:
+        covadis: N_ACCESSION_PROPRIETE
+        definition: Zonages A, B et C, prêt à taux zéro
+        prefLabels:
+          fr: Accession à la propriété
+        altLabels:
+          - Habitat Politique de la ville/Accession Propriété
+      besoin-en-logements:
+        covadis: N_BESOINS_EN_LOGEMENT
+        definition: Demande de logement social, accueil des gens du voyage
+        note: plus hébergement d'urgence
+        prefLabels:
+          fr: Besoin en logements
+        altLabels:
+          - Habitat Politique de la ville/Besoins en logement
+      construction-de-logements:
+        covadis: N_CONSTRUCTION
+        definition: Zones  d'instruction des PC, nombre de logements, SHON, nombre de logements autorisés
+        note: y compris statistiques de permis de construire, règles de construction
+        prefLabels:
+          fr: Construction de logements
+        altLabels:
+          - Habitat Politique de la ville/Construction
+      habitat-indigne:
+        definition: Inventaire de l'habitat susceptible d'être indigne
+        prefLabels:
+          fr: Habitat indigne
+        altLabels:
+          - Habitat Politique de la ville/Habitat indigne
+      occupation-des-logements:
+        covadis: N_OCCUPATION_LOGEMENTS:
+        definition: Aides au logements, taux d'occupation
+        note: y compris suivi des loyers
+        prefLabels:
+          fr: Occupation des logements
+        altLabels:
+          - Habitat Politique de la ville/Occupation des logements
+      parc-de-logements:
+        covadis: N_PARC_LOGEMENTS:
+        definition: Résidences principales collectives, logements vacants, résidences secondaires
+        prefLabels:
+          fr: Parc de logements
+        altLabels:
+          - Habitat Politique de la ville/Parc Logements
+      parc-locatif-social:
+        definition: Zonage du locatif, hébergement d'urgence, logements en prêt locatif, PALULOS
+        prefLabels:
+          fr: Parc locatif social
+        altLabels:
+          - Habitat Politique de la ville/Parc locatif social
+      politique-de-la-ville:
+        covadis: N_POLITIQUE
+        definition: PRU, OPAH, SRU, ZUS, ZRU, ...
+        note: |
+          y compris quartier prioritaire, Programme local de l'habitat (PLH), Contrat urbain de cohésion sociale (CUCS)
+        prefLabels:
+          fr: Politique de la ville
+        altLabels:
+          - Habitat Politique de la ville/Politique
+      renovation-urbaine:
+        covadis: N_RENOVATION
+        definition: Financement ANAH, logements loyer intermédiaire
+        prefLabels:
+          fr: Rénovation urbaine
+        altLabels:
+          - Habitat Politique de la ville/Rénovation
+  infrastructures-de-transport:
+    covadis: TRANSPORT_INFRASTRUCTURE:
+    prefLabels:
+      fr: Infrastructures de transport
+    children:
+      aerien:
+        definition: Infrastructure aéroportuaire (aéroport)
+        prefLabels:
+          fr: Infrastructures de transport aérien
+        altLabels:
+          - Transports Infrastructure/Aérien
+      circulation-douce:
+        definition: Pistes cyclables, voies vertes, ...
+        prefLabels:
+          fr: Infrastructures de circulation douce
+        altLabels:
+          - Transports Infrastructure/Circulation douce
+      ferroviaire:
+        definition: Infrastructure ferrée, gares, ouvrage d'art
+        note: y compris métro et remontées mécaniques
+        prefLabels:
+          fr: Infrastructures de transport Ferroviaire
+        altLabels:
+          - Transports Infrastructure/Ferroviaire
+      fluvial:
+        definition: Réseau navigable, ouvrages de navigation
+        prefLabels:
+          fr: Infrastructures de transport fluvial
+        altLabels:
+          - Transports Infrastructure/Fluvial
+      maritime:
+        definition: Infrastructure portuaire
+        prefLabels:
+          fr: Infrastructures de transport maritime
+        altLabels:
+          - Transports Infrastructure/Maritime
+      plateformes-multimodales:
+        definition: Infrastructure des plate-formes multimodales
+        prefLabels:
+          fr: Plate-formes multimodales
+        altLabels:
+          - Transports Infrastructure/Plate-forme multimodale
+      routier:
+        definition: Infrastructure routière yc ouvrages d'art
+        note: yc lieux de covoiturage
+        prefLabels:
+          fr: Infrastructures de transports routier
+        altLabels:
+          - Transports Infrastructure/Routier
+  mer-littoral:
+    prefLabels:
+      fr: Mer et littoral
+    children:
+      autres-activites-en-mer-et-sur-le-littoral:
+        covadis: N_AUTRES_ACTIVITES
+        definition: Zones de drague, art dormant, Granulats marins, projets off-shore (y compris éoliennes ?)
+        note: y compris éoliennes en mer et énergie houlomotrice
+        prefLabels:
+          fr: Autres activités en mer et sur le tittoral
+        altLabels:
+          - Mer Littoral/Autres activités
+      chasse-maritime:
+        definition: Zones de chasse réglementée, concession de baux
+        prefLabels:
+          fr: Chasse maritime
+        altLabels:
+          - Mer Littoral/Chasse maritime
+      culture-marine:
+        definition: Cadastre conchylicole, classement sanitaire des zones de production des coquillages
+        prefLabels:
+          fr: Culture marine
+        altLabels:
+          - Mer Littoral/Culture marine
+      ecologie-du-littoral:
+        covadis: N_ECOLOGIE_LITTORAL:
+        definition: |
+          Évolution du trait de côte, qualité des eaux littorales, sites du conservatoire, Avifaune, habitats naturels,
+          arrêtés de biotope en mer, ZNIEFF en mer, sites inscrits/classés en mer, PNR en mer, RAMSAR, Natura 2000 en mer,
+          réserves naturelles en mer, sites ENS du CG, mammifères marins, Indicateurs de sensibilité
+        note: plus Inventaire permanent du LIttoral (IPLI)
+        prefLabels:
+          fr: Écologie du littoral
+        altLabels:
+          - Mer Littoral/Écologie du littoral
+      limites-administratives-speciales-en-mer-et-sur-le-littoral:
+        covadis: N_LIM_ADMIN_SPECIALE:
+        definition: |
+          Zone d'activité des préfectures maritimes, ligne de base, limite des 300m, limites des 1-3-6-12 miles nautiques
+          (ZEE), limites des communes et des départements en mer, limite du domaine public, limite de salure des eaux,
+          Lignes Transversales de la Mer
+        note: plus planification maritime
+        prefLabels:
+          fr: Limites administratives spéciales en mer et sur le littoral
+        altLabels:
+          - Mer Littoral/Limite administrative spéciale
+      lutte-anti-pollution-en-mer-et-sur-le-littoral:
+        covadis: N_LUTTE_ANTI-POLLUTION:
+        definition: Plan de pose de barrages, CNPE, plan de gestion de polluants
+        prefLabels:
+          fr: Lutte anti-pollution en mer et sur le littoral
+        altLabels:
+          - Mer Littoral/Lutte anti-pollution
+      navigation-maritime:
+        definition: |
+          Plaisance et mouillage, zones portuaires, nautique, plan de balisage, zones militaires, câbles sous-marins,
+          cantonnements, zones de navigation, balises/épaves
+        note: |
+          Y compris activités des CROSS et formation et qualification des gens de mer
+        prefLabels:
+          fr: Navigation maritime
+        altLabels:
+          - Mer Littoral/Navigation maritime
+      peche-maritime:
+        definition: Zones de pêche, gisements d'espèce, zones de pêches réglementées, autorisation
+        prefLabels:
+          fr: Pêche maritime
+        altLabels:
+          - Mer Littoral/Pêche maritime
+      topographie-marine-et-littorale:
+        definition: |
+          Trait de côte, typologie de l'estran, bathymétrie, sédimentologie, zones de sable, granulométrie, ESI, houle,
+          marées, zones inondables, rejets en mer, prises d'eau, sentier littoral, accès au DPM, aires de stationnement,
+          sites industriels, amers remarquables, cartes de navigation électroniques
+        note: |
+          définition Covadis initiale trop large avec risque de chevauchement avec d'autres thèmes
+          camping -> /CULTURE_SOCIETE_SERVICE/N_TOURISME
+          héliports/aérodromes -> /TRANSPORT_INFRASTRUCTURE/N_AERIEN
+        prefLabels:
+          fr: Topographie marine et littorale
+        altLabels:
+          - Mer Littoral/Topographie
+  nature-paysage-biodiversite:
+    prefLabels:
+      fr: Nature, paysage et biodiversité
+    children:
+      chasse:
+        definition: Plans et réserves de chasse, zones plan de chasse
+        prefLabels:
+          fr: Chasse
+        altLabels:
+          - Nature Paysage Biodiversité/Chasse
+      inventaires-nature-et-biodiversite:
+        covadis: N_INVENTAIRE_NATURE_BIODIVERSITE:
+        definition: ZNIEFF, ZICO, faune, flore et habitats
+        note: plus Plan National d'Actions sur des espèces
+        prefLabels:
+          fr: Inventaires nature et biodiversité
+        altLabels:
+          - Nature Paysage Biodiversité/Inventaire Nature Biodiversité
+      inventaires-paysages:
+        covadis: N_INVENTAIRE_PAYSAGE:
+        definition: Atlas des paysages ...
+        prefLabels:
+          fr: Inventaires Paysage
+        altLabels:
+          - Nature Paysage Biodiversité/Inventaire Paysage
+      zonages-nature:
+        definition: |
+          Zonage réglementaire et de gestion Nature : parc national, arrêté de protection de biotope, réserve naturelle,
+          zones humides Ramsar, Natura 2000, ...
+        note: |
+          - y compris SRCE
+          - non compris PNR -> /AMENAGEMENT_URBANISME/N_ZONAGES_AMENAGEMENT
+        prefLabels:
+          fr: Nature Paysage Biodiversité/Zonages Nature
+        altLabels:
+          - Nature Paysage Biodiversité/Zonages Nature
+      zonages-paysages:
+        definition: "Zonage réglementaire et de gestion paysage : sites classés, inscrits, ZPPAUP ..."
+        prefLabels:
+          fr: Nature Paysage Biodiversité/Zonages Paysage
+        altLabels:
+          - Nature Paysage Biodiversité/Zonages Paysage
+  nuisances:
+    covadis: NUISANCE
+    prefLabels:
+      fr: Nuisances
+    children:
+      bruit:
+        prefLabels:
+          fr: Bruit
+        altLabels:
+          - Nuisance/Bruit
+      dechets:
+        covadis: N_DECHET
+        definition: Ménagers, dangereux, mines, boues STEP, nucléaires… -  traitement
+        prefLabels:
+          fr: Déchets
+        altLabels:
+          - Nuisance/Déchet
+      icpe:
+        definition: ICPE
+        note: sous-thème ajouté par rapport à l'arborescence Covadis
+        prefLabels:
+          fr: ICPE
+      nuisances-electromagnetiques:
+        covadis: N_NUISSANCE_ELECTROMAGNETIQUE:
+        definition: Connaissance des nuisances électromagnétiques
+        prefLabels:
+          fr: Nuisances électromagnétiques
+        altLabels:
+          - Nuisance/Nuisance électromagnétique
+      pollution-des-sols:
+        covadis: N_POLLUTION_SOL:
+        prefLabels:
+          fr: Pollution des sols
+        altLabels:
+          - Nuisance/Pollution du sol
+  risque:
+    prefLabels:
+      fr: Risque
+    children:
+      avalanche:
+        definition: Prévention, connaissance du risque
+        prefLabels:
+          fr: Avalanche
+        altLabels:
+          - Risque/Avalanche
+      eruption-volcanique:
+        definition: Prévention, connaissance du risque
+        prefLabels:
+          fr: Eruptions volcaniques
+        altLabels:
+          - Risque/Eruption volcanique
+      gestion-des-risques:
+        covadis: N_GESTION_RISQUE
+        definition: |
+          Entreprises requisitionnables, plans de secours, limites de compétence des SPC, cours d'eau équipés pour
+          la surveillance des crues, documents communaux de synthèse, ...
+        note: y compris information et sensibilisation de la population
+        prefLabels:
+          fr: Gestion des risques
+        altLabels:
+          - Risque/Gestion du risque
+      inondation:
+        definition: Prévention, connaissance du risque
+        prefLabels:
+          fr: Inondation
+        altLabels:
+          - Risque/Inondation
+      mouvement-de-terrain:
+        definition: Prévention, connaissance du risque
+        prefLabels:
+          fr: Mouvement de terrain
+        altLabels:
+          - Risque/Mouvement de terrain
+      radon:
+        definition: Prévention, connaissance du risque
+        prefLabels:
+          fr: Radon
+        altLabels:
+          - Risque/Radon
+      risque-minier:
+        definition: Prévention, connaissance du risque
+        prefLabels:
+          fr: Risque minier
+        altLabels:
+          - Risque/Risque minier
+      risque-technologique:
+        definition: Connaissance des riques technologiques (industriels, nucléaires, technologiques, rupture de barrages)	
+        prefLabels:
+          fr: Risque technologique
+        altLabels:
+          - Risque/Risque technologique
+      seisme:
+        definition: Prévention, connaissance du risque
+        prefLabels:
+          fr: Séisme
+        altLabels:
+          - Risque/Séisme
+      zonages-risque-naturel:
+        definition: Zonages réglementaires (PPRI, PPRMT ….)
+        note: y compris Arrêtés de catastrophe naturelle (CatNat)
+        prefLabels:
+          fr: Zonages risque naturel
+        altLabels:
+          - Risque/Zonages Risque naturel
+      zonages-risque-technologique:
+        definition: Zonages réglementaires (PPRT)
+        prefLabels:
+          fr: Risque/Zonages Risque technologique
+        altLabels:
+          - Risque/Zonages Risque technologique
+  sites-industriels-production:
+    prefLabels:
+      fr: Sites industriels et production
+    children:
+      mines-carrieres-granulats:
+        covadis: N_MINE_CARRIERE_GRANULATS
+        note: y compris schéma des carrières et cadastre minier
+        prefLabels:
+          fr: Mines, carrières et granulats
+        altLabels:
+          - Site industriel Production/Mine Carrière Granulats
+      sites-de-production-d-energie:
+        covadis: N_SITE_DE_PRODUCTION_DENERGIE
+        definition: Y compris nucléaire, photovoltaique, non compris éolien
+        prefLabels:
+          fr: Sites de production d’énergie
+        altLabels:
+          - Site industriel Production/Site de production d'énergie
+      sites-eoliens:
+        covadis: N_SITE_EOLIEN:
+        prefLabels:
+          fr: Sites éoliens
+        altLabels:
+          - Site industriel Production/Site éolien
+      sites-industriels:
+        covadis: N_SITE_INDUSTRIEL:
+        prefLabels:
+          fr: Sites industriels
+        altLabels:
+          - Site industriel Production/Site industriel
 eof:

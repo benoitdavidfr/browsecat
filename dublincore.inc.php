@@ -46,10 +46,10 @@ class DublinCore {
       $ows_LowerCorner = explode(' ', (string)$cswRecord->ows_BoundingBox->ows_LowerCorner);
       $ows_UpperCorner = explode(' ', (string)$cswRecord->ows_BoundingBox->ows_UpperCorner);
       $mdrecord['dcat:bbox'] = [[
-        'southLat'=> $ows_LowerCorner[0],
-        'westLon'=>  $ows_LowerCorner[1],
-        'northLat'=> $ows_UpperCorner[0],
-        'eastLon'=>  $ows_UpperCorner[1],
+        'southLat'=> $ows_LowerCorner[0] ?? 'NON DEFINI',
+        'westLon'=>  $ows_LowerCorner[1] ?? 'NON DEFINI',
+        'northLat'=> $ows_UpperCorner[0] ?? 'NON DEFINI',
+        'eastLon'=>  $ows_UpperCorner[1] ?? 'NON DEFINI',
       ]];
     }
     $mdrecord['dublinCore'] = $cswRecord;

@@ -47,51 +47,50 @@ $schema:
       additionalProperties: false
       patternProperties:
         '^[-A-Za-z_]+$':
-          description: contenu du noeud
-          oneOf:
-            - description: noeud vide
-              type: 'null'
-            - description: noeud avec propriétés ou enfants
-              type: object
-              additionalProperties: false
-              properties:
-                short:
-                  description: nom court
-                  type: string
-                definition:
-                  description: explication en général issue du document source
-                  type: string
-                definitionInitiale:
-                  description: si la définition a été modifiée alors celle issue du document source
-                  type: string
-                note:
-                  description: commentaire complémentaire
-                  type: string
-                altLabels:
-                  description: liste de synonymes associées au noeud
-                  $ref: '#/definitions/labels'
-                hiddenLabels:
-                  description: liste d'étiquettes cachées associées au noeud, orthographe, graphie, ...
-                  $ref: '#/definitions/labels'
-                regexps:
-                  description: |
-                    liste d'expressions régulières utilisées pour classer une fiche à partir de ses champs textuels
-                  $ref: '#/definitions/labels'
-                children:
-                  description: sous-arborescence structuré avec un identifiant par noeud de niveau supérieur
-                  $ref: '#/definitions/tree'
+          description: contenu du noeud avec propriétés ou enfants
+          type: object
+          additionalProperties: false
+          properties:
+            short:
+              description: nom court
+              type: string
+            definition:
+              description: explication en général issue du document source
+              type: string
+            definitionInitiale:
+              description: si la définition a été modifiée alors celle issue du document source
+              type: string
+            note:
+              description: commentaire complémentaire
+              type: string
+            altLabels:
+              description: liste de synonymes associées au noeud
+              $ref: '#/definitions/labels'
+            hiddenLabels:
+              description: liste d'étiquettes cachées associées au noeud, orthographe, graphie, ...
+              $ref: '#/definitions/labels'
+            regexps:
+              description: |
+                liste d'expressions régulières utilisées pour classer une fiche à partir de ses champs textuels
+              $ref: '#/definitions/labels'
+            children:
+              description: sous-arborescence structuré avec un identifiant par noeud de niveau supérieur
+              $ref: '#/definitions/tree'
       
   type: object
   additionalProperties: false
   properties:
     title:
-      description: titre du catalogue
+      description: titre du document
+      type: string
+    $id:
+      description: identification du document
       type: string
     description:
-      description: commentaire sur le catalogue
+      description: commentaire sur le document
       type: string
     journal:
-      description: historique des modifications
+      description: historique des principales modifications
       type: string
     $schema:
       description: schema JSON du document
@@ -1227,7 +1226,6 @@ children:
           - pprmvt
           - catnat
           - catastrophe-naturelle
-        hiddenLabels:
           - Zonages Risque naturel
           - zonage risque naturel
           - risque/n_zonages_risque_naturel/id_gaspar

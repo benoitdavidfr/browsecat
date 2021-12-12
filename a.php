@@ -44,8 +44,8 @@ require_once __DIR__.'/catinpgsql.inc.php';
 require_once __DIR__.'/record.inc.php';
 require_once __DIR__.'/orgarbo.inc.php';
 require_once __DIR__.'/orginsel.inc.php';
-if (is_file(__DIR__.'/closed.inc.php'))
-  require_once __DIR__.'/closed.inc.php';
+//if (is_file(__DIR__.'/closed.inc.php'))
+  //require_once __DIR__.'/closed.inc.php';
 
 use Symfony\Component\Yaml\Yaml;
 
@@ -258,6 +258,15 @@ if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
       }
     }
     die("</ul>\n");
+  }
+  elseif ($_GET['action']=='themes') { // Affichage de la liste des thèmes avec le nom court
+    echo "<h2>Nomenclature des thèmes</h2>\n";
+    echo "<table border=1><th>code</th><th>étiquette</th><th>définition</th><th>note</th>\n";
+    foreach ($arbos['arboCovadis']->nodes() as $theme) {
+      echo "<tr><td>",$theme->short(),"</td><td>$theme</td>",
+            "<td>",$theme->definition(),"</td><td>",$theme->note(),"</td></tr>\n";
+    }
+    echo "</table>\n";
   }
   die();
 }
