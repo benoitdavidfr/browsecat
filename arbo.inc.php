@@ -45,6 +45,7 @@ class Concept extends Node {
   private array $regexps; // liste d'expression régulières utilisées pour classer une fiche à partir de ses champs textuels
   private ?string $definition; // champ définition
   private ?string $note; // champ note
+  private ?string $covadis; // soit la chaine Covadis, soit null si pas de Covadis, soit 'default' si Cvadis par défaut
   
   function __construct(array $path, array $labels, array $children=[]) {
     //echo "Concept::__construct(prefLabels: ",json_encode($prefLabels),")<br>\n";
@@ -56,6 +57,7 @@ class Concept extends Node {
     $this->regexps = $labels['regexps'] ?? [];
     $this->definition = $labels['definition'] ?? null;
     $this->note = $labels['note'] ?? null;
+    $this->covadis = in_array('covadis', array_keys($labels)) ? $labels['covadis'] : 'default';
     $this->children = $children;
   }
 
@@ -63,6 +65,8 @@ class Concept extends Node {
   function short(): string { return $this->short ? $this->short : $this->path[count($this->path)-1]; }
   function __toString(): string { return $this->prefLabels['fr'] ?? ''; }
   function prefLabel(string $lang='fr'): ?string { return $this->prefLabels[$lang] ?? null; }
+  function altLabels(): array { return $this->altLabels; }
+  function addAltLabel(string $label): void { $this->altLabels[] = $label; }
   function regexps() : array { return $this->regexps; }
   function definition() : ?string { return $this->definition; }
   function note() : ?string { return $this->note; }
@@ -82,6 +86,19 @@ class Concept extends Node {
   }
 
   function show(): void { echo '<pre>', Yaml::dump($this->asArray()), "</pre>\n"; }
+  
+  function covadis(): ?string { // reconstruit l'étiquette Covadis
+    if ($this->covadis === null)
+      return null; // le thème ou sous-thème n'existait pas dans l'arborescence Covadis
+    elseif ($this->covadis <> 'default')
+      return $this->covadis; // l'étiquette Covadis a été stockée dans la liste des thèmes
+    else {
+      $lkey = $this->path[count($this->path)-1];
+      if (count($this->path)==2)
+        $lkey = 'N_'.$lkey;
+      return str_replace(['-'], ['_'], strtoupper($lkey));
+    }
+  }
 };
 
 class Arbo extends Tree { // Arborescence de thèmes, chacun défini comme un Concept
@@ -157,6 +174,21 @@ class Arbo extends Tree { // Arborescence de thèmes, chacun défini comme un Co
       return $this->node($path)->short();
     else
       return null;
+  }
+
+  function addCovadis() { // ajoute les étiquettes Covadis
+    foreach ($this->children as $thid => $theme) {
+      if ($tcovadis = $theme->covadis()) {
+        $this->labels[strtolower($tcovadis)] = [$thid];
+        $theme->addAltLabel("/$tcovadis");
+        foreach ($theme->children() as $sthid => $stheme) {
+          if ($stcovadis = $stheme->covadis()) {
+            $this->labels[strtolower($stcovadis)] = [$thid, $sthid];
+            $stheme->addAltLabel("/$tcovadis/$stcovadis");
+          }
+        }
+      }
+    }
   }
 };
 

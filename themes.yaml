@@ -1,5 +1,5 @@
 title: Liste des thèmes et sous-thèmes du guichet dérivée de l'arborescence Covadis
-$id: http://bdavid.alwaysdata.net/browsecat/arbocovadis/themes.yaml
+$id: https://raw.githubusercontent.com/benoitdavidfr/browsecat/main/themes.yaml
 description: |
   Transformation de l'arborescence Covadis selon les principes suivants:
     - les clés sont en miniscules pour être plus faciles à utiliser en CKAN
@@ -10,7 +10,7 @@ journal: |
   10-12/12/2021:
     - création à partir du fichier de l'arborescence Covadis
 $schema:
-  $id: http://bdavid.alwaysdata.net/browsecat/arbocovadis.yaml#/$schema
+  $id: https://raw.githubusercontent.com/benoitdavidfr/browsecat/main/themes.yaml#/$schema
   definitions:
     labels:
       description: liste d'étiquettes associées au noeud
@@ -32,6 +32,7 @@ $schema:
             covadis:
               description: nom Covadis s'il ne peut être déduit des clés ou null s'il n'y a pas de correspondance Covadis
               type: [string, 'null']
+              pattern: '^[A-Z_]+$'
             definition:
               description: explication souvent issue du document source
               type: string
@@ -144,7 +145,7 @@ children:
         altLabels:
           - Air Climat/Changement climatique
       meteorologie:
-        covadis: METEO
+        covadis: N_METEO
         prefLabels:
           fr: Météorologie
         altLabels:
@@ -160,7 +161,7 @@ children:
       fr: Aménagement et urbanisme
     children:
       assiettes-des-servitudes:
-        covadis: ASSIETTE_SERVITUDE:
+        covadis: ASSIETTE_SERVITUDE
         prefLabels:
           fr: Assiettes des servitudes
         altLabels:
@@ -172,7 +173,7 @@ children:
         altLabels:
           - Aménagement Urbanisme/Politique européenne
       zonages-d-amenagement:
-        covadis: N_ZONAGES_AMENAGEMENT:
+        covadis: N_ZONAGES_AMENAGEMENT
         definition: PAYS, PNR, ZRR, OIN, EPF, Massifs de montagne, Contrats d'agglomération, ...
         note: plus Contrat de relance et de transition écologique (CRTE)
         prefLabels:
@@ -180,14 +181,14 @@ children:
         altLabels:
           - Aménagement Urbanisme/Zonages Aménagement
       zonages-d-etudes:
-        covadis: N_ZONAGES_ETUDE:
+        covadis: N_ZONAGES_ETUDE
         definition: Zonages INSEE (aires urbaines - unités urbaines - IRIS) et autres
         prefLabels:
           fr: Zonages d'études
         altLabels:
           - Aménagement Urbanisme/Zonages Étude
       zonages-de-planification:
-        covadis: N_ZONAGES_PLANIFICATION:
+        covadis: N_ZONAGES_PLANIFICATION
         definition: PLU, SCOT, SERVITUDES, DTA, PDU, PTU, LITTORAL, MONTAGNE, ...
         prefLabels:
           fr: Zonages de planification
@@ -199,7 +200,7 @@ children:
       fr: Culture, société et services
     children:
       autres-etablissements:
-        covadis: N_ERP_AUTRE:
+        covadis: N_ERP_AUTRE
         definition: Autres établissements recevant du public non repris dans les autres sous-thèmes
         note: plus cimetières
         prefLabels:
@@ -213,7 +214,7 @@ children:
         altLabels:
           - Culture Société Service/Enseignement
       equipements-sportifs-culturels:
-        covadis: N_EQUIPEMENT_SPORTIF_OU_CULTUREL:
+        covadis: N_EQUIPEMENT_SPORTIF_OU_CULTUREL
         definition: Stades, gymnases, musées, cinéma …	
         prefLabels:
           fr: Équipements sportifs et culturels
@@ -308,7 +309,7 @@ children:
         prefLabels:
           fr: Socio-économie
   donnees-generiques:
-    covadis: DONNEE_GENERIQUE:
+    covadis: DONNEE_GENERIQUE
     note: données de référence non métier et données d'habillage
     prefLabels:
       fr: Données génériques
@@ -320,7 +321,7 @@ children:
         altLabels:
           - Donnée générique/Action publique
       decoupage-administratif:
-        covadis: N_ADMINISTRATIF:
+        covadis: N_ADMINISTRATIF
         definition: |
           Limites administratives issues d'un traitement sur couches natives, dont contours "simplifiés" pour illustration
           de carte
@@ -341,7 +342,7 @@ children:
         altLabels:
           - Donnée générique/Démographie
       habillage-de-cartes:
-        covadis: N_HABILLAGE:
+        covadis: N_HABILLAGE
         definition: Etiquettes pour habillage de cartes
         prefLabels:
           fr: Habillage de cartes
@@ -370,7 +371,7 @@ children:
       fr: Eau
     children:
       alimentation-en-eau-potable:
-        covadis: N_AEP:
+        covadis: N_AEP
         definition: Réseaux, station de pompage et de traitement, réservoirs
         prefLabels:
           fr: Alimentation en eau potable
@@ -383,14 +384,14 @@ children:
         altLabels:
           - Eau/Assainissement
       autres-utilisations-de-l-eau:
-        covadis: N_UTILISATION_AUTRE:
+        covadis: N_UTILISATION_AUTRE
         definition: Irrigation,  prélèvements, rejets, pollution….
         prefLabels:
           fr: Autres utilisations de l'eau
         altLabels:
           - Eau/Utilisation Autre
       masses-d-eau:
-        covadis: N_MASSE_EAU:
+        covadis: N_MASSE_EAU
         definition: Masses d'eau DCE et autres masses d'eau (surface, cours d'eau, plan d'eau, souterraine..)
         note: plus connaissance des zones humides
         prefLabels:
@@ -398,7 +399,7 @@ children:
         altLabels:
           - Eau/Masse d'eau
       ouvrages-eau:
-        covadis: N_OUVRAGE:
+        covadis: N_OUVRAGE
         definition: |
           plans d'eau, réservoirs, ORSFP, pisciculture, déversoirs d'orage, bassins d'orage, moulins,
           usines hydroélectriques, bassins d'infiltration, bassins d'évaporation, digues, obstacles à l'écoulement
@@ -483,21 +484,21 @@ children:
         altLabels:
           - Foncier Sol/Foncier agricole
       mutations-foncieres:
-        covadis: N_MUTATION_FONCIERE:
+        covadis: N_MUTATION_FONCIERE
         definition: Remembrement, travaux connexes
         prefLabels:
           fr: Mutations foncières
         altLabels:
           - Foncier Sol/Mutation foncière
       occupation-du-sol:
-        covadis: N_OCCUPATION_SOL:
+        covadis: N_OCCUPATION_SOL
         note: Y compris Corine Land Cover
         prefLabels:
           fr: Occupation du sol
         altLabels:
           - Foncier Sol/Occupation du sol
       proprietes-foncieres:
-        covadis: N_PROPRIETE_FONCIERE:
+        covadis: N_PROPRIETE_FONCIERE
         definition: Propriétés bâties et non bâties
         note: y compris cadastre, domaine public
         prefLabels:
@@ -523,14 +524,14 @@ children:
         altLabels:
           - Forêt/Description
       gestion-des-forets:
-        covadis: N_GESTION:
+        covadis: N_GESTION
         definition: PSG, réglementation des boisements, forêts de protection
         prefLabels:
           fr: Gestion des forêts
         altLabels:
           - Forêt/Gestion
       reglements-forestiers:
-        covadis: N_REGLEMENT:
+        covadis: N_REGLEMENT
         definition: |
           Dossiers et descriptif : massifs boisés, forêts, forêts soumises, exploitations forestières, chemins
           d'exploitation, parcelles de pépinières, …
@@ -539,7 +540,7 @@ children:
         altLabels:
           - Forêt/Règlement
       transformation-de-la-foret:
-        covadis: N_TRANSFORMATION:
+        covadis: N_TRANSFORMATION
         definition: Industries associés ou dérivées
         prefLabels:
           fr: Transformation de la forêt
@@ -579,7 +580,7 @@ children:
         altLabels:
           - Habitat Politique de la ville/Habitat indigne
       occupation-des-logements:
-        covadis: N_OCCUPATION_LOGEMENTS:
+        covadis: N_OCCUPATION_LOGEMENTS
         definition: Aides au logements, taux d'occupation
         note: y compris suivi des loyers
         prefLabels:
@@ -587,7 +588,7 @@ children:
         altLabels:
           - Habitat Politique de la ville/Occupation des logements
       parc-de-logements:
-        covadis: N_PARC_LOGEMENTS:
+        covadis: N_PARC_LOGEMENTS
         definition: Résidences principales collectives, logements vacants, résidences secondaires
         prefLabels:
           fr: Parc de logements
@@ -616,7 +617,7 @@ children:
         altLabels:
           - Habitat Politique de la ville/Rénovation
   infrastructures-de-transport:
-    covadis: TRANSPORT_INFRASTRUCTURE:
+    covadis: TRANSPORT_INFRASTRUCTURE
     prefLabels:
       fr: Infrastructures de transport
     children:
@@ -689,7 +690,7 @@ children:
         altLabels:
           - Mer Littoral/Culture marine
       ecologie-du-littoral:
-        covadis: N_ECOLOGIE_LITTORAL:
+        covadis: N_ECOLOGIE_LITTORAL
         definition: |
           Évolution du trait de côte, qualité des eaux littorales, sites du conservatoire, Avifaune, habitats naturels,
           arrêtés de biotope en mer, ZNIEFF en mer, sites inscrits/classés en mer, PNR en mer, RAMSAR, Natura 2000 en mer,
@@ -700,7 +701,7 @@ children:
         altLabels:
           - Mer Littoral/Écologie du littoral
       limites-administratives-speciales-en-mer-et-sur-le-littoral:
-        covadis: N_LIM_ADMIN_SPECIALE:
+        covadis: N_LIM_ADMIN_SPECIALE
         definition: |
           Zone d'activité des préfectures maritimes, ligne de base, limite des 300m, limites des 1-3-6-12 miles nautiques
           (ZEE), limites des communes et des départements en mer, limite du domaine public, limite de salure des eaux,
@@ -711,7 +712,7 @@ children:
         altLabels:
           - Mer Littoral/Limite administrative spéciale
       lutte-anti-pollution-en-mer-et-sur-le-littoral:
-        covadis: N_LUTTE_ANTI-POLLUTION:
+        covadis: N_LUTTE_ANTI_POLLUTION
         definition: Plan de pose de barrages, CNPE, plan de gestion de polluants
         prefLabels:
           fr: Lutte anti-pollution en mer et sur le littoral
@@ -757,7 +758,7 @@ children:
         altLabels:
           - Nature Paysage Biodiversité/Chasse
       inventaires-nature-et-biodiversite:
-        covadis: N_INVENTAIRE_NATURE_BIODIVERSITE:
+        covadis: N_INVENTAIRE_NATURE_BIODIVERSITE
         definition: ZNIEFF, ZICO, faune, flore et habitats
         note: plus Plan National d'Actions sur des espèces
         prefLabels:
@@ -765,7 +766,7 @@ children:
         altLabels:
           - Nature Paysage Biodiversité/Inventaire Nature Biodiversité
       inventaires-paysages:
-        covadis: N_INVENTAIRE_PAYSAGE:
+        covadis: N_INVENTAIRE_PAYSAGE
         definition: Atlas des paysages ...
         prefLabels:
           fr: Inventaires Paysage
@@ -806,19 +807,20 @@ children:
         altLabels:
           - Nuisance/Déchet
       icpe:
+        covadis: null
         definition: ICPE
         note: sous-thème ajouté par rapport à l'arborescence Covadis
         prefLabels:
           fr: ICPE
       nuisances-electromagnetiques:
-        covadis: N_NUISSANCE_ELECTROMAGNETIQUE:
+        covadis: N_NUISSANCE_ELECTROMAGNETIQUE
         definition: Connaissance des nuisances électromagnétiques
         prefLabels:
           fr: Nuisances électromagnétiques
         altLabels:
           - Nuisance/Nuisance électromagnétique
       pollution-des-sols:
-        covadis: N_POLLUTION_SOL:
+        covadis: N_POLLUTION_SOL
         prefLabels:
           fr: Pollution des sols
         altLabels:
@@ -917,13 +919,13 @@ children:
         altLabels:
           - Site industriel Production/Site de production d'énergie
       sites-eoliens:
-        covadis: N_SITE_EOLIEN:
+        covadis: N_SITE_EOLIEN
         prefLabels:
           fr: Sites éoliens
         altLabels:
           - Site industriel Production/Site éolien
       sites-industriels:
-        covadis: N_SITE_INDUSTRIEL:
+        covadis: N_SITE_INDUSTRIEL
         prefLabels:
           fr: Sites industriels
         altLabels:
