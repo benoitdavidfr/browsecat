@@ -1,4 +1,5 @@
 <?php
+echo "Attention, fichier arbo.inc.php périmé<br>\n";
 /*PhpDoc:
 name: arbo.inc.php
 title: arbo.inc.php - arborescence de thèmes V2
@@ -17,13 +18,17 @@ doc: |
     - des altLabels et des hiddenLabels
   Le prefLabel fr peut être défini par le chemin des clés.
 journal: |
+  19/12/2021:
+    - remplacement de ce fichier par skos.inc.php et theme.inc.php afin de mieux modulariser les fonctionnalités
+      - skos.inc.php correspond aux fonctionnalités d'un thésaurus Skos
+      - theme.inc.php s'appuie sur skos.inc.php pour exploiter les thèmes
   28/11/2021:
     - ajout possibilité entrée de premier niveau vide
   7/11/2021:
     - ajout regexps
   6/11/2021:
     - passage en V2
-    - décomposition en 2 avec la créaation de tree.inc.php
+    - décomposition en 2 avec la création de tree.inc.php
   3/11/2021:
     - création
 includes: [../phplib/accents.inc.php, tree.inc.php]
@@ -103,7 +108,7 @@ class Concept extends Node {
 
 class Arbo extends Tree { // Arborescence de thèmes, chacun défini comme un Concept
   private bool $keyIsPrefLabel; // le prefLabel de chaque concept est-il le chemin défini par les clés ?
-  private array $labels=[]; // table des synonymes pour retrouver facilement le prefLabel, [$label -> $path]
+  private array $labels=[]; // table des synonymes pour retrouver facilement le concept, [$label -> $path]
 
   // standardise les étiquettes en remplaçant les catactères posant problèmes
   static function std(string $label): string { return str_replace(["’","’"],["'","'"], $label); }
@@ -179,12 +184,14 @@ class Arbo extends Tree { // Arborescence de thèmes, chacun défini comme un Co
   function addCovadis() { // ajoute les étiquettes Covadis
     foreach ($this->children as $thid => $theme) {
       if ($tcovadis = $theme->covadis()) {
-        $this->labels[strtolower($tcovadis)] = [$thid];
+        $this->labels[strtolower("/$tcovadis")] = [$thid];
         $theme->addAltLabel("/$tcovadis");
         foreach ($theme->children() as $sthid => $stheme) {
           if ($stcovadis = $stheme->covadis()) {
-            $this->labels[strtolower($stcovadis)] = [$thid, $sthid];
+            $this->labels[strtolower("/$tcovadis/$stcovadis")] = [$thid, $sthid];
             $stheme->addAltLabel("/$tcovadis/$stcovadis");
+            $this->labels[strtolower($stcovadis)] = [$thid, $sthid];
+            $stheme->addAltLabel($stcovadis);
           }
         }
       }

@@ -1,43 +1,60 @@
 <?php
 /*PhpDoc:
-title: orgarbo.inc.php - exploitation d'un référentiel des organisations fondé sur une arborescence
+title: orgarbo.inc.php - exploitation d'un référentiel des organisations fondé sur un thésaurus Skos
 name: orgarbo.inc.php
 doc: |
   Une org est un array constitué normalement au moins des champs
     - organisationName
     - electronicMailAddress
-  Gère les organisations mal définies listées dans l'entrée IMPRECIS de l'arbo des organisations.
+  Gère les organisations mal définies listées dans l'entrée IMPRECIS du thésaurus Skos
   Pour ces organisations, on complète leur nom par leur email.
 journal: |
+  19/12/2021:
+    - tranfert sur skos à la place de Arbo
   14/11/2021:
     - création
 */
-require_once __DIR__.'/arbo.inc.php';
+require_once __DIR__.'/skos.inc.php';
 
 use Symfony\Component\Yaml\Yaml;
 
-// Un OrgArbo référence une Arbo sous-jacente et propose de nouvelles méthodes fondées sur la structure org
-// Certaines de ces méthodes ayant même nom et pas même signature que celle de la classe Arbo
-// ArboOrg ne peut PAS hériter de Arbo
-class OrgArbo {
-  private Arbo $arbo; // l'arborescence sous-jacente
+// Un OrgConcept est un concept Skos auquel on ajoute le champ short
+class OrgConcept extends Concept {
+  protected ?string $short=null; // clé courte pour affichage synthétique
   
-  function __construct(string $filename) { $this->arbo = new Arbo($filename); }
+  function __construct(array $array, array $path, array $extra) { // init. récursivement un arbre à partir d'un array
+    //echo "Theme::__construct(array, path='/",implode('/',$path),"')\n";
+    $this->short = $array['short'] ?? null;;
+    
+    // remplit les champs $path et $children + appel récursif
+    parent::__construct($array, $path, $extra);
+  }
+  
+  function short(): string { return $this->short ? $this->short : $this->path[count($this->path)-1]; }
+};
+
+// Un OrgArbo référence un thésaurus sous-jacent et propose de nouvelles méthodes fondées sur la structure org
+// Certaines de ces méthodes ayant même nom et pas même signature que celle de la classe Scheme
+// OrgArbo ne peut PAS hériter de Scheme
+class OrgArbo {
+  private Scheme $scheme; // le thésaurus sous-jacent
+  
+  function __construct(string $filename) { $this->scheme = new Scheme(Yaml::parseFile($filename), 'OrgConcept'); }
   
   function orgIn(array $org): array { // l'org est-il défini ? Si oui renvoie son path, sinon [] ; gère IMPRECIS
     if (!isset($org['organisationName']))
       return [];
-    $path = $this->arbo->labelIn($org['organisationName']);
+    $path = $this->scheme->labelIn($org['organisationName']);
     if ($path <> ['IMPRECIS'])
       return $path;
     $nomPrecise = $org['organisationName'].' | '.($org['electronicMailAddress'] ?? 'noElectronicMailAddress');
-    return $this->arbo->labelIn($nomPrecise);
+    return $this->scheme->labelIn($nomPrecise);
   }
   
   // si imprecis alors renvoie le label augmenté qui doit être ajouté
   // permet d'identifier si un org a un nom imprécis,
   function imprecis(array $org): ?string {
-    $path = $this->arbo->labelIn($org['organisationName'] ?? '');
+    $path = $this->scheme->labelIn($org['organisationName'] ?? '');
     if ($path == ['IMPRECIS']) {
       $nomPrecise = $org['organisationName'].' | '.($org['electronicMailAddress'] ?? 'noElectronicMailAddress');
       return $nomPrecise;
@@ -48,14 +65,14 @@ class OrgArbo {
   
   function prefLabel(array $org, string $lang='fr'): ?string { // retrouve le prefLabel à partir de l'org
     if ($path = $this->orgIn($org))
-      return $this->arbo->node($path)->prefLabel($lang);
+      return $this->scheme->node($path)->prefLabel($lang);
     else
       return null;
   }
   
-  function short(array $org): ?string { // retrouve le nom court à partir d'un org
+  function short(array $org): ?string { // retrouve le nom court à partir d'une org
     if ($path = $this->orgIn($org))
-      return $this->arbo->node($path)->short();
+      return $this->scheme->node($path)->short();
     else
       return null;
   }
@@ -68,7 +85,7 @@ class OrgArbo {
     return false;
   }
 
-  function nodes(): array { return $this->arbo->nodes(); }
+  function nodes(): array { return $this->scheme->nodes(); }
 };
 
 

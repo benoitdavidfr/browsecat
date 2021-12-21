@@ -8,6 +8,8 @@ doc: |
   Les mdContacts de ces MDD ne sont parfois pas des organisations du pôle.
 
 journal: |
+  21/12/2021:
+    - migration de Arbo vers Taxonomy
   22/11/2021:
     - adaptation de certaines actions pour traiter aussi le format DCAT en utilisant les classes Record*
   15-16/11/2021:
@@ -36,12 +38,13 @@ includes:
   - mdvars2.inc.php
   - closed.inc.php
 */
-define('VERSION', "a.php 27/11/2021 10:42");
+define('VERSION', "a.php 21/12/2021 16:23");
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/cswserver.inc.php';
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
 require_once __DIR__.'/record.inc.php';
+require_once __DIR__.'/theme.inc.php';
 require_once __DIR__.'/orgarbo.inc.php';
 require_once __DIR__.'/orginsel.inc.php';
 //if (is_file(__DIR__.'/closed.inc.php'))
@@ -53,9 +56,10 @@ use Symfony\Component\Yaml\Yaml;
 
 // Liste des arborescences dans lesquelles les mots-clés sont recherchés 
 $arbos = [
-  'arboCovadis'=> new Arbo('arbocovadis.yaml'),
-  'annexesInspire'=> new Arbo('annexesinspire.yaml'),
-  'geozones'=> new Arbo('geozones.yaml'),
+  'themes'=> new Taxonomy('themes.yaml'),
+  'arboCovadis'=> new Taxonomy('arbocovadis.yaml'),
+  'annexesInspire'=> new Taxonomy('annexesinspire.yaml'),
+  'geozones'=> new Taxonomy('geozones.yaml'),
 ];
 
 //echo "<!DOCTYPE HTML><html><head><meta charset='UTF-8'><title>browsecat</title></head><body>\n";
@@ -65,7 +69,7 @@ if (!CatInPgSql::chooseServer($_SERVER['HTTP_HOST']=='localhost' ? 'local' : 'di
 
 
 // Renvoie la liste prefLabels structurée par arbo, [ {arboid} => [ {prefLabel} ]]
-function prefLabels(array $keywords, array $arbos): array {
+/*function prefLabels(array $keywords, array $arbos): array {
   $prefLabels = []; // liste des prefLabels des mots-clés structuré par arbo, sous forme [arboid => [prefLabel => 1]]
   foreach ($keywords as $keyword) {
     //echo "<pre>"; print_r($keyword); echo "</pre>\n";
@@ -83,11 +87,11 @@ function prefLabels(array $keywords, array $arbos): array {
   }
   //echo "<pre>prefLabels(",Yaml::dump($keywords),") -> ",Yaml::dump($prefLabels),"</pre>";
   return $prefLabels;
-}
+}*/
 
 // Un au moins des mots-clés appartient-il à un au moins des thèmes ? Renvoie la liste des clés des thèmes
 // Si $options contient 'showKeywords' alors la liste des mots-clés est affichée
-function kwInArbos(array $keywords, array $arbos, array $options=[]): array {
+/*function kwInArbos(array $keywords, array $arbos, array $options=[]): array {
   static $keywordValuesShown = []; // liste des mots-clés affichés pour ne les afficher chacun qu'une seule fois
 
   $inArbos = []; // liste des arbos auquels un des mots-clés appartient, sous forme [arboid => 1]
@@ -111,7 +115,7 @@ function kwInArbos(array $keywords, array $arbos, array $options=[]): array {
   }
   ksort($inArbos);
   return array_keys($inArbos);
-}
+}*/
 
 if (!isset($_GET['cat'])) { // choix du catalogue ou actions globales
   if (!isset($_GET['action'])) { // liste des catalogues pour en choisir un
@@ -858,7 +862,7 @@ if ($_GET['action']=='nbMdParOrg') { // Dénombrement des MDD par organisation d
 if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du type $_GET[type] et par theme $_GET[arbo]
   // Seules les MDD du périmètre sont prises en compte
   echo "<h2>Dénombrement des MDD du périmètre par $_GET[type] et par thème de $_GET[arbo]</h2>\n";
-  function ligneThemes(Arbo $arbo, array $nbMdParTheme) { // ligne des themes en haut et en bas de l'affichage
+  function ligneThemes(Taxonomy $arbo, array $nbMdParTheme) { // ligne des themes en haut et en bas de l'affichage
     echo "<tr><td><center><b>org</b></center></td><td><center><b>S</b></center></td>\n";
     // Affichage des themes en en-têtes de colonnes
     foreach ($arbo->nodes() as $theme) {
@@ -886,13 +890,12 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
     echo "</form>\n";
   }
 
-  $nonClasse = new Concept(['NC'],['prefLabels'=>['fr'=>'NON CLASSE']]);
+  $arboOrgsPMin = new OrgArbo('orgpmin.yaml');
+  $nonClasse = new Theme(['prefLabels'=>['fr'=>'NON CLASSE'], 'short'=>'NC'], ['NC'], ['scheme'=> $arbos[$_GET['arbo']]]);
   $orgNonDefinies = [
-    //new Concept(['ND'],['short'=>'ORG NON DEF', 'prefLabels'=>['fr'=>'ORG NON DEF']]),
-    new Concept(['NOORG'],['short'=>'NO ORG', 'prefLabels'=>['fr'=>'NO ORG']]),
+    new OrgConcept(['short'=>'NO ORG', 'prefLabels'=>['fr'=>'NO ORG']], ['NOORG'], ['scheme'=> $arboOrgsPMin]),
   ];
 
-  $arboOrgsPMin = new OrgArbo('orgpmin.yaml');
   $nbMdParOrgTheme = []; // nb de MD par org. et par theme -> [{orgName} => [{theme} => nb]]
   $nbMdParOrg = []; // nb de MD par org -> [{orgName} => nb]
   $nbMdParTheme = []; // nb de MD par thème -> [{theme} => nb]
@@ -914,12 +917,22 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
     }
     $nbOrgs = count($shortNames);
 
-    $prefLabels = prefLabels($record['keyword'] ?? [], ['a'=>$arbos[$_GET['arbo']]]);
-    //echo "prefLabels()="; print_r($prefLabels); echo "<br>\n";
-    $nbThemes = count($prefLabels['a'] ?? ['xx']);
+    $prefLabels = [];
+    foreach ($record['keyword'] ?? [] as $keyword) {
+      if ($prefLabel = $arbos[$_GET['arbo']]->prefLabel($keyword['value'] ?? ''))
+        if (!in_array($prefLabel, $prefLabels))
+          $prefLabels[] = $prefLabel;
+    }
+    if (!$prefLabels)
+      $prefLabels = ['NON CLASSE'];
+    //echo "$tuple[title]<br>\n";
+    //echo "<pre>keywords="; print_r($record['keyword'] ?? []); echo "</pre>\n";
+    //echo "<pre>prefLabels()="; print_r($prefLabels); echo "\n</pre>\n";
+    $nbThemes = count($prefLabels);
+    
     foreach (array_keys($shortNames) as $shortName) {
       $nbMdParOrg[$shortName] = 1/$nbOrgs + ($nbMdParOrg[$shortName] ?? 0);
-      foreach ($prefLabels['a'] ?? ['NON CLASSE'] as $plabel) {
+      foreach ($prefLabels as $plabel) {
         //echo "$orgShortName X $plabel -> ",1/$nbOrgs/$nbThemes,"<br>\n";
         $nbMdParTheme[$plabel] = 1/$nbOrgs/$nbThemes + ($nbMdParTheme[$plabel] ?? 0);
         if (!isset($nbMdParOrgTheme[$shortName][$plabel]))
@@ -931,7 +944,7 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
     $nbMdd++;
   }
 
-  //print_r($nbMdParOrgTheme);
+  //echo "<pre>"; print_r($nbMdParOrgTheme); echo "</pre>\n";
   echo "<table border=1>\n";
   // Affichage des themes en en-têtes de colonnes
   ligneThemes($arbos[$_GET['arbo']], $nbMdParTheme);
@@ -977,6 +990,8 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
   echo "</tr>\n";
   echo "</table>\n";
   
+  //echo "<pre>",$arbos[$_GET['arbo']]->dump(),"</pre>\n";
+  
   // Enfin affichage de la liste des thèmes avec le nom court
   echo "<h2>Nomenclature des thèmes</h2>\n";
   echo "<table border=1><th>code</th><th>étiquette</th><th>définition</th><th>note</th>\n";
@@ -997,7 +1012,7 @@ if ($_GET['action']=='mddOrgTheme') { // liste les MDD avec org et theme
     (isset($_GET['org']) ? "$_GET[type]=\"$_GET[org]\" et " : ''),
     (isset($_GET['theme']) ? "$_GET[arbo]=\"$_GET[theme]\"" : ''),
     " (<a href='$mapurl'>map</a>)</h2><ul>\n";
-  $arboOrgsPMin = new Arbo('orgpmin.yaml');
+  $arboOrgsPMin = new OrgArbo('orgpmin.yaml');
   $sql = "select cat.id, title
           from catalog$_GET[cat] cat"
          .(isset($_GET['org']) ? ", catorg$_GET[cat] org" : '')
@@ -1008,7 +1023,7 @@ if ($_GET['action']=='mddOrgTheme') { // liste les MDD avec org et theme
     $sql .= "and cat.id=org.id and org.org='".str_replace("'","''", $_GET['org'])."'\n";
   if (isset($_GET['theme']))
     $sql .= "and cat.id=theme.id and theme.theme='".str_replace("'","''", $_GET['theme'])."'\n";
-  //echo "<pre>";
+  echo "<pre>$sql</pre>\n";
   foreach (PgSql::query($sql) as $tuple) {
     echo "<li><a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</a></li>\n";
   }

@@ -29,8 +29,12 @@ doc: |
   Regarder les droits à donner à browsecat
 
   Schéma:
+    - les ids des catalogues sont définis dans cats.inc.php
     - une table catalog${catid} qui stocke les MDD+S du catalogue ${catid} 
-    - 2 tables auxiliaires catorg${catid} et cattheme${catid} qui accélèrent la sélection des MDD pour un org et un thème
+    - 3 tables auxiliaires qui accélèrent la sélection des MDD
+      - catorg${catid} pour un org 
+      - cattheme${catid} pour un thème
+      - catbbox${catid} pour un bbox
   
   La démarche consiste à effectuer les modifications des données dans les 2 bases depuis localhost.
   
@@ -83,6 +87,10 @@ doc: |
     - explorer https://trouver.ternum-bfc.fr/ et la possibilité de le moissonner !
   
 journal: |
+  15/12/2021:
+    - ajout org.php
+  10-14/12/2021:
+    - ajout themes.yaml et themes.php
   5/12/2021:
     - ajout des modules diff et hierarchical
   1/12/2021:
