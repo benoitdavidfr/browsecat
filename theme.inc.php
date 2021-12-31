@@ -1,22 +1,13 @@
 <?php
 /*PhpDoc:
-title: theme.inc.php - organisation des thèmes
+title: theme.inc.php - organisation des thèmes du guichet
 name: theme.inc.php
 classes:
 doc: |
-  2 classes structurant les thèmes du guichet
-
   Définit 2 classes Theme et Taxonomy pour structurer et utiliser les thèmes du guichet ;
   ces 2 classes héritent respectivement de Concept et Scheme définis dans skos.inc.php
-  Concept et Scheme héritent elles-mêmes de Node défini dans node.inc.php
-  node.inc.php implémente la notion d'arbre de noeuds, où un noeud
-    - peut porter des champs complémentaires,
-    - est identifié dans l'arbre par un chemin
-  skos.inc.php implémente la notion de thésaurus Skos défini comme une forêt de Concepts
-  Theme rajoute à Concept:
-    - la définition d'une étiquette courte pour un affichage synthétique
-    - la définition d'expressions régulières pour rajouter des thèmes fondés sur des mots-clés du titre d'une fiche
-    - l'articulation avec l'arborescence Covadis
+  qui implémente la notion de thésaurus Skos défini comme une forêt de Concepts.
+  Ces 2 classes implémentent les spécificités des thèmes du guichet par rapport à SKOS.
   Ce fichier remplace le fichier arbo.inc.php, améliorant ainsi la modularisation des fonctionnalités
 journal: |
   18-19/12/2021:
@@ -35,7 +26,7 @@ doc: |
     - short est une chaine courte identifiant le concept pour un affichage synthétique
     - covadis fait le lien avec l'arborescence Covadis
     - regexps contient une liste de regexps pour tester le titre ou le titre alternatif d'une fiche de MD
-  Gère la strcuture keyword d'une fiche de MD
+      et afficher cette fiche à un thème.
 */
 class Theme extends Concept {
   protected ?string $short=null; // étiquette courte pour un affichage synthétique
@@ -79,18 +70,23 @@ name: Taxonomy
 title: class Taxonomy extends Scheme
 doc: |
   Classe des Taxonomy ; une taxonomie contient une forêt de thèmes
-  Ajoute à Scheme les fonctionnalités suivantes:
-    - définition du champ short des thèmes
-    - ajoute les chemins covadis des thèmes comme altLabels
-    - teste si dans un ensemble de mots-clés l'un d'eux correspond à un thème
-    - ajoute un thème aux mots-clés si une chaine matche un des regexps
+  Ajoute à Scheme les fonctionnalités suivantes liées à browsecat:
+    - à l'initialisation
+      - définition du champ short des thèmes
+      - ajoute les chemins covadis des thèmes comme altLabels
+    - diverses fonctionnalités exploitant des champs de fiches de MD
 */
 class Taxonomy extends Scheme {
+  protected string $id; // identifiant de la taxonomy
+  protected string $title; // titre de la taxonomy
   protected string $update; // date de dernière mise à jour sous la forme 'Y-m-d'
   
   function __construct(string $filename, string $childClass='Theme') { // init. récursivement un arbre à partir d'un array
     $this->update = date('Y-m-d', filemtime($filename));
-    parent::__construct(Yaml::parseFile($filename), $childClass);
+    $yaml = Yaml::parseFile($filename);
+    $this->id = $yaml['$id'];
+    $this->title = $yaml['title'];
+    parent::__construct($yaml, $childClass);
     $this->addCovadisAsAltLabels();
     $this->setShort();
   }
@@ -123,7 +119,7 @@ class Taxonomy extends Scheme {
       if (!$child->short())
         $child->setShort($short);
       $num0++;
-      $num = 0;
+      $num = 1;
       foreach ($child->children() as $subchild) {
         //$sshort = $short.$num++;
         //echo "sshort=$sshort\n";
@@ -141,7 +137,7 @@ class Taxonomy extends Scheme {
     return true;
   }
   
-  function prefLabelsFromKeywords(array $keywords): array { // retourne les prefLabels correspondant aux keywords
+  /*function prefLabelsFromKeywords(array $keywords): array { // retourne les prefLabels correspondant aux keywords
     $prefLabels = [];
     foreach ($keywords as $keyword) {
       if ($prefLabel = $this->prefLabel($keyword['value'] ?? ''))
@@ -149,6 +145,26 @@ class Taxonomy extends Scheme {
           $prefLabels[] = $prefLabel;
     }
     return $prefLabels;
+  }*/
+  
+  function prefLabelsFromThemes(array $themes): array { // retourne les prefLabels correspondant aux themes
+    $prefLabels = [];
+    foreach ($themes as $theme) {
+      if (!in_array($theme['value'], $prefLabels))
+        $prefLabels[] = $theme['value'];
+    }
+    return $prefLabels;
+  }
+  
+  function themePathsFromKeywords(array $keywords): array { // retourne les themes correspondant aux keywords
+    $paths = [];
+    foreach ($keywords as $keyword) {
+      if ($path = $this->labelIn($keyword['value'] ?? '')) {
+        if (!in_array($path, $paths))
+          $paths[] = $path;
+      }
+    }
+    return $paths;
   }
   
   // Teste les regexps des thèmes sur la liste de strings, renvoit la liste des thèmes pour lesquels le match est positif
@@ -171,7 +187,7 @@ class Taxonomy extends Scheme {
   
   // ajoute si possible un thème aux mots-clés en effectuant les tests regexp sur les strings
   // Renvoie vrai ssi au moins un thème a été détecté
-  function addThemeInKeywords(array &$keywords, array $strings): bool {
+  /*function addThemeInKeywords(array &$keywords, array $strings): bool {
     echo "title: $strings[0]<br>\n";
     if (isset($strings[1])) {
       echo "&nbsp;&nbsp;alternative: $strings[1]<br>\n";
@@ -191,6 +207,51 @@ class Taxonomy extends Scheme {
       ];
     }
     return (bool)$matchThemes;
+  }*/
+  
+  // construit à partir de thèmes des enregistrements au format de la fiche de MD
+  function recordFromTheme(Theme $theme, string $source): array {
+    return [
+      '@id'=> $this->id.'#'.$theme->pathAsString(),
+      'value'=> $theme->prefLabel(),
+      'thesaurusTitle'=> $this->title,
+      'thesaurusDate'=> $this->update,
+      'thesaurusDateType'=> 'publication',
+      'thesaurusId'=> $this->id,
+      'source'=> $source,
+    ];
+  }
+
+  // déduit si possible un/des thèmes à partir des mots-clés
+  function deduceThemesFromKeywords(array $keywords, bool $verbose): array {
+    $listOfThemes = [];
+    foreach ($keywords as $keyword) {
+      if (($themePath = $this->labelIn($keyword['value'] ?? '')) && !in_array($themePath, $listOfThemes))
+        $listOfThemes[] = $themePath;
+    }
+    foreach ($listOfThemes as $i => $themePath) {
+      $listOfThemes[$i] = $this->recordFromTheme($this->node($themePath), 'from keywords');
+    }
+    return $listOfThemes;
+  }
+  
+  // déduit si possible un/des thèmes en effectuant les tests regexp sur les strings
+  // Renvoie la liste de thèmes à ajouter sous la forme d'enregistrements à ajouter à $record['themes']
+  function deduceThemesFromTitles(array $strings, bool $verbose): array {
+    if ($verbose) {
+      echo "title: $strings[0]<br>\n";
+      if (isset($strings[1]))
+        echo "&nbsp;&nbsp;alternative: $strings[1]<br>\n";
+    }
+    $listOfThemes = [];
+    if ($matchThemes = $this->testRegexps($strings)) {
+      foreach ($matchThemes as $regexp => $theme)
+        if ($verbose)
+          echo '&nbsp;&nbsp;<b>',$theme->prefLabel()," ($regexp)</b><br>\n";
+      // ajout du/des themes aux keywords
+      $listOfThemes[] = $this->recordFromTheme($theme, 'from titles');
+    }
+    return $listOfThemes;
   }
 };
 

@@ -87,6 +87,8 @@ elseif (!isset($_GET['action'])) { // choix d'une action sur le catalogue choisi
   echo "<li><a href='?cat=$_GET[cat]&amp;action=listAddedThemes'>Liste les fiches ayant un thème ajouté</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=deleteAddedThemes'>Suppression des thèmes ajoutés</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=addthemes'>Ajout themes</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=deleteParentTheme'>
+    Suppression d'un thème lorsque qu'un de ses fils est présent</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=chargethemes'>Charge cattheme$_GET[cat]</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=alternative'>Visualise alternative</a></li>\n";
   echo "</ul>\n";
@@ -168,6 +170,7 @@ elseif ($_GET['action'] == 'listAddedThemes') { // Liste les fiches ayant un th�
     }
   }
   echo "$nbWithAddedTheme fiches avec un thème ajouté<br>\n";
+  die();
 }
 
 // Supprime les thèmes ajoutés dans la liste des mots-clés, retourne vrai ssi les keywords ont été modifiés
@@ -213,7 +216,7 @@ if ($_GET['action'] == 'deleteAddedThemes') { // Suppression des thèmes ajouté
 }
 
 // essaie d'ajouter un thème en utilisant les regexp aux fiches de MD du catalogue $catid
-function addThemesInCat(Taxonomy $themes, string $catid): void {
+/*function addThemesInCat(Taxonomy $themes, string $catid): void {
   $cat = new CatInPgSql($catid);
   $nbNoKw = 0; // nb fiches n'ayant aucun mot-clé correspondant à un thème
   $nbAdded = 0; // nb fiches sur lesquelles un thème a été ajouté
@@ -240,11 +243,102 @@ function addThemesInCat(Taxonomy $themes, string $catid): void {
     printf("Ajout de thèmes pour %d / %d soit %.0f %%<br>\n", $nbAdded, $nbNoKw, $nbAdded/$nbNoKw*100);
   else
     echo "Toutes les fiches correspondent à un thème.<br>\n";
+}*/
+
+// essaie d'ajouter aux fiches de MD du catalogue $catid un/des thèmes en utilisant 1) les mots-clés et 2) les regexp
+function addThemesInCat(Taxonomy $themes, string $catid): void {
+  $cat = new CatInPgSql($catid);
+  $nbMd = 0; // nb fiches concernées
+  $nbDedFromKeywords = 0; // nb fiches pour lesquelles un thème a été déduit des mots-clés
+  $nbDedFromTitles = 0; // nb fiches pour lesquelles un thème a été déduit des titres
+  $sql = "select id,title,record from catalog$catid
+          where type in ('dataset','series','Dataset','Dataset,series') and perimetre='Min'";
+  foreach (PgSql::query($sql) as $tuple) {
+    $record = Record::create($tuple['record']);
+    $modified = false;
+    // Tente d'ajouter un/des thèmes
+    $titles = array_merge(
+      [$record['dct:title'][0]],
+      isset($record['dct:alternative'][0]) ? [$record['dct:alternative'][0]] : []);
+    $deducedThemes = [];
+    if ($deducedThemes = $themes->deduceThemesFromKeywords($record['keyword'] ?? [], true)) {
+      $nbDedFromKeywords++;
+    }
+    elseif ($deducedThemes = $themes->deduceThemesFromTitles($titles, true)) {
+      $nbDedFromTitles++;
+    }
+    if (1 || $deducedThemes) {
+      $record['themes'] = $deducedThemes;
+      $cat->updateRecord($tuple['id'], $record);
+    }
+    $nbMd++;
+  }
+  if ($nbMd)
+    printf("Sur %d fiches, %d ajouts de thèmes sur mots-clés et %d sur des titres soit au total %.0f %%<br>\n",
+      $nbMd, $nbDedFromKeywords, $nbDedFromTitles, ($nbDedFromKeywords+$nbDedFromTitles)/$nbMd*100);
+  else
+    echo "Aucune fiche sélectionnée.<br>\n";
 }
 
 if ($_GET['action'] == 'addthemes') { // Ajout de thèmes
+  ini_set('max_execution_time', 60);
   $themes = new Taxonomy('themes.yaml');
   addThemesInCat($themes, $_GET['cat']);
+}
+
+function themePathsToBeDeleted(array $themePaths, array $tuple): array { // construit la liste des themes parent à supprimer
+  $themePathsToBeDeleted = [];
+  foreach ($themePaths as $themePathChild) {
+    if (count($themePathChild) > 1) {
+      $themePathParent = array_slice($themePathChild, 0, count($themePathChild)-1);
+      //echo "child: ",implode('/',$themePathChild)," -> parent: ",implode('/',$themePathParent),"<br>\n";
+      if (in_array($themePathParent, $themePaths)) {
+        echo "Supprimer ",implode('/',$themePathParent)," pour \"$tuple[title]\"<br>\n";
+        $themePathsToBeDeleted[] = $themePathParent;
+      }
+    }
+  }
+  return $themePathsToBeDeleted;
+}
+
+function deleteThemeFromKeywords(Taxonomy $themes, Record &$record, array $themePathToBeDeleted): void {
+  $keywords = $record['keyword'] ?? [];
+  $deletedKeywords = $record['keyword-deleted'] ?? [];
+  foreach ($keywords as $ikw => $keyword) {
+    if (($path = $themes->labelIn($keyword['value'] ?? '')) && ($path == $themePathToBeDeleted)) {
+      $deletedKeywords[] = $keyword;
+      unset($keywords[$ikw]);
+    }
+  }
+  $record['keyword'] = array_values($keywords);
+  $record['keyword-deleted'] = $deletedKeywords;
+}
+
+// développement en cours interrompu du fait des incohérences rencontrées
+if ($_GET['action'] == 'deleteParentTheme') { // Suppression d'un thème lorsque qu'un de ses fils est présent
+  die("En cours de dév.");
+  $catid = $_GET['cat'];
+  $themes = new Taxonomy('themes.yaml');
+  $sql = "select id,title,record from catalog$catid
+          where type in ('dataset','series','Dataset','Dataset,series') and perimetre='Min'";
+  foreach (PgSql::query($sql) as $tuple) {
+    $record = Record::create($tuple['record']);
+    $before = ['keyword'=> $record['keyword'] ?? [], 'keyword-deleted'=> $record['keyword-deleted'] ?? []];
+    $themePaths = $themes->themePathsFromKeywords($record['keyword'] ?? []);
+    if (count($themePaths) < 2) continue;
+    $modified = false;
+    foreach (themePathsToBeDeleted($themePaths, $tuple) as $themePathToBeDeleted) {
+      deleteThemeFromKeywords($themes, $record, $themePathToBeDeleted);
+      $modified = true;
+    }
+    if ($modified) {
+      echo '<pre>',Yaml::dump([
+        'before'=>$before,
+        'after'=> ['keyword'=> $record['keyword'] ?? [], 'keyword-deleted'=> $record['keyword-deleted'] ?? []]
+      ], 8, 2),"</pre>\n";
+    }
+  }
+  die();
 }
 
 function chargethemes(Taxonomy $themes, string $catid) {
@@ -258,10 +352,16 @@ function chargethemes(Taxonomy $themes, string $catid) {
           where type in ('dataset','series','Dataset','Dataset,series') and perimetre='Min'";
   foreach (PgSql::query($sql) as $tuple) {
     $record = Record::create($tuple['record']);
-    $prefLabels = $themes->prefLabelsFromKeywords($record['keyword'] ?? []);
-    foreach ($prefLabels as $prefLabel) {
-      $prefLabel = str_replace("'", "''", $prefLabel);
-      PgSql::query("insert into cattheme$catid(id, theme) values('$tuple[id]', '$prefLabel')");
+    //$prefLabels = $themes->prefLabelsFromKeywords($record['keyword'] ?? []);
+    if ($record['themes'] ?? []) {
+      $prefLabels = $themes->prefLabelsFromThemes($record['themes']);
+      foreach ($prefLabels as $prefLabel) {
+        $prefLabel = str_replace("'", "''", $prefLabel);
+        PgSql::query("insert into cattheme$catid(id, theme) values('$tuple[id]', '$prefLabel')");
+      }
+    }
+    else {
+      PgSql::query("insert into cattheme$catid(id, theme) values('$tuple[id]', 'NON CLASSE')");
     }
   }
   
@@ -287,5 +387,37 @@ if ($_GET['action'] == 'alternative') { // Visualise alternative
   ksort($alts);
   foreach ($alts as $alt => $un)
     echo "$alt<br>\n";
+  die();
+}
+
+if ($_GET['action'] == 'statMultiThemes') {
+  $catid = $_GET['cat'];
+  $nbMd = 0;
+  $distribNbreThemes = [];
+  $sql = "select id,title,record from catalog$catid
+          where type in ('dataset','series','Dataset','Dataset,series') and perimetre='Min'";
+  foreach (PgSql::query($sql) as $tuple) {
+    $record = Record::create($tuple['record']);
+    $nbreThemes = count($record['themes']);
+    $distribNbreThemes[$nbreThemes] = 1 + ($distribNbreThemes[$nbreThemes] ?? 0);
+  }
+  ksort($distribNbreThemes);
+  foreach ($distribNbreThemes as $nbreThemes => $nbreMd) {
+    echo "$nbreThemes : ",
+      "<a href='?cat=$_GET[cat]&amp;action=statMultiThemesDetail&amp;nbreThemes=$nbreThemes'>$nbreMd</a><br>\n";
+  }
+  die();
+}
+
+if ($_GET['action'] == 'statMultiThemesDetail') {
+  $catid = $_GET['cat'];
+  $sql = "select id,title,record from catalog$catid
+          where type in ('dataset','series','Dataset','Dataset,series') and perimetre='Min'";
+  foreach (PgSql::query($sql) as $tuple) {
+    $record = Record::create($tuple['record']);
+    $nbreThemes = count($record['themes']);
+    if ($nbreThemes == $_GET['nbreThemes'])
+      echo "<a href='a.php?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</a><br>\n";
+  }
   die();
 }

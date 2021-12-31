@@ -5,6 +5,7 @@ name: skos.inc.php
 classes:
 doc: |
   2 classes Concept et Scheme pour gérer un thésaurus Skos
+  définies en héritant de la classe Node
 journal: |
   18-21/12/2021:
     - création
@@ -19,7 +20,8 @@ use Symfony\Component\Yaml\Yaml;
 name: Concept
 title: class Concept extends Node
 doc: |
-  Classe des concepts organisés comme une forêt dans un Scheme
+  Classe des concepts organisés comme une forêt dans un Schema de concepts (Scheme).
+  Les enfants d'un concept sont les concepts plus spécifiques
 */
 class Concept extends Node {
   protected array $prefLabels=[]; // [{lang}=> {label}]
@@ -47,6 +49,9 @@ class Concept extends Node {
         $scheme->labels[self::simplif($label)] = $path;
       }
     }
+    $this->definition = $array['definition'] ?? null;
+    $this->note = $array['note'] ?? null;
+    // j'ajoute la clé locale du concept dans les labels
     $scheme->labels[self::simplif($path[count($path)-1])] = $path;
   }
   
@@ -77,17 +82,19 @@ class Concept extends Node {
 name: Scheme
 title: class Scheme extends Node
 doc: |
-  Classe des Schemes contenant des concepts
+  Classe des Schemas de concepts contenant des concepts
 */
 class Scheme extends Node {
   protected $keyIsPrefLabel=false; // vrai ssi le prefLabel fr est le chemin du concept
   public array $labels=[]; // liste des synonymes permettant d'accéder aux concepts, [{label}=> {path}]
   
   function __construct(array $array, string $childClass='Concept') { // init. récursivement un arbre à partir d'un array
+    // Le paramètre $childClass permet de réutiliser cette méthode dans une classe héritée
     //echo "Scheme::__construct($childClass, array)\n";
     if ($array['keyIsPrefLabel'] ?? false)
       $this->keyIsPrefLabel = true;
     foreach ($array['children'] as $id => $child) {
+      // la référence au présent objet sera disponible dans les appels récursifs dans Concept::__construct() dans $extra
       $this->children[$id] = new $childClass($child ?? [], [$id], ['scheme'=> $this]);
     }
     ksort($this->labels);
@@ -96,7 +103,7 @@ class Scheme extends Node {
   function keyIsPrefLabel(): bool { return $this->keyIsPrefLabel; }
   //function asArray(string $option=''): array { return parent::asArray('extended'); }
 
-  function labelIn(string $label): array { // le label est-il défini ? Si oui renvoie son path, sinon []
+  function labelIn(string $label): array { // Si le label est défini alors renvoie son path, sinon []
     return $this->labels[Concept::simplif(Concept::std($label))] ?? [];
   }
   

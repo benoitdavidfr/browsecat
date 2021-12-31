@@ -1,4 +1,4 @@
-title: Liste des thèmes et sous-thèmes du guichet dérivée de l'arborescence Covadis
+title: Thèmes du guichet d'accès à la donnée de la transition écologique et de la cohésion des territoires
 $id: https://raw.githubusercontent.com/benoitdavidfr/browsecat/main/themes.yaml
 description: |
   Transformation de l'arborescence Covadis selon les principes suivants:
@@ -7,6 +7,8 @@ description: |
     - lorsque le nom Covadis ne peut pas être déduit du nom CKAN alors un champ covadis est précisé
     - le preflabel Covadis avec le / en altLabels
 journal: |
+  20-22/12/2021:
+    - ajout de regexps
   10-12/12/2021:
     - création à partir du fichier de l'arborescence Covadis
 $schema:
@@ -48,7 +50,13 @@ $schema:
                 '^(fr)$':
                   type: string
             altLabels:
-              description: liste de synonymes associées au noeud
+              description: liste de synonymes associés au noeud
+              $ref: '#/definitions/labels'
+            hiddenLabels:
+              description: liste de synonymes cachés associés au noeud
+              $ref: '#/definitions/labels'
+            regexps:
+              description: liste d'expressions régulières à appliquer sur les titres des jeux de données
               $ref: '#/definitions/labels'
             children:
               description: sous-arborescence structuré avec un identifiant par noeud de niveau supérieur
@@ -104,7 +112,10 @@ children:
           - produit phytosanitaire
           - produits phytosanitaires
         regexps:
-          - Cours d'eau entrant dans le champ d'application de la conditionnalité des aides directes de la Politique Agricole Commune
+          - ^N_COURS_EAU_CONDITION_L
+          - Cours d'eau entrant dans le champ d'application de la conditionnalité des aides directes de la Politique
+          - Cours d'eau au titre des BCAE et de la police de l'eau
+          - L_COURS_D_EAU_\d\d\d_CONDITIONNALITE_PAC_
       agro-alimentaire:
         definition: Industrie de transformation,
         prefLabels:
@@ -171,7 +182,7 @@ children:
           - TEPCV
         regexps:
           - PCAET
-          - Territoires à énergie positive et pour la croissance verte dits TEPCV
+          - Territoires? à énergie positive (et )?pour la croissance verte
       meteorologie:
         covadis: N_METEO
         note: y compris Climatologie
@@ -224,27 +235,12 @@ children:
           - .*_ASSIETTE_SUP_S
           - .*_GENERATEUR_SUP_S
           - AC2
-          - servitude A5
-          - servitude AC1
-          - servitude AC3
-          - servitude AC4
-          - servitude EL3
-          - servitude EL4
-          - servitude EL7
-          - servitude EL11
-          - servitude I6
-          - servitude JS1
-          - servitude PM1
-          - servitude PM2
-          - servitude PM3
-          - servitude PT1
-          - servitude PT2
-          - servitude PT3
-          - servitude T1
-          - servitude T8
-          - N_PM1_ASSIETTE_SUP_S
+          - servitudes? (A|EL|I|JS|P|T)
+          - N_.*_ASSIETTE_SUP_S
           - Projet ERIDAN assiette sup
           - Zones? agricoles? protégées? # Servitudes A9
+          - Servitudes? d'utilité publique
+          - servitudes d'utilté publique
       politique-europeenne-d-amenagement:
         definition: Interreg, anciens zonages 2, 5b, leader, urban, ...
         prefLabels:
@@ -254,7 +250,7 @@ children:
       zonages-d-amenagement:
         covadis: N_ZONAGES_AMENAGEMENT
         definition: PAYS, PNR, ZRR, OIN, EPF, Massifs de montagne, Contrats d'agglomération, ...
-        note: plus Contrat de relance et de transition écologique (CRTE) + PETR
+        note: plus Contrat de relance et de transition écologique (CRTE) + PETR + ZAD + friches urbaines
         prefLabels:
           fr: Zonages d'aménagement
         altLabels:
@@ -266,6 +262,8 @@ children:
         regexps:
           - Parc naturel regional
           - Zones? de revitalisation rurale
+          - zones? d'aménagement différé
+          - L_FRICHES_URBAINES_
       zonages-d-etudes:
         covadis: N_ZONAGES_ETUDE
         definition: Zonages INSEE (aires urbaines - unités urbaines - IRIS) et autres
@@ -276,11 +274,11 @@ children:
           - Aménagement Urbanisme / Zonages Étude
           - Zonages étude
         regexps:
-          - unités urbaines
+          - unités? urbaines?
+          - aires urbaines
           - Base Permanente de Equipements INSEE
           - Zonages INSEE
           - Bassins de vie de l'INSEE
-          - Unité urbaine
           - Zone d'emploi
           - Evolution de la tache urbaine
       zonages-de-planification:
@@ -461,10 +459,13 @@ children:
       transport-exceptionnel:
         covadis: N_TR_EXCEPTIONNEL
         definition: Itinéraires, trafics, volumes
+        note: y compris itinéraires autorisés pour le transport de bois rond
         prefLabels:
           fr: Transport exceptionnel
         altLabels:
           - Transports Déplacements/Transport exceptionnel
+        regexps:
+          - autorisée pour le transport de bois rond
   developpement-durable-economie-socio-economie:
     covadis: SOCIO_ECONOMIE
     prefLabels:
@@ -534,6 +535,13 @@ children:
           - EPCI compétence urbanisme
           - Secteur premier appel Service Départemental d'Incendie et de Secours
           - Services instructeurs ADS \(application des droits du sol\) des différentes communes
+          - Zone de compétence en aménagement de rivières
+          - Circonscriptions des louvetiers
+          - Maisons? de services a?u public
+          - Répartition des compétences police de l'eau
+          - Structures exerçant la compétence
+          - Structures exerçant tout ou partie de la compétence
+          - Secteur d'intervention des agents d'un service
       decoupage-administratif:
         covadis: N_ADMINISTRATIF
         definition: |
@@ -551,18 +559,30 @@ children:
           - "limites administratives et découpage des territoires : autres"
           - "limites administratives et découpage des territoires : limites administratives"
         regexps:
+          - ^N_COMMUNE
           - Contours départementaux
           - ^Communes \(
           - Communes rurales
           - Anciens cantons
           - Département et Métropole de Lyon
+          - Périmètre des (arrondissements|pays)
+          - Limites_commune_nouvelle_
+          - Communes_nouvelles_
       decoupage-electoral:
+        note: plus carte des élus
         prefLabels:
           fr: Découpage électoral
         altLabels:
           - Donnée générique/Découpage électoral
         regexps:
           - Circonscriptions cantonales
+          - Cantons en
+          - Cantons du département de
+          - Sénateurs de
+          - Députés de
+          - Maire par commune
+          - Conseillers généraux des cantons
+          - Conseillers régionaux
       demographie:
         definition: Données démographiques, recensement
         prefLabels:
@@ -610,7 +630,7 @@ children:
           - Intercommunalités
           - EPCI à fiscalité propre
           - Établissements? publics? de coopération intercommunale à fiscalité propre
-          #- Etablissement public de coopération intercommunale à fiscalité propre - Loire
+          - N_EPCI_ZSUP_
       milieu-physique:
         definition: Géologie, pédologie, données climatiques…
         prefLabels:
@@ -723,6 +743,7 @@ children:
           - Zones humides
           - Lit mineur
           - Lit Majeur
+          - Cartographie des cours d’eau
       ouvrages-hydrauliques:
         covadis: N_OUVRAGE
         definition: |
@@ -754,6 +775,8 @@ children:
           - poisson migrateur
           - poissons migrateurs
           - Pêche électrique
+        regexps:
+          - Lot de pêche surfacique
       surveillance-des-cours-d-eau:
         covadis: N_SURVEILLANCE
         definition: points de mesure, effractions constatées, ...
@@ -767,6 +790,9 @@ children:
           - prevision-de-crue-hydrologie-vig
           - Qualité et surveillance de l'eau (Programmes de surveillance, Réseaux de mesure)
           - Qualité-Pollution de l'eau
+        regexps:
+          - Stations hydrométriques
+          - Stations piézométriques
       travaux-et-entretien-des-cours-d-eau:
         covadis: N_TRAVAUX_ACTION
         definition: Travaux sur linéaire, curage-dragage, drainages
@@ -795,12 +821,16 @@ children:
           - législation en matière de ressources en eau
           - registre des zones protégées
         regexps:
-          - Zones? vulnérables?
-          - Zones? sensibles?
+          - Zones? vulnérables? # directive Nitrates
+          - Zones d'actions? renforcées?
+          - Zones? sensibles? # eaux résiduaires urbaines
           - Etangs soumis à la loi sur l'eau
           - Parties de cours d'eau abritant des frayères
           - Circonscriptions administratives de bassin
           - Schémas d'Aménagement et de Gestion des Eaux
+          - Zones? de répartition des eaux # restriction en eau
+          - cours d'eaux? au titre de la police de l'eau
+          - Cours d'eau référencés au titre de l'instruction du
   energie-reseaux-divers:
     covadis: RESEAU_ENERGIE_DIVERS
     note: Ajout de ce qui concerne l'énergie et pas uniquement les réseaux
@@ -817,6 +847,8 @@ children:
           fr: Aménagement numérique des territoires
         altLabels:
           - Réseau Énergie Divers/Aménagement numérique des territoires
+        regexps:
+          - stations Hertziennes
       autres-reseaux-et-autres-energies:
         covadis: N_AUTRE
         prefLabels:
@@ -837,6 +869,8 @@ children:
           - Lignes haute-tension
           - Pylones d’électricité
           - Postes de transformation
+          - transformateurs électriques
+          - L_POSTE_ELECTRIQUE
       hydrocarbures:
         covadis: N_HYDROCARBURE
         definition: Pipe-line, etc
@@ -847,6 +881,7 @@ children:
           - produit-petrolier
         regexps:
           - distribution de carburants
+          - Energie - Localisation des stations-service
           - Projet ERIDAN
       telecommunications:
         covadis: N_TELECOMMUNICATION
@@ -930,6 +965,7 @@ children:
         regexps:
           - DFCI
           - réglementation du débroussaillement
+          - Zone d'application légale du débroussaillement
       description-des-forets:
         covadis: N_DESCRIPTION
         definition: Espaces spécifiques, voirie et équipements hors DFCI
@@ -1005,6 +1041,8 @@ children:
           - gens-voyage
         regexps:
           - Capacités d'hébergement d’urgence
+          - équipements liés aux gens du voyage
+          - N_TERRAIN_GENS_VOYAGE_
       construction-de-logements:
         covadis: N_CONSTRUCTION
         definition: Zones  d'instruction des PC, nombre de logements, SHON, nombre de logements autorisés
@@ -1026,11 +1064,13 @@ children:
       occupation-des-logements:
         covadis: N_OCCUPATION_LOGEMENTS
         definition: Aides au logements, taux d'occupation
-        note: y compris suivi des loyers
+        note: y compris suivi des loyers, bassins d'habitat
         prefLabels:
           fr: Occupation des logements
         altLabels:
           - Habitat Politique de la ville/Occupation des logements
+        regexps:
+          - bassins d'habitat
       parc-de-logements:
         covadis: N_PARC_LOGEMENTS
         definition: Résidences principales collectives, logements vacants, résidences secondaires
@@ -1086,7 +1126,7 @@ children:
     prefLabels:
       fr: Infrastructures de transport
     altLabels:
-      - Réseaux de transport
+      #- Réseaux de transport
       - INFRASTRUCTURES - OUVRAGES D'ART/INFRASTRUCTURE DE TRANSPORT
     children:
       aerien:
@@ -1148,6 +1188,8 @@ children:
           - reseau-routier-national-non-conc
           - echangeurs
           - Centre routier
+        regexps:
+          - Routes à grande circulation
   mer-littoral:
     prefLabels:
       fr: Mer et littoral
@@ -1214,6 +1256,9 @@ children:
           - Natura 2000 au large
           - Natura 2000 en mer
           - Trait de côte
+        regexps:
+          - lutter contre et/ou palier les effets de l’érosion du trait de côte
+          - zone représentant le recul du trait de côte
       limites-administratives-speciales-en-mer-et-sur-le-littoral:
         covadis: N_LIM_ADMIN_SPECIALE
         definition: |
@@ -1233,6 +1278,8 @@ children:
           - limite transversale de la mer
           - 3 milles
           - 3-milles
+        regexps:
+          - Bande Littorale des 300 mètres relative à la baignade et la circulation des engins nautiques
       lutte-anti-pollution-en-mer-et-sur-le-littoral:
         covadis: N_LUTTE_ANTI_POLLUTION
         definition: Plan de pose de barrages, CNPE, plan de gestion de polluants
@@ -1261,6 +1308,8 @@ children:
           - ports de plaisance
           - port
           - ports
+        regexps:
+          - Zone interdite au mouillage des embarcations
       peche-maritime:
         definition: Zones de pêche, gisements d'espèce, zones de pêches réglementées, autorisation
         prefLabels:
@@ -1277,6 +1326,9 @@ children:
           - fisheries
           - pêche
           - pêche à pied
+        regexps:
+          - réglementant l'emploi du chalut dans les eaux
+          - portant réglementation de l'exercice du chalutage dans les eaux
       topographie-marine-et-littorale:
         covadis: N_TOPOGRAPHIE
         definition: |
@@ -1316,6 +1368,8 @@ children:
           - Réserves de chasse et de faune sauvage
           - zones d’unités de gestion du Chevreuil
           - Pays de chasse
+          - associations intercommunales de chasse agréée
+          - zones d’unités de gestion du Cerf
       inventaires-nature-et-biodiversite:
         covadis: N_INVENTAIRE_NATURE_BIODIVERSITE
         definition: ZNIEFF, ZICO, faune, flore et habitats
@@ -1398,6 +1452,8 @@ children:
           - protection de géotope
           - Arrêté de protection des habitats naturels
           - Schéma régional de cohérence écologique
+          - Zone Spéciale de Conservation
+          - Site d’Importance Communautaire
       zonages-paysage:
         definition: "Zonage réglementaire et de gestion paysage : sites classés, inscrits, ZPPAUP ..."
         prefLabels:
@@ -1418,6 +1474,7 @@ children:
           - Sites? inscrits?
           - Sites? classés?
           - Zones? de protection loi 1930
+          - Règlements Locaux de Publicité
   nuisances:
     covadis: NUISANCE
     prefLabels:
@@ -1436,8 +1493,10 @@ children:
         regexps:
           - classement sonore
           - Cartes? de bruit stratégique
+          - Cartes? Stratégiques? du Bruit
           - secteurs affectés par le bruit sur réseau
           - bruit Lden
+          - L_CLASS_SONORE_ROUTES_
       dechets:
         covadis: N_DECHET
         definition: Ménagers, dangereux, mines, boues STEP, nucléaires… -  traitement
@@ -1453,6 +1512,7 @@ children:
           - incinération de déchets
           - stockage de déchets dangereux
           - stockage de déchets non dangereux
+          - Installation de Traitement des Ordures Ménagères
           - maturation des machefers
       icpe:
         covadis: null
@@ -1483,9 +1543,9 @@ children:
   risque:
     prefLabels:
       fr: Risque
-    altLabels:
-      - Zones à risque naturel
-      - Natural risk zones
+    #altLabels:
+      #- Zones à risque naturel
+      #- Natural risk zones
     children:
       avalanche:
         definition: Prévention, connaissance du risque
@@ -1493,6 +1553,8 @@ children:
           fr: Avalanche
         altLabels:
           - Risque/Avalanche
+        regexps:
+          - N_COULOIRS_AVALANCHE_
       eruption-volcanique:
         definition: Prévention, connaissance du risque
         prefLabels:
@@ -1534,8 +1596,18 @@ children:
           - inondation;TRI
           - Prévisions des crues
         regexps:
+          - Territoire à risques d'inondation
           - Crue
+          - Atlas des Zones Inondables
+          - Plans d'actions pour la prévention des inondations
+          - Programmes d’Actions de Prévention des Inondations
+          - Inondation - Zones protégées par des digues
+          - Risque de submersion marine de retour
+          - Aléa de submersion marine
+          - zones basses potentiellement exposées aux submersions marines
           - Porter à connaissance submersion marine
+          - PAC submersion marine
+          - L_ALEA_REMONTEE_NAPPE_
       mouvement-de-terrain:
         definition: Prévention, connaissance du risque
         prefLabels:
@@ -1547,6 +1619,12 @@ children:
           - mouvement-terrain
           - cavité souterraine
           - cavités
+        regexps:
+          - exposées aux mouvements de terrain de type
+          - N_ARGILE_ALEA_
+          - N_ARGILE_RETRAIT_GONFLEMENT_
+          - n_mvt_terrains_
+          - n_alea_rga_s
       radon:
         definition: Prévention, connaissance du risque
         prefLabels:
@@ -1576,6 +1654,8 @@ children:
           fr: Séisme
         altLabels:
           - Risque/Séisme
+        regexps:
+          - Zones sismiques
       zonages-risque-naturel:
         definition: Zonages réglementaires (PPRI, PPRMT ….)
         note: y compris Arrêtés de catastrophe naturelle (CatNat)
@@ -1660,6 +1740,7 @@ children:
           - énergie éolienne
         regexps:
           - Zones de développement de l'éolien
+          - n_mat_eolien
       sites-industriels:
         covadis: N_SITE_INDUSTRIEL
         prefLabels:
@@ -1667,4 +1748,6 @@ children:
         altLabels:
           - Site industriel Production/Site industriel
           - /Activités humaines/Equipements économiques et techniques à terre/Implantations industrielles
+        regexps:
+          - Inventaire historique des sites industriels et activités de service \(BASIAS\)
 eof:

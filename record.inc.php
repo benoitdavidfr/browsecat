@@ -41,8 +41,8 @@ class Record implements ArrayAccess {
   }
 
   function offsetSet($offset, $value) {
-    if ($offset == 'keyword')
-      $this->record['keyword'] = $value;
+    if (in_array($offset, ['keyword', 'keyword-deleted','themes']))
+      $this->record[$offset] = $value;
     else
       throw new Exception("Record::offsetSet(offset=$offset) interdit");
   }

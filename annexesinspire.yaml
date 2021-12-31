@@ -1,4 +1,5 @@
 title: liste des annexes Inspire
+$id: https://raw.githubusercontent.com/benoitdavidfr/browsecat/main/annexesinspire.yaml
 $schema:
   $id: http://bdavid.alwaysdata.net/browsecat/annexesinspire.yaml#/$schema
   type: object

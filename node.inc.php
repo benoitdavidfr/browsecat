@@ -1,15 +1,27 @@
 <?php
 /*PhpDoc:
 name: node.inc.php
-title: node.inc.php - arbre de noeuds
+title: node.inc.php - dictionnaire généralisé par un arbre
 classes:
 doc: |
-  Réécriture de tree.inc.php pour
+  Gestion d'un structure généralisant le concept de dictionnaire par des clés définies par une liste de chaines de car. ;
+  la valeur est un objet Node qui un noeud de l'arbre ainsi défini et contient des enfants dans un champ children.
+  L'arbre peut aussi contenir des classes héréitées de Node.
+  Cette classe apporte principalment les fonctionnalités suivantes:
+    - initialisation de l'arbre à partir d'un array contenant d'un part un champ children contenant un dict. d'enfants
+      et d'autre part des champs supplémentaire qui seront portés par le noeud.
+    - accès à un noeud quelconque de l'arbre à partir de la racine de cet arbre par le chemin des clés des noeuds.
+    - linéarisation de l'arbre en doigts de gants pour faciliter son parcours dans une boucle foreach ; les clés sont
+      transformées en chaines de caractères dans lesquelles les éléments sont séparés par un '/'
+    - affichage de l'arbre sous la forme d'un sortie Yaml
+
+  Il s'agit d'une réécriture de tree.inc.php pour
     - fusionner les 2 classes Node et Tree en une seule classe Node
     - permettre dans une classe héritée de constuire un arbre d'objets de la classe héritée
-  Un arbre est constitué de noeuds ; chaque noeud est associé à son père au travers d'une clé.
-  Il est possible de définir des champs pour le noeud en créant une classe héritée de la classe Node
-  tout en bénéficiant des fonctionnalités définies pour Node.
+
+  Pour définir des champs au noeud, définir une classe héritant de la classe Node tout en bénéficiant des fonctionnalités
+  définies pour Node.
+  Exemple les classes Skos qui implémente un arbre définisant un Scheme et des Concepts SKOS simples.
 journal: |
   18-19/12/2021:
     - création par fork de tree.inc.php
@@ -18,9 +30,9 @@ require_once __DIR__.'/vendor/autoload.php';
 
 use Symfony\Component\Yaml\Yaml;
 
-class Node { // Noeud
-  protected array $path=[]; // chemin d'accès ds l'arbre comme liste de clés, chaque clé est string ne contenant pas '/'
-  protected array $children=[]; // dictionnaire des enfants, chacun comme Node ou objet d'une sous-classe
+class Node { // Un objet est un noeud de l'arbre qui peut ainsi être construit
+  protected array $path=[]; // chemin d'accès dans l'arbre comme liste de clés, chaque clé est string ne contenant pas '/'
+  protected array $children=[]; // dict. des enfants, chacun comme Node ou objet d'une sous-classe + un clé l'identifiant
 
   function path(): array { return $this->path; }
   function pathAsString(): string { return '/'.implode('/', $this->path); }
@@ -28,8 +40,7 @@ class Node { // Noeud
 
   // initialise récursivement un arbre à partir d'un array contenant l'info qui peut par exemple être issu d'un fichier Yaml
   // L'array contient notamment éventuellement un champ 'children' qui est le dictionnaire des enfants
-  // NON - Si la class Node est héritée avec d'autres champs alors l'initialisation crée des objets de la classe héritée
-  // Le champ $extra permet de passer des paramètres complémentaires dans les appels récursifs
+  // Le paramètre $extra permet de passer des paramètres complémentaires dans les appels récursifs
   function __construct(array $array, array $path=[], array $extra=[]) {
     $this->path = $path;
     /*foreach($this as $k => $v) { PAS UNE BONNE IDEE, skos a besoin de redéfinir ses champs
@@ -70,14 +81,14 @@ class Node { // Noeud
       return $this->children[$first]->node($path);
   }
 
-  function nodes(): array { // retourne le noeud + ses descendants sous la forme [{pathAsString} => Concept] sauf racine
+  function nodes(): array { // retourne le noeud + ses descendants sauf racine sous la forme [{pathAsString} => Node]
     $nodes = $this->path ? [$this->pathAsString()=> $this] : []; // le concept lui-même est un descendant si <> racine
     foreach ($this->children as $id => $child) // plus les descendants de ses enfants
       $nodes = array_merge($nodes, $child->nodes());
     return $nodes;
   }
 
-  function dump(array $options=[]): string {
+  function dump(array $options=[]): string { // effectue un affichage Yaml avec les paramètres level et indent 
     //echo Yaml::dump(['options'=> $options]);
     return Yaml::dump($this->asArray($options['asArrayOption'] ?? ''), $options['level'] ?? 8, $options['indent'] ?? 2);
   }

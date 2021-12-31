@@ -860,6 +860,7 @@ if ($_GET['action']=='nbMdParOrg') { // Dénombrement des MDD par organisation d
 }
 
 if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du type $_GET[type] et par theme $_GET[arbo]
+  // Evol le 24/12/2021 19:30, algo fondé sur le champ themes et non plus sur keyword
   // Seules les MDD du périmètre sont prises en compte
   echo "<h2>Dénombrement des MDD du périmètre par $_GET[type] et par thème de $_GET[arbo]</h2>\n";
   function ligneThemes(Taxonomy $arbo, array $nbMdParTheme) { // ligne des themes en haut et en bas de l'affichage
@@ -892,9 +893,8 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
 
   $arboOrgsPMin = new OrgArbo('orgpmin.yaml');
   $nonClasse = new Theme(['prefLabels'=>['fr'=>'NON CLASSE'], 'short'=>'NC'], ['NC'], ['scheme'=> $arbos[$_GET['arbo']]]);
-  $orgNonDefinies = [
-    new OrgConcept(['short'=>'NO ORG', 'prefLabels'=>['fr'=>'NO ORG']], ['NOORG'], ['scheme'=> $arboOrgsPMin]),
-  ];
+  $orgNonDefinie = 
+    new OrgConcept(['short'=>'NO ORG', 'prefLabels'=>['fr'=>'NO ORG']], ['NOORG'], ['scheme'=> $arboOrgsPMin]);
 
   $nbMdParOrgTheme = []; // nb de MD par org. et par theme -> [{orgName} => [{theme} => nb]]
   $nbMdParOrg = []; // nb de MD par org -> [{orgName} => nb]
@@ -918,6 +918,7 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
     $nbOrgs = count($shortNames);
 
     $prefLabels = [];
+    /* Version mot-clé
     foreach ($record['keyword'] ?? [] as $keyword) {
       if ($prefLabel = $arbos[$_GET['arbo']]->prefLabel($keyword['value'] ?? ''))
         if (!in_array($prefLabel, $prefLabels))
@@ -928,6 +929,14 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
     //echo "$tuple[title]<br>\n";
     //echo "<pre>keywords="; print_r($record['keyword'] ?? []); echo "</pre>\n";
     //echo "<pre>prefLabels()="; print_r($prefLabels); echo "\n</pre>\n";
+    */
+    // Version thèmes
+    foreach ($record['themes'] ?? [] as $theme) {
+      if ($theme['thesaurusId']=='https://raw.githubusercontent.com/benoitdavidfr/browsecat/main/themes.yaml')
+        $prefLabels[] = $theme['value'];
+    }
+    if (!$prefLabels)
+      $prefLabels = ['NON CLASSE'];
     $nbThemes = count($prefLabels);
     
     foreach (array_keys($shortNames) as $shortName) {
@@ -952,7 +961,7 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
   //echo "<tr>"; for($i=1;$i<=200;$i++) echo "<td>$i</td>"; echo "<tr>\n"; // numérotation des colonnes
   
   // affichage du contenu de la table org X theme
-  foreach(array_merge($arboOrgsPMin->nodes(), $orgNonDefinies) as $idorg => $org) {
+  foreach(array_merge($arboOrgsPMin->nodes(), [$orgNonDefinie]) as $idorg => $org) {
     if (!$org->prefLabel()) continue; // Noeud ingtermédiare ne correspondant pas à un concept
     $short = $org->short();
     if (!isset($nbMdParOrg[$short])) continue;
@@ -1023,7 +1032,7 @@ if ($_GET['action']=='mddOrgTheme') { // liste les MDD avec org et theme
     $sql .= "and cat.id=org.id and org.org='".str_replace("'","''", $_GET['org'])."'\n";
   if (isset($_GET['theme']))
     $sql .= "and cat.id=theme.id and theme.theme='".str_replace("'","''", $_GET['theme'])."'\n";
-  echo "<pre>$sql</pre>\n";
+  //echo "<pre>$sql</pre>\n";
   foreach (PgSql::query($sql) as $tuple) {
     echo "<li><a href='?cat=$_GET[cat]&amp;action=showPg&amp;id=$tuple[id]'>$tuple[title]</a></li>\n";
   }
