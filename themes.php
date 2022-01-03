@@ -3,9 +3,18 @@
 title: themes.php - gestion des thèmes après création de themes.yaml
 name: themes.php
 doc: |
+  Réécriture d'une partie des fonctionnalités de a.php et cmde.php en utilisant theme.inc.php
+  Un certain nombre de principes ont changé:
+    - les thèmes ajoutés sont définis dans le champ themes de la fiche de MD et plus dans keyword
+    - un thème est ajouté même quand il existe un mot-clé synonyme
+  Les dév. ont été interrompus le 22/12/2021.
+  Il serait utile de distinguer les cas où il existe un thème explicitemeent Covadis.
+
   Sans regexp sur agg 86% des données indexées par un thème
   Avec Regexp 27117 / 29134 match soit 93 %
 journal: |
+  15-22/12/2021:
+    - améliorations puis interuption
   13-14/12/2021:
     - création
 includes:
@@ -14,6 +23,7 @@ includes:
   - record.inc.php
   - orgarbo.inc.php
   - orginsel.inc.php
+  - theme.inc.php
 */
 require_once __DIR__.'/cats.inc.php';
 require_once __DIR__.'/catinpgsql.inc.php';
@@ -82,20 +92,27 @@ if (!isset($_GET['cat'])) { // actions globales ou choix d'un catalogue
 
 elseif (!isset($_GET['action'])) { // choix d'une action sur le catalogue choisi
   echo "Actions sur le catalogue:<ul>\n";
-  echo "<li><a href='?cat=$_GET[cat]&amp;action=listTitles'>Liste titres des fiches du périmètre avec lien</a></li>\n";
-  echo "<li><a href='?cat=$_GET[cat]&amp;action=listkws'>Liste les mots-clés des fiches non indexées</a></li>\n";
-  echo "<li><a href='?cat=$_GET[cat]&amp;action=listAddedThemes'>Liste les fiches ayant un thème ajouté</a></li>\n";
-  echo "<li><a href='?cat=$_GET[cat]&amp;action=deleteAddedThemes'>Suppression des thèmes ajoutés</a></li>\n";
-  echo "<li><a href='?cat=$_GET[cat]&amp;action=addthemes'>Ajout themes</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=listTitles'>Liste les titres des fiches du périmètre avec lien</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=listkws'>
+    Liste les mots-clés des fiches n'ayant aucun mot-clé synonyme d'un thème</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=listAddedThemes'>
+    Liste les fiches ayant un thème ajouté dans le champ keyword (périmé)</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=deleteAddedThemes'>
+    Suppression des thèmes ajoutés dans le champ keyword (périmé)</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=addthemes&amp;op=global'>
+    Ajout global dans le champ themes des thèmes déduits</a></li>\n";
+  echo "<li><a href='?cat=$_GET[cat]&amp;action=addthemes&amp;op=incremental'>
+    Ajout incremental dans le champ themes des thèmes déduits</a></li>\n";
+  //echo "<li><a href='?cat=$_GET[cat]&amp;action=addthemes'>Ajout dans le champ themes des thèmes déduits</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=deleteParentTheme'>
-    Suppression d'un thème lorsque qu'un de ses fils est présent</a></li>\n";
+    Suppression d'un thème lorsque qu'un de ses fils est présent (en dev)</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=chargethemes'>Charge cattheme$_GET[cat]</a></li>\n";
   echo "<li><a href='?cat=$_GET[cat]&amp;action=alternative'>Visualise alternative</a></li>\n";
   echo "</ul>\n";
   die();
 }
 
-if ($_GET['action'] == 'listTitles') { // Liste titres des fiches du périmètre avec lien
+if ($_GET['action'] == 'listTitles') { // Liste les titres des fiches du périmètre avec lien
   $sql = "select id,title from catalog$_GET[cat]
           where type in ('dataset','series','Dataset','Dataset,series')
             and perimetre='Min'";
@@ -105,7 +122,7 @@ if ($_GET['action'] == 'listTitles') { // Liste titres des fiches du périmètre
   die();
 }
 
-elseif ($_GET['action'] == 'listkws') { // Liste les mots-clés des fiches non indexées
+elseif ($_GET['action'] == 'listkws') { // Liste les mots-clés des fiches n'ayant aucun mot-clé synonyme d'un thème
   $themes = new Taxonomy('themes.yaml');
   $kwValues = []; // [value => ['label'=> label, 'nbre'=> nbre]]
   $nbreMdd = 0;
@@ -147,7 +164,7 @@ elseif ($_GET['action'] == 'listkws') { // Liste les mots-clés des fiches non i
   die();
 }
 
-elseif ($_GET['action'] == 'listAddedThemes') { // Liste les fiches ayant un thème ajouté
+elseif ($_GET['action'] == 'listAddedThemes') { // Liste les fiches ayant un thème ajouté dans le champ keyword (périmé)
   function existsAddedTheme(array $keywords): bool {
     foreach ($keywords as $keyword) {
       if (($thesaurusId = $keyword['thesaurusId'] ?? null)
@@ -169,7 +186,7 @@ elseif ($_GET['action'] == 'listAddedThemes') { // Liste les fiches ayant un th�
       $nbWithAddedTheme++;
     }
   }
-  echo "$nbWithAddedTheme fiches avec un thème ajouté<br>\n";
+  echo "$nbWithAddedTheme fiches avec un thème ajouté dans le champ keyword<br>\n";
   die();
 }
 
@@ -210,7 +227,7 @@ function deleteAddedThemesInCat(string $catid): void { // Supprime les thèmes a
   echo "$nbModified fiches modifiées dans $catid<br>\n";
 }
 
-if ($_GET['action'] == 'deleteAddedThemes') { // Suppression des thèmes ajoutés
+if ($_GET['action'] == 'deleteAddedThemes') { // Suppression des thèmes ajoutés dans le champ keyword (périmé)
   deleteAddedThemesInCat($_GET['cat']);
   die();
 }
@@ -245,23 +262,33 @@ if ($_GET['action'] == 'deleteAddedThemes') { // Suppression des thèmes ajouté
     echo "Toutes les fiches correspondent à un thème.<br>\n";
 }*/
 
-// essaie d'ajouter aux fiches de MD du catalogue $catid un/des thèmes en utilisant 1) les mots-clés et 2) les regexp
-function addThemesInCat(Taxonomy $themes, string $catid): void {
+// essaie d'ajouter aux fiches de MD du catalogue $catid un/des thèmes en utilisant
+// 1) les mots-clas Covadis, 2) les autres mots-clés et 3) les regexp sur les titres
+// $op peut valoir 'global' pour reconstruire tout ou 'incremental' pour ne traiter que les fiches n'ayant pas de thème
+function addThemesInCat(Taxonomy $themes, string $catid, string $op): void {
   $cat = new CatInPgSql($catid);
   $nbMd = 0; // nb fiches concernées
+  $nbDedFromCovadis = 0; // nb fiches pour lesquelles un thème a été déduit des mots-clés Covadis
   $nbDedFromKeywords = 0; // nb fiches pour lesquelles un thème a été déduit des mots-clés
   $nbDedFromTitles = 0; // nb fiches pour lesquelles un thème a été déduit des titres
   $sql = "select id,title,record from catalog$catid
           where type in ('dataset','series','Dataset','Dataset,series') and perimetre='Min'";
   foreach (PgSql::query($sql) as $tuple) {
     $record = Record::create($tuple['record']);
+    if ($op == 'incremental') {
+      if (isset($record['themes']))
+        continue;
+    }
     $modified = false;
     // Tente d'ajouter un/des thèmes
     $titles = array_merge(
       [$record['dct:title'][0]],
       isset($record['dct:alternative'][0]) ? [$record['dct:alternative'][0]] : []);
     $deducedThemes = [];
-    if ($deducedThemes = $themes->deduceThemesFromKeywords($record['keyword'] ?? [], true)) {
+    if ($deducedThemes = $themes->deduceThemesFromThesaurus($record['keyword'] ?? [], '!COVADIS!i', true)) {
+      $nbDedFromCovadis++;
+    }
+    elseif ($deducedThemes = $themes->deduceThemesFromKeywords($record['keyword'] ?? [], 2, true)) {
       $nbDedFromKeywords++;
     }
     elseif ($deducedThemes = $themes->deduceThemesFromTitles($titles, true)) {
@@ -274,16 +301,19 @@ function addThemesInCat(Taxonomy $themes, string $catid): void {
     $nbMd++;
   }
   if ($nbMd)
-    printf("Sur %d fiches, %d ajouts de thèmes sur mots-clés et %d sur des titres soit au total %.0f %%<br>\n",
-      $nbMd, $nbDedFromKeywords, $nbDedFromTitles, ($nbDedFromKeywords+$nbDedFromTitles)/$nbMd*100);
+    printf("Sur %d fiches, %d ajouts de thèmes sur mots-clés Covadis, %d ajouts de thèmes sur mots-clés"
+      ." et %d sur des titres soit au total %.0f %%<br>\n",
+      $nbMd, $nbDedFromCovadis, $nbDedFromKeywords, $nbDedFromTitles,
+      ($nbDedFromCovadis+$nbDedFromKeywords+$nbDedFromTitles)/$nbMd*100);
   else
     echo "Aucune fiche sélectionnée.<br>\n";
 }
 
-if ($_GET['action'] == 'addthemes') { // Ajout de thèmes
+if ($_GET['action'] == 'addthemes') { // Ajout global/incrémental dans le champ themes des thèmes déduits
   ini_set('max_execution_time', 60);
   $themes = new Taxonomy('themes.yaml');
-  addThemesInCat($themes, $_GET['cat']);
+  addThemesInCat($themes, $_GET['cat'], $_GET['op']);
+  die();
 }
 
 function themePathsToBeDeleted(array $themePaths, array $tuple): array { // construit la liste des themes parent à supprimer
@@ -372,7 +402,7 @@ function chargethemes(Taxonomy $themes, string $catid) {
 if ($_GET['action'] == 'chargethemes') { // Charge cattheme$_GET[cat]
   $themes = new Taxonomy('themes.yaml');
   chargethemes($themes, $_GET['cat']);
-  die();
+  die("chargethemes sur $_GET[cat] ok<br>\n");
 }
 
 if ($_GET['action'] == 'alternative') { // Visualise alternative

@@ -363,6 +363,7 @@ children:
         regexps:
           - Cimetières
           - Etablissements Recevant du Public
+          - L_ACCESSIBILITE_DES_ERP
       enseignement:
         definition: Établissements scolaires et universitaires
         prefLabels:
@@ -437,6 +438,8 @@ children:
         altLabels:
           - Transports Déplacements/Transport collectif
           - "mobilité transport : déplacement collectif"
+        regexps:
+          - Points d'arrêts des TZen1
       transport-de-marchandises:
         covadis: N_TR_MARCHANDISE
         definition: Fret routier, ferré, fluvial, maritime
@@ -466,6 +469,7 @@ children:
           - Transports Déplacements/Transport exceptionnel
         regexps:
           - autorisée pour le transport de bois rond
+          - Réseau de transports Bois ronds
   developpement-durable-economie-socio-economie:
     covadis: SOCIO_ECONOMIE
     prefLabels:
@@ -538,6 +542,7 @@ children:
           - Zone de compétence en aménagement de rivières
           - Circonscriptions des louvetiers
           - Maisons? de services a?u public
+          - Maisons de service u public
           - Répartition des compétences police de l'eau
           - Structures exerçant la compétence
           - Structures exerçant tout ou partie de la compétence
@@ -568,6 +573,7 @@ children:
           - Périmètre des (arrondissements|pays)
           - Limites_commune_nouvelle_
           - Communes_nouvelles_
+          - Liste des communes .* faisant partie de la Communauté Urbaine
       decoupage-electoral:
         note: plus carte des élus
         prefLabels:
@@ -980,6 +986,7 @@ children:
       gestion-des-forets:
         covadis: N_GESTION
         definition: PSG, réglementation des boisements, forêts de protection
+        note: y c. forêts périvées
         prefLabels:
           fr: Gestion des forêts
         altLabels:
@@ -987,6 +994,7 @@ children:
           - forêt de protection
         regexps:
           - Régime particulier de gestion forestière
+          - Forets privées
       reglements-forestiers:
         covadis: N_REGLEMENT
         definition: |
@@ -1126,7 +1134,7 @@ children:
     prefLabels:
       fr: Infrastructures de transport
     altLabels:
-      #- Réseaux de transport
+      #- Réseaux de transport # attrape trop
       - INFRASTRUCTURES - OUVRAGES D'ART/INFRASTRUCTURE DE TRANSPORT
     children:
       aerien:
@@ -1152,12 +1160,16 @@ children:
           fr: Infrastructures de transport Ferroviaire
         altLabels:
           - Transports Infrastructure/Ferroviaire
+        regexps:
+          - Gares ferroviaires de voyageurs
       fluvial:
         definition: Réseau navigable, ouvrages de navigation
         prefLabels:
           fr: Infrastructures de transport fluvial
         altLabels:
           - Transports Infrastructure/Fluvial
+        regexps:
+          - Voies navigables
       maritime:
         definition: Infrastructure portuaire
         prefLabels:
@@ -1190,6 +1202,12 @@ children:
           - Centre routier
         regexps:
           - Routes à grande circulation
+          - Points de repères situés les routes
+          - N_PR_A75
+          - N_PR_P_
+          - Voirie locale
+          - Aires de covoiturage
+          - N_AIRE_COVOITURAGE_P
   mer-littoral:
     prefLabels:
       fr: Mer et littoral
@@ -1329,6 +1347,7 @@ children:
         regexps:
           - réglementant l'emploi du chalut dans les eaux
           - portant réglementation de l'exercice du chalutage dans les eaux
+          - Dénomination et délimitation des gisements naturels de pétoncles
       topographie-marine-et-littorale:
         covadis: N_TOPOGRAPHIE
         definition: |
@@ -1496,7 +1515,7 @@ children:
           - Cartes? Stratégiques? du Bruit
           - secteurs affectés par le bruit sur réseau
           - bruit Lden
-          - L_CLASS_SONORE_ROUTES_
+          - L_CLASS_SONORE_
       dechets:
         covadis: N_DECHET
         definition: Ménagers, dangereux, mines, boues STEP, nucléaires… -  traitement
@@ -1597,6 +1616,7 @@ children:
           - Prévisions des crues
         regexps:
           - Territoire à risques d'inondation
+          - Territoire à Risque Important d’inondation
           - Crue
           - Atlas des Zones Inondables
           - Plans d'actions pour la prévention des inondations

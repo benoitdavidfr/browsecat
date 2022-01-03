@@ -1003,10 +1003,13 @@ if ($_GET['action']=='nbMdParOrgTheme') { // Dén. des MDD par organisation du t
   
   // Enfin affichage de la liste des thèmes avec le nom court
   echo "<h2>Nomenclature des thèmes</h2>\n";
-  echo "<table border=1><th>code</th><th>étiquette</th><th>définition</th><th>note</th>\n";
+  echo "<table border=1><th>code</th><th>étiquette</th><th>nb</th><th>&nbsp;&nbsp;%&nbsp;&nbsp;&nbsp;</th>",
+        "<th>définition</th><th>note</th>\n";
   foreach (array_merge($arbos[$_GET['arbo']]->nodes(), [$nonClasse]) as $theme) {
-    if (isset($nbMdParTheme[(string)$theme]))
+    if ($nb = $nbMdParTheme[$theme->prefLabel()] ?? 0) 
       echo "<tr><td>",$theme->short(),"</td><td>$theme</td>",
+            "<td align='right'>",sprintf('%d', round($nb)),"</td>",
+            "<td align='right'>",sprintf('%d %%', round($nb/$nbMdd*100)),"</td>",
             "<td>",$theme->definition(),"</td><td>",$theme->note(),"</td></tr>\n";
   }
   echo "</table>\n";

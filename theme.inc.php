@@ -223,14 +223,36 @@ class Taxonomy extends Scheme {
   }
 
   // déduit si possible un/des thèmes à partir des mots-clés
-  function deduceThemesFromKeywords(array $keywords, bool $verbose): array {
+  function deduceThemesFromKeywords(array $keywords, int $levelMin, bool $verbose): array {
     $listOfThemes = [];
     foreach ($keywords as $keyword) {
-      if (($themePath = $this->labelIn($keyword['value'] ?? '')) && !in_array($themePath, $listOfThemes))
-        $listOfThemes[] = $themePath;
+      if (($themePath = $this->labelIn($keyword['value'] ?? ''))
+        && !in_array($themePath, $listOfThemes)
+        && (count($themePath) >= $levelMin))
+          $listOfThemes[] = $themePath;
     }
     foreach ($listOfThemes as $i => $themePath) {
       $listOfThemes[$i] = $this->recordFromTheme($this->node($themePath), 'from keywords');
+    }
+    return $listOfThemes;
+  }
+  
+  // déduit si possible un/des thèmes à partir des mots-clés d'un thésaurus particulier défini par un pattern sur son titre
+  function deduceThemesFromThesaurus(array $keywords, string $thesaurusTitlePattern, bool $verbose): array {
+    $listOfThemes = [];
+    foreach ($keywords as $keyword) {
+      //echo "<pre>keyword="; print_r($keyword); echo "</pre>\n";
+      if (preg_match($thesaurusTitlePattern, $keyword['thesaurusTitle'] ?? '')) {
+        //echo "$thesaurusTitlePattern ok<br>\n";
+        if (($themePath = $this->labelIn($keyword['value'] ?? '')) && !in_array($themePath, $listOfThemes))
+          $listOfThemes[] = $themePath;
+      }
+      else {
+        //echo "$thesaurusTitlePattern KO<br>\n";
+      }
+    }
+    foreach ($listOfThemes as $i => $themePath) {
+      $listOfThemes[$i] = $this->recordFromTheme($this->node($themePath), "from thesaurus $thesaurusTitlePattern");
     }
     return $listOfThemes;
   }
