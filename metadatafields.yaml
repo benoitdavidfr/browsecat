@@ -1,0 +1,481 @@
+title: liste des champs de métadonnées utilisés dans le moissonneur CSW/ISO de browsecat
+$id: https://raw.githubusercontent.com/benoitdavidfr/browsecat/main/metadatafields.yaml
+journal: |
+  12/1/2022:
+    - création du fichier Yaml à partir du fichier mdvars2.inc.php
+$schema:
+  $id: https://raw.githubusercontent.com/benoitdavidfr/browsecat/main/metadatafields.yaml#/$schema
+  type: object
+  properties:
+    title:
+      description: titre du document
+      type: string
+    $id:
+      description: identification du document
+      type: string
+    description:
+      description: commentaire sur le document
+      type: string
+    journal:
+      description: historique des principales modifications
+      type: string
+    $schema:
+      description: schema JSON du document
+      $ref: http://json-schema.org/draft-07/schema#
+    metadatafields:
+      description: dictionnaire des champs de métadonnées identifiés chacun par une clé
+      type: object
+      additionalProperties: false
+      patternProperties:
+        '^[-a-zA-Z:]+$':
+          description: |
+            description d'un champ de métadonnées ; un champ peut correspondre à une valeur simple, à une liste de valeurs
+            simples ou à des valeurs complexes décrites par des sous-champs
+          type: object
+          additionalProperties: false
+          required: [title-fr, title-en, inspire, xpath, multiplicity]
+          properties:
+            title-fr:
+              description: titre en français, si c'est un champ Inspire alors le libéllé Inspire est utilisé
+              type: string
+            title-en:
+              description: titre en anglais, si c'est un champ Inspire alors le libéllé Inspire est utilisé
+              type: string
+            inspire:
+              description: indique si le champ est imposé par le règlement Inspire
+              type: boolean
+            text:
+              description: signale une variable texte pour laquelle un affichage particulier HTML est effectué
+              const: 1
+            valueDomain:
+              description: fournit la liste des valeurs autorisées
+              type: array
+              items:
+                type: string
+            xpath:
+              description: chemin XPATH de l'élément dans ISO 19139
+              type: string
+            multiplicity:
+              description: multiplicité du champ pour une fiche de métadonnées de données et de service
+              type: object
+              additionalProperties: false
+              patternProperties:
+                '^(data|service)$':
+                  description: multiplicité pour une fiche de métadonnées de données ou de service
+                  type: [string,integer]
+                  enum:
+                    - 1
+                    - '0..1'
+                    - '0..*'
+                    - '1..*'
+            svars:
+              description: liste éventuelle de sous-champs si le champ est complexe, identifiés chacun par une clé
+              additionalProperties: false
+              patternProperties:
+                '^[-a-zA-Z]+$':
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    xpath:
+                      description: chemin du sous-champ
+                      type: string
+      
+metadatafields:
+  fileIdentifier:
+    title-fr: 'Identificateur du fichier'
+    title-en: 'File identifier'
+    inspire: false
+    xpath: '//gmd:MD_Metadata/gmd:fileIdentifier/*'
+    multiplicity:
+      data: 1
+      service: 1
+  parentIdentifier:
+    title-fr: 'Identificateur d''un parent'
+    title-en: 'Parent identifier'
+    inspire: false
+    xpath: '//gmd:MD_Metadata/gmd:parentIdentifier/*'
+    multiplicity:
+      data: '0..*'
+      service: '0..*'
+  aggregationInfo:
+    title-fr: 'métadonnées agrégées'
+    title-en: 'aggregated metadata'
+    inspire: false
+    xpath: '//gmd:identificationInfo/*/gmd:aggregationInfo'
+    svars:
+      aggregateDataSetIdentifier:
+        xpath: '//gmd:aggregationInfo/*/gmd:aggregateDataSetIdentifier/*/gmd:code/gco:CharacterString'
+      associationType:
+        xpath: '//gmd:associationType/*'
+      initiativeType:
+        xpath: '//gmd:initiativeType/*'
+    multiplicity:
+      data: '0..*'
+  'dct:title':
+    title-fr: 'Intitulé de la ressource'
+    title-en: 'Resource title'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/gmd:citation/*/gmd:title/gco:CharacterString'
+    multiplicity:
+      data: 1
+      service: 1
+  'dct:alternative':
+    title-fr: 'Intitulé alternatif de la ressource'
+    title-en: 'Alternate resource title'
+    inspire: false
+    xpath: '//gmd:identificationInfo/*/gmd:citation/*/gmd:alternateTitle/gco:CharacterString'
+    multiplicity:
+      data: '0..*'
+      service: '0..*'
+  'dct:description':
+    title-fr: 'Résumé de la ressource'
+    title-en: 'Resource abstract'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/gmd:abstract/gco:CharacterString'
+    text: 1
+    multiplicity:
+      data: 1
+      service: 1
+  'dct:type':
+    title-fr: 'Type de la ressource'
+    title-en: 'Resource type'
+    inspire: true
+    xpath: '//gmd:MD_Metadata/gmd:hierarchyLevel/gmd:MD_ScopeCode/@codeListValue'
+    valueDomain:
+      - series
+      - dataset
+      - services
+    multiplicity:
+      data: 1
+      service: 1
+  locator:
+    title-fr: 'Localisateur de la ressource'
+    title-en: 'Resource locator'
+    inspire: true
+    xpath: '//gmd:distributionInfo/*/gmd:transferOptions/*/gmd:onLine'
+    svars:
+      url:
+        xpath: '//gmd:onLine/*/gmd:linkage/gmd:URL'
+      protocol:
+        xpath: '//gmd:onLine/*/gmd:protocol/gco:CharacterString'
+      name:
+        xpath: '//gmd:onLine/*/gmd:name/gco:CharacterString'
+    multiplicity:
+      data: '0..*'
+      service: '0..*'
+  'dct:identifier':
+    title-fr: 'Identificateur de ressource unique'
+    title-en: 'Unique resource identifier'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/gmd:citation/*/gmd:identifier'
+    svars:
+      codeSpace:
+        xpath: '//gmd:identifier/*/gmd:codeSpace/gco:CharacterString'
+      code:
+        xpath: '//gmd:identifier/*/gmd:code/gco:CharacterString'
+    multiplicity:
+      data: '1..*'
+  operatesOn:
+    title-fr: 'Ressource Couplée'
+    title-en: 'Coupled resource'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/srv:operatesOn'
+    svars:
+      uuidref:
+        xpath: '//srv:operatesOn/@uuidref'
+      href:
+        xpath: '//srv:operatesOn/@xlink:href'
+    multiplicity:
+      service: '0..*'
+  'dct:language':
+    title-fr: 'Langue de la ressource'
+    title-en: 'Resource language'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/gmd:language/gmd:LanguageCode'
+    svars:
+      codeList:
+        xpath: '//gmd:LanguageCode/@codeList'
+      codeListValue:
+        xpath: '//gmd:LanguageCode/@codeListValue'
+    multiplicity:
+      data: '0..*'
+  distributionFormat:
+    title-fr: Encodage
+    title-en: 'Distribution format'
+    inspire: false
+    xpath: '//gmd:distributionInfo/*/gmd:distributionFormat'
+    svars:
+      name:
+        xpath: '//gmd:distributionFormat/*/gmd:name/gco:CharacterString'
+      version:
+        xpath: '//gmd:distributionFormat/*/gmd:version/gco:CharacterString'
+    multiplicity:
+      data: '1..*'
+  characterSet:
+    title-fr: 'Encodage des caractères'
+    title-en: 'Character set'
+    inspire: false
+    xpath: '//gmd:identificationInfo/*/gmd:characterSet/gmd:MD_CharacterSetCode/@codeListValue'
+    multiplicity:
+      data: 0..1
+  spatialRepresentationType:
+    title-fr: 'Type de représentation géographique'
+    title-en: 'Spatial representation type'
+    inspire: false
+    xpath: '//gmd:identificationInfo/*/gmd:spatialRepresentationType/gmd:MD_SpatialRepresentationTypeCode/@codeListValue'
+    multiplicity:
+      data: '1..*'
+  topicCategory:
+    title-fr: 'Catégorie thématique'
+    title-en: 'Topic category'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/gmd:topicCategory/gmd:MD_TopicCategoryCode'
+    multiplicity:
+      data: '1..*'
+    valueDomain:
+      - farming
+      - biota
+      - boundaries
+      - climatologyMeteorologyAtmosphere
+      - economy
+      - elevation
+      - environment
+      - geoscientificInformation
+      - health
+      - imageryBaseMapsEarthCover
+      - intelligenceMilitary
+      - inlandWaters
+      - location
+      - oceans
+      - planningCadastre
+      - society
+      - structure
+      - transportation
+      - utilitiesCommunication
+  serviceType:
+    title-fr: 'Type de service de données géographiques'
+    title-en: 'Spatial data service type'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/srv:serviceType/gco:LocalName'
+    multiplicity:
+      service: 1
+    valueDomain:
+      - discovery
+      - view
+      - download
+      - transformation
+      - invoke
+      - other
+  keyword:
+    title-fr: Mot-clé
+    title-en: Keyword
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/gmd:descriptiveKeywords'
+    svars:
+      value:
+        xpath: '//gmd:descriptiveKeywords/*/gmd:keyword/gco:CharacterString'
+      thesaurusTitle:
+        xpath: '//gmd:descriptiveKeywords/*/gmd:thesaurusName/*/gmd:title/gco:CharacterString'
+      thesaurusDate:
+        xpath: '//gmd:descriptiveKeywords/*/gmd:thesaurusName/*/gmd:date/*/gmd:date/gco:Date'
+      thesaurusDateType:
+        xpath: '//gmd:descriptiveKeywords/*/gmd:thesaurusName/*/gmd:date/*/gmd:dateType/gmd:CI_DateTypeCode/@codeListValue'
+      thesaurusId:
+        xpath: '//gmd:descriptiveKeywords/*/gmd:thesaurusName/*/gmd:identifier/*/gmd:code/gmx:Anchor/@xlink:href'
+    multiplicity:
+      data: '1..*'
+      service: '1..*'
+  'dcat:bbox':
+    title-fr: 'Rectangle de délimitation géographique'
+    title-en: 'Geographic bounding box'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/gmd:extent/*/gmd:geographicElement/gmd:EX_GeographicBoundingBox'
+    svars:
+      westLon:
+        xpath: '//gmd:EX_GeographicBoundingBox/gmd:westBoundLongitude/gco:Decimal'
+      eastLon:
+        xpath: '//gmd:EX_GeographicBoundingBox/gmd:eastBoundLongitude/gco:Decimal'
+      southLat:
+        xpath: '//gmd:EX_GeographicBoundingBox/gmd:southBoundLatitude/gco:Decimal'
+      northLat:
+        xpath: '//gmd:EX_GeographicBoundingBox/gmd:northBoundLatitude/gco:Decimal'
+    multiplicity:
+      data: '1..*'
+      service: '0..*'
+  spatial:
+    title-fr: 'Extension spatiale'
+    title-en: 'Spatial extension'
+    inspire: false
+    xpath: '//gmd:identificationInfo/*/gmd:extent/gmd:EX_Extent'
+    svars:
+      description:
+        xpath: '//gmd:EX_Extent/gmd:description/gco:CharacterString'
+      geographicIdentifier:
+        xpath: '//gmd:EX_Extent/gmd:geographicElement/*/gmd:geographicIdentifier/*/gmd:code/gco:CharacterString'
+    multiplicity:
+      data: '0..*'
+      service: '0..*'
+  'dct:temporal':
+    title-fr: 'Étendue temporelle'
+    title-en: 'Temporal extent'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/gmd:extent/*/gmd:temporalElement/*/gmd:extent/gml:TimePeriod'
+    svars:
+      begin:
+        xpath: '//gml:TimePeriod/gml:beginPosition'
+      end:
+        xpath: '//gml:TimePeriod/gml:endPosition'
+    multiplicity:
+      data: '0..*'
+      service: '0..*'
+  'dct:issued':
+    title-fr: 'Date de publication'
+    title-en: 'Date of publication'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/gmd:citation/*/gmd:date[./gmd:CI_Date/gmd:dateType/*/@codeListValue=''publication'']/gmd:CI_Date/gmd:date/gco:Date'
+    multiplicity:
+      data: '0..*'
+      service: '0..*'
+  'dct:modified':
+    title-fr: 'Date de dernière révision'
+    title-en: 'Date of last revision'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/gmd:citation/*/gmd:date[./gmd:CI_Date/gmd:dateType/*/@codeListValue=''revision'']/gmd:CI_Date/gmd:date/gco:Date'
+    multiplicity:
+      data: '0..*'
+      service: '0..*'
+  'dct:created':
+    title-fr: 'Date de création'
+    title-en: 'Date of creation'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/gmd:citation/*/gmd:date[./gmd:CI_Date/gmd:dateType/*/@codeListValue=''creation'']/gmd:CI_Date/gmd:date/gco:Date'
+    multiplicity:
+      data: '0..*'
+      service: '0..*'
+  'dct:provenance':
+    title-fr: Généalogie
+    title-en: Lineage
+    inspire: true
+    xpath: '//gmd:dataQualityInfo/*/gmd:lineage/*/gmd:statement/gco:CharacterString'
+    text: 1
+    multiplicity:
+      data: 1
+  spatialResolutionScaleDenominator:
+    title-fr: 'Résolution spatiale : dénominateur de l''échelle'
+    title-en: 'Spatial resolution: scale denominator'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/gmd:spatialResolution/*/gmd:equivalentScale/*/gmd:denominator/gco:Integer'
+    multiplicity:
+      data: '0..*'
+      service: '0..*'
+  spatialResolutionDistance:
+    title-fr: 'Résolution spatiale : distance'
+    title-en: 'Spatial resolution: distance'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/gmd:spatialResolution/*/gmd:distance'
+    svars:
+      unit:
+        xpath: '//gmd:distance/gco:Distance/@uom'
+      value:
+        xpath: '//gmd:distance/gco:Distance'
+    multiplicity:
+      data: '0..*'
+      service: '0..*'
+  'dct:conformsTo':
+    title-fr: Spécification
+    title-en: Specification
+    inspire: true
+    xpath: '//gmd:dataQualityInfo/*/gmd:report/*/gmd:result'
+    svars:
+      specificationDate:
+        xpath: '//gmd:result/*/gmd:specification/*/gmd:date/*/gmd:date/gco:Date'
+      specificationTitle:
+        xpath: '//gmd:result/*/gmd:specification/*/gmd:title/gco:CharacterString'
+      pass:
+        xpath: '//gmd:result/*/gmd:pass/gco:Boolean'
+    multiplicity:
+      data: '1..*'
+      service: '1..*'
+  useLimitation:
+    title-fr: 'Conditions d''utilisation'
+    title-en: 'Use conditions'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/gmd:resourceConstraints/*/gmd:useLimitation/gco:CharacterString'
+    text: 1
+    multiplicity:
+      data: '1..*'
+      service: '1..*'
+  accessConstraints:
+    title-fr: 'Restrictions concernant l’accès public'
+    title-en: 'Limitations on public access'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/gmd:resourceConstraints/gmd:MD_LegalConstraints'
+    svars:
+      code:
+        xpath: '//gmd:MD_LegalConstraints/gmd:accessConstraints/gmd:MD_RestrictionCode/@codeListValue'
+      others:
+        xpath: '//gmd:MD_LegalConstraints/gmd:otherConstraints/gco:CharacterString'
+    multiplicity:
+      data: '1..*'
+      service: '1..*'
+  classification:
+    title-fr: 'Contrainte de sécurité intéressant la Défense nationale'
+    title-en: Classification
+    inspire: false
+    xpath: '//gmd:identificationInfo/*/gmd:resourceConstraints/*/gmd:classification/gmd:MD_ClassificationCode/@codeListValue'
+    multiplicity:
+      data: '0..*'
+      service: '0..*'
+  responsibleParty:
+    title-fr: 'Partie responsable'
+    title-en: 'Responsible party'
+    inspire: true
+    xpath: '//gmd:identificationInfo/*/gmd:pointOfContact'
+    svars:
+      organisationName:
+        xpath: '//gmd:pointOfContact/*/gmd:organisationName/gco:CharacterString'
+      role:
+        xpath: '//gmd:pointOfContact/*/gmd:role/gmd:CI_RoleCode/@codeListValue'
+      individualName:
+        xpath: '//gmd:pointOfContact/*/gmd:individualName/gco:CharacterString'
+      electronicMailAddress:
+        xpath: '//gmd:pointOfContact/*/gmd:contactInfo/*/gmd:address/*/gmd:electronicMailAddress/gco:CharacterString'
+    multiplicity:
+      data: '1..*'
+      service: '1..*'
+  mdContact:
+    title-fr: 'Point de contact des métadonnées'
+    title-en: 'Metadata point of contact'
+    inspire: true
+    xpath: '//gmd:contact'
+    svars:
+      organisationName:
+        xpath: '//gmd:contact/*/gmd:organisationName/gco:CharacterString'
+      individualName:
+        xpath: '//gmd:contact/*/gmd:individualName/gco:CharacterString'
+      electronicMailAddress:
+        xpath: '//gmd:contact/*/gmd:contactInfo/*/gmd:address/*/gmd:electronicMailAddress/gco:CharacterString'
+    multiplicity:
+      data: '1..*'
+      service: '1..*'
+  mdDate:
+    title-fr: 'Date des métadonnées'
+    title-en: 'Metadata date'
+    inspire: true
+    xpath: '//gmd:dateStamp/gco:DateTime'
+    multiplicity:
+      data: 1
+      service: 1
+  mdLanguage:
+    title-fr: 'Langue des métadonnées'
+    title-en: 'Metadata language'
+    inspire: true
+    xpath: '//gmd:MD_Metadata/gmd:language/gmd:LanguageCode'
+    svars:
+      codeList:
+        xpath: '//gmd:LanguageCode/@codeList'
+      codeListValue:
+        xpath: '//gmd:LanguageCode/@codeListValue'
+    multiplicity:
+      data: 1
+      service: 1
